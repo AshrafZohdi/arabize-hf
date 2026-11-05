@@ -1,3 +1,4 @@
+import { ExplainPanel } from '../components/explain/ExplainPanel'
 import { PageTitle } from '../components/PageTitle'
 import { Segmented } from '../components/Segmented'
 import { useI18n } from '../i18n'
@@ -25,10 +26,7 @@ export function Home() {
       />
       <div className="flex flex-wrap items-start gap-5 sm:gap-7">
         <div className="flex min-w-0 flex-[999_1_600px] flex-col gap-5 sm:gap-7">
-          <section aria-labelledby="explain-h" className="card">
-            <h2 id="explain-h" className="m-0 font-display text-[22px] font-semibold text-maroon">{t('home.explainTitle')}</h2>
-            <p className="mb-0 text-muted">{t('placeholder.soon')}</p>
-          </section>
+          <ExplainPanel lang={explainLang} />
         </div>
         <aside className="flex min-w-0 flex-[1_1_340px] flex-col gap-5 sm:gap-7">
           <section aria-labelledby="code-h" className="card">

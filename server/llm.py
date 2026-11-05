@@ -392,6 +392,19 @@ class LLM:
         s = self.state
         return s if s in ("demo", "unconfigured") else None
 
+    def _record(self, feature: str, fixture_input: dict[str, Any] | None, output: Any, latency_ms: int) -> None:
+        """With DARBY_RECORD_FIXTURES set, save a real answer as a fixture (used to record the demo inputs)."""
+        if self.settings.record_dir is None or fixture_input is None:
+            return
+        import hashlib
+
+        name = hashlib.sha256(_canonical(fixture_input).encode()).hexdigest()[:12]
+        path = self.settings.record_dir / feature / f"{name}.json"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        data = {"input": fixture_input, "output": output, "recorded": {"model": self.settings.fanar_model, "latency_ms": latency_ms}}
+        path.write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
+        log.info("recorded fixture %s", path)
+
     def _mark_ready(self) -> None:
         self._state, self._waking_since = "ready", None
 
@@ -467,7 +480,9 @@ class LLM:
                     {"role": "user", "content": f"That was not valid. Problem: {error}. Reply again with the corrected JSON object only."},
                 ]
                 continue
-            return JsonResult(data, "fanar", int((self._clock() - started) * 1000), attempt)
+            latency = int((self._clock() - started) * 1000)
+            self._record(feature, fixture_input, data.model_dump(), latency)
+            return JsonResult(data, "fanar", latency, attempt)
         raise LLMBadOutput(error)
 
     async def json_stream(
@@ -535,7 +550,9 @@ class LLM:
 
         try:
             data = parse_json(raw, schema)
-            yield JsonEvent("result", result=JsonResult(data, "fanar", int((self._clock() - started) * 1000), 1))
+            latency = int((self._clock() - started) * 1000)
+            self._record(feature, fixture_input, data.model_dump(), latency)
+            yield JsonEvent("result", result=JsonResult(data, "fanar", latency, 1))
             return
         except ValueError as e:
             error = str(e)

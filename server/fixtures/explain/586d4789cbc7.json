@@ -1,0 +1,27 @@
+{
+ "input": {
+  "text": "Before you send the summary to the client, check it for hallucinations. Give the model more context in your prompt and ask it to cite the source paragraph.",
+  "lang": "msa",
+  "style": "work"
+ },
+ "output": {
+  "off_topic": false,
+  "explanation": "النص يوجهك للتحقق من الملخص قبل إرساله للعميل للتأكد من عدم وجود هلوسة. يجب عليك تزويد النموذج بمزيد من السياق في أمرك وطلب منه الاستشهاد بالفقرة المصدرية.",
+  "question": {
+   "question": "ما هو المصطلح التقني الأكثر أهمية في النص؟",
+   "options": [
+    "Hallucination",
+    "Prompt",
+    "Token",
+    "Context"
+   ],
+   "correct_index": 0,
+   "why": "الهلوسة هي المصطلح التقني الأكثر أهمية في النص لأنها تشير إلى خطأ شائع في نماذج الذكاء الاصطناعي."
+  },
+  "cards": []
+ },
+ "recorded": {
+  "model": "QCRI/Fanar-2-27B-Instruct",
+  "latency_ms": 13165
+ }
+}

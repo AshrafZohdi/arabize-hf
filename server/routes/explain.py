@@ -98,16 +98,16 @@ async def explain(body: ExplainIn, request: Request) -> Any:
     for m in matches:
         if m["has_card"] and m["id"] not in seen:
             seen.append(m["id"])
+    # The glossary file is ordered by the team, AI terms first, so its order is the importance order.
+    order = list(glossary.entries)
+    seen.sort(key=order.index)
     cards = [c for c in (glossary.card(i, body.lang) for i in seen) if c]
 
     async def events() -> AsyncIterator[str]:
         yield _sse("terms", {"matches": matches, "cards": cards})
 
         def fallback(reason: str) -> dict[str, Any]:
-            # The glossary file is ordered by the team, AI terms first, so its order is the importance order.
-            order = list(glossary.entries)
-            main = min(cards, key=lambda c: order.index(c["id"])) if cards else None
-            question = glossary_question(glossary, main, body.lang, body.text) if main else None
+            question = glossary_question(glossary, cards[0], body.lang, body.text) if cards else None
             return {"explanation": None, "question": question, "cards": [], "source": "glossary", "fallback": reason}
 
         system, user = build_explain_prompt(body.text, body.lang, body.style, [(c["term_en"], c["term_ar"]) for c in cards])

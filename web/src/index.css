@@ -116,3 +116,11 @@ a:hover { color: var(--maroon-deep); }
     scroll-behavior: auto !important;
   }
 }
+
+/* A right answer: the points float up and fade. Reduced motion turns it into a short static badge. */
+@keyframes points-fly {
+  0% { opacity: 0; transform: translateY(8px) scale(0.9); }
+  20% { opacity: 1; transform: translateY(0) scale(1.05); }
+  100% { opacity: 0; transform: translateY(-48px) scale(1); }
+}
+.points-fly { animation: points-fly 1.4s ease-out forwards; }

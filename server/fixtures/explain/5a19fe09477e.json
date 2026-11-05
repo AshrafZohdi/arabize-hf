@@ -1,0 +1,27 @@
+{
+ "input": {
+  "text": "Before you send the summary to the client, check it for hallucinations. Give the model more context in your prompt and ask it to cite the source paragraph.",
+  "lang": "en",
+  "style": "work"
+ },
+ "output": {
+  "off_topic": false,
+  "explanation": "The text advises checking a summary for hallucinations before sending it to a client. To avoid this, it suggests giving the AI model more context in the prompt and asking it to cite the source paragraph. This helps ensure the summary is accurate and reliable.",
+  "question": {
+   "question": "What should you do to avoid hallucinations in a summary before sending it to a client?",
+   "options": [
+    "Hallucination",
+    "Prompt",
+    "Token",
+    "Context"
+   ],
+   "correct_index": 1,
+   "why": "The correct answer is 'Prompt' because the text suggests giving the model more context in the prompt to avoid hallucinations."
+  },
+  "cards": []
+ },
+ "recorded": {
+  "model": "QCRI/Fanar-2-27B-Instruct",
+  "latency_ms": 11454
+ }
+}

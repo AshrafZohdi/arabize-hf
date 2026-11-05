@@ -339,3 +339,13 @@ def test_json_stream_cold_uses_fixture(settings, tmp_path):
     events = run(go())
     assert "".join(e.text for e in events if e.kind == "partial") == "شرح مسجل"
     assert events[-1].result.source == "fixture"
+
+
+def test_record_mode_saves_real_answers_as_fixtures(settings, tmp_path):
+    llm = LLM(replace(settings, record_dir=tmp_path / "rec"), client=FakeClient(GOOD), fixtures=Fixtures(tmp_path / "none"))
+    run(llm.json(feature="explain", system="s", user="u", schema=Card, max_tokens=50, fixture_input={"text": "Hi", "lang": "gulf"}))
+    (path,) = (tmp_path / "rec" / "explain").glob("*.json")
+    saved = json.loads(path.read_text(encoding="utf-8"))
+    assert saved["input"] == {"text": "Hi", "lang": "gulf"} and saved["output"]["term_ar"] == "الهلوسة"
+    # A recorded file is a valid fixture.
+    assert Fixtures(tmp_path / "rec").lookup("explain", {"text": "hi", "lang": "gulf"})["term_en"] == "Hallucination"

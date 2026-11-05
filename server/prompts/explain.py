@@ -89,6 +89,13 @@ STYLE_ASK: dict[str, str] = {
 }
 
 
+REMINDER: dict[str, str] = {
+    "en": "Write in simple English.",
+    "msa": "اكتب بالعربية الفصحى المبسطة.",
+    "gulf": "اكتب باللهجة الخليجية القطرية مثل كلام الزملاء في الدوام، مو بالفصحى.",
+}
+
+
 def build_explain_prompt(text: str, lang: str, style: str, known_terms: list[tuple[str, str]]) -> tuple[str, str]:
     """Return (system, user). known_terms are (english, arabic) pairs found in the text that already have a
     Darby glossary card, so the model does not spend time writing cards for them."""
@@ -116,4 +123,10 @@ def build_explain_prompt(text: str, lang: str, style: str, known_terms: list[tup
         ]
         if p
     )
-    return system, wrap_learner_text(text)
+    # Rules repeated next to where the model starts writing: in tests it drifted to MSA and wrote glossary cards
+    # when they were only in the system prompt.
+    reminder = [REMINDER[lang]]
+    if known_terms:
+        reminder.append("No cards for: " + ", ".join(en for en, _ in known_terms[:12]) + ".")
+    reminder.append("The question's correct option is the most technical AI or software term in the text.")
+    return system, wrap_learner_text(text) + "\n\n" + " ".join(reminder)

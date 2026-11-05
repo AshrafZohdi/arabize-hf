@@ -1,0 +1,27 @@
+{
+ "input": {
+  "text": "Before you send the summary to the client, check it for hallucinations. Give the model more context in your prompt and ask it to cite the source paragraph.",
+  "lang": "gulf",
+  "style": "work"
+ },
+ "output": {
+  "off_topic": false,
+  "explanation": "يعني قبل ما ترسِل الملخص للعميل، لازم تتأكد إنه ما فيه هالوسة. عطِ الموديل سياق أكثر في الأمر وطلب منه يذكر المصدر اللي أخذ منه المعلومات.",
+  "question": {
+   "question": "شنو المصطلح التقني اللي لازم تتأكد منه قبل إرسال الملخص للعميل؟",
+   "options": [
+    "Hallucination",
+    "Prompt",
+    "Token",
+    "Context"
+   ],
+   "correct_index": 0,
+   "why": "الهلوسة هي المصطلح التقني اللي لازم تتأكد منه قبل إرسال الملخص للعميل."
+  },
+  "cards": []
+ },
+ "recorded": {
+  "model": "QCRI/Fanar-2-27B-Instruct",
+  "latency_ms": 9163
+ }
+}
