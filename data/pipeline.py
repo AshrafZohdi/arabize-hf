@@ -19,6 +19,11 @@ RAW = ROOT / "data" / "raw"
 INTERIM = ROOT / "data" / "interim"
 REPORTS = ROOT / "data" / "reports"
 MANIFEST = ROOT / "data" / "manifest.json"
+PROCESSED = ROOT / "data" / "processed"
+REVIEW = ROOT / "data" / "review"
+CURATED = ROOT / "data" / "curated"
+TERM_BANK_REPO = "nuvais/darby-term-bank"
+OVERRIDE_FIELDS = {"ar_display", "ar_full", "en_expanded", "reviewed", "needs_review", "drop"}
 
 # Pinned source revisions: the pipeline always reads exactly these bytes.
 SOURCES = {
@@ -255,6 +260,97 @@ def stage2() -> dict:
     return report
 
 
+def display_form(ar: str, en: str, expanded: str | None) -> str:
+    """Arabic meaning first, the original in brackets: الممثل والناقد ذو الميزة (A2C: Advantage Actor-Critic)."""
+    original = f"{en}: {expanded}" if expanded and expanded.lower() != en.lower() else en
+    if en.lower() in ar.lower():
+        return ar
+    return f"{ar} ({original})"
+
+
+def apply_overrides(bank, overrides):
+    """Reviewer decisions from data/curated/overrides.csv always win. Columns: id, field, value, reviewer, note."""
+    bank = bank.copy()
+    for o in overrides.itertuples():
+        if o.field not in OVERRIDE_FIELDS:
+            raise ValueError(f"override field {o.field!r} not allowed")
+        if o.id not in set(bank.id):
+            raise ValueError(f"override for unknown id {o.id!r}")
+        if o.field == "drop":
+            bank = bank[bank.id != o.id]
+            continue
+        value = {"true": True, "false": False}.get(str(o.value).lower(), o.value) if o.field in ("reviewed", "needs_review") else o.value
+        bank.loc[bank.id == o.id, o.field] = value
+        bank.loc[bank.id == o.id, "reviewed"] = True if o.field != "reviewed" else value
+        bank.loc[bank.id == o.id, "needs_review"] = False if o.field != "needs_review" else value
+    return bank
+
+
+def stage3(results_path: Path | None = None) -> dict:
+    """Merge the stage 3 Job results (pushed to the Hub) into the clean bank, apply overrides, write the final
+    bank and the review queue. Rows still without an Arabic meaning are held back, not published."""
+    import pandas as pd
+
+    from data.text import ar_key, is_latin_only
+
+    bank = pd.read_parquet(INTERIM / "term_bank_clean.parquet")
+    if results_path is None:
+        from huggingface_hub import hf_hub_download
+
+        results_path = Path(hf_hub_download(TERM_BANK_REPO, "stage3/results.parquet", repo_type="dataset"))
+    res = pd.read_parquet(results_path).set_index("id")
+    rows = []
+    for r in bank.to_dict("records"):
+        x = res.loc[r["id"]] if r["id"] in res.index else None
+        if x is not None:
+            expanded = x.get("en_expanded") if isinstance(x.get("en_expanded"), str) else None
+            if r["is_acronym"]:
+                r["en_expanded"] = expanded
+            if isinstance(x.get("ar_full"), str):
+                r["ar_full"] = x["ar_full"]
+                r["ar_origin"] = "fanar_generated"
+                r["reviewed"] = False
+                r["ar_display"] = display_form(x["ar_full"], r["en"], expanded)
+            elif r["is_acronym"] and not is_latin_only(r["ar_display"]):
+                r["ar_full"] = r["ar_display"]
+                r["ar_display"] = display_form(r["ar_display"], r["en"], expanded)
+            r["needs_review"] = bool(x["needs_review"])
+            r["review_issues"] = list(x["issues"])
+        else:
+            r["ar_full"] = r["ar_full"] or r["ar_display"]
+            r["review_issues"] = []
+        rows.append(r)
+    final = pd.DataFrame(rows)
+    overrides = pd.read_csv(CURATED / "overrides.csv", dtype=str).fillna("")
+    final = apply_overrides(final, overrides)
+    final["ar_key"] = final.ar_display.map(ar_key)
+
+    held = final[final.ar_display.map(is_latin_only) | (final.is_acronym & final.en_expanded.isna())]
+    published = final.drop(held.index).drop(columns=["stage3_reason"])
+    PROCESSED.mkdir(parents=True, exist_ok=True)
+    REVIEW.mkdir(parents=True, exist_ok=True)
+    published.to_parquet(PROCESSED / "term_bank.parquet", index=False)
+
+    queue = final[final.needs_review | final.index.isin(held.index)].copy()
+    queue["held_back"] = queue.index.isin(held.index)
+    queue["issues"] = queue.review_issues.map(lambda v: "; ".join(v) if isinstance(v, (list, tuple)) or hasattr(v, "__iter__") else "")
+    review_cols = ["id", "en", "domain", "ar_origin", "en_expanded", "ar_display", "held_back", "issues"]
+    queue.sort_values(["held_back", "domain", "en"], ascending=[False, True, True])[review_cols].to_csv(REVIEW / "needs_review.csv", index=False)
+
+    report = {
+        "terms_in": int(len(bank)),
+        "stage3_rows": int(len(res)),
+        "fanar_translations": int((final.ar_origin == "fanar_generated").sum()),
+        "acronyms_expanded": int(final.en_expanded.notna().sum()),
+        "needs_review": int(final.needs_review.sum()),
+        "held_back": int(len(held)),
+        "published": int(len(published)),
+        "overrides_applied": int(len(overrides)),
+    }
+    (REPORTS / "stage3.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    return report
+
+
 def verify_raw() -> None:
     """Fail loudly if a raw file is missing or changed since the manifest was written."""
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
@@ -272,5 +368,7 @@ if __name__ == "__main__":
         print(json.dumps(stage0(), ensure_ascii=False, indent=2))
     elif stage == "stage2":
         print(json.dumps(stage2(), ensure_ascii=False, indent=2))
+    elif stage == "stage3":
+        print(json.dumps(stage3(Path(sys.argv[2]) if len(sys.argv) > 2 else None), ensure_ascii=False, indent=2))
     else:
         raise SystemExit(__doc__)
