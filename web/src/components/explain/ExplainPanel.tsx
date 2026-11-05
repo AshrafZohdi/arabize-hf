@@ -19,7 +19,8 @@ export function ExplainPanel({ lang }: { lang: ExplainLang }) {
   const dictionary = useDictionary()
   const isKnown = (en: string) => Boolean(dictionary.terms[termKey(en)])
 
-  const [text, setText] = useState('')
+  // A term sent from the glossary ("Ask Fanar to explain") arrives as ?text=.
+  const [text, setText] = useState(() => new URLSearchParams(window.location.search).get('text')?.slice(0, MAX) ?? '')
   const [editing, setEditing] = useState(true)
   const [style, setStyle] = useState<ExplainStyle>('work')
   const [matches, setMatches] = useState<TermMatch[]>([])

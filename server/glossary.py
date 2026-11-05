@@ -39,6 +39,7 @@ class Glossary:
             "explanation": explanation,
             "analogy": e.get("analogy_ar" if ar else "analogy_en") or "",
             "mistake": e.get("mistake_ar" if ar else "mistake_en") or "",
+            "example": (e.get("example_gulf") if lang == "gulf" else None) or e.get("example_ar" if ar else "example_en") or "",
             "related": list(e.get("related") or [])[:3],
             "source": "glossary",
         }

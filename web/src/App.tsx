@@ -3,7 +3,8 @@ import { Header } from './components/Header'
 import { useI18n } from './i18n'
 import { useRouter } from './lib/router'
 import { Home } from './pages/Home'
-import { GlossaryPage, NotFound, TutorPage } from './pages/Simple'
+import { GlossaryPage } from './pages/Glossary'
+import { NotFound, TutorPage } from './pages/Simple'
 
 function Page({ path }: { path: string }) {
   if (path === '/') return <Home />

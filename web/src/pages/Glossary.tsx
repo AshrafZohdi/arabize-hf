@@ -1,0 +1,263 @@
+import { BookOpen, Search, Sparkles, X } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { PageTitle } from '../components/PageTitle'
+import { Segmented } from '../components/Segmented'
+import { useI18n, type MessageKey } from '../i18n'
+import { glossaryCards, glossarySearch, type GlossaryCard, type QuickCard } from '../lib/api'
+import { saveTerm, termKey, useDictionary } from '../lib/dictionary'
+import { useExplainLang } from '../lib/explainLang'
+import { Link } from '../lib/router'
+
+type Domain = 'all' | 'ai' | 'software'
+
+export function GlossaryPage() {
+  const { t } = useI18n()
+  const [lang] = useExplainLang()
+  const [q, setQ] = useState('')
+  const [domain, setDomain] = useState<Domain>('all')
+  const [cards, setCards] = useState<GlossaryCard[]>([])
+  const [results, setResults] = useState<QuickCard[] | null>(null)
+  const [bankSize, setBankSize] = useState(0)
+  const [error, setError] = useState(false)
+  const [open, setOpen] = useState<GlossaryCard | null>(null)
+
+  useEffect(() => {
+    glossaryCards(lang).then(setCards).catch(() => setError(true))
+  }, [lang])
+
+  useEffect(() => {
+    if (!q.trim()) {
+      setResults(null)
+      return
+    }
+    const ctrl = new AbortController()
+    const timer = setTimeout(() => {
+      glossarySearch(q, domain, ctrl.signal)
+        .then((r) => {
+          setResults(r.results)
+          setBankSize(r.terms)
+          setError(false)
+        })
+        .catch((e) => {
+          if (!ctrl.signal.aborted) setError(Boolean(e))
+        })
+    }, 250)
+    return () => {
+      clearTimeout(timer)
+      ctrl.abort()
+    }
+  }, [q, domain])
+
+  const shownCards = cards.filter((c) => domain === 'all' || (domain === 'ai' ? c.domain === 'ai' : c.domain !== 'ai'))
+  const cardById = new Map(cards.map((c) => [c.id, c]))
+  const domains: { value: Domain; label: string }[] = [
+    { value: 'all', label: t('glossary.domain.all') },
+    { value: 'ai', label: t('glossary.domain.ai') },
+    { value: 'software', label: t('glossary.domain.software') },
+  ]
+
+  return (
+    <>
+      <PageTitle title={t('glossary.title')} subtitle={t('glossary.subtitle')} />
+      <div className="card mb-7 flex flex-col gap-4">
+        <label htmlFor="glossary-q" className="font-semibold text-ink-2">
+          {t('glossary.searchLabel')}
+        </label>
+        <div className="relative">
+          <Search aria-hidden="true" size={20} className="pointer-events-none absolute start-4 top-1/2 -translate-y-1/2 text-muted" />
+          <input
+            id="glossary-q"
+            type="search"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder={t('glossary.searchPlaceholder')}
+            autoComplete="off"
+            dir="auto"
+            className="block min-h-14 w-full rounded-2xl border border-line bg-surface-2 ps-12 pe-4 text-lg text-ink placeholder:text-muted focus:border-maroon"
+          />
+        </div>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <Segmented label={t('glossary.filterLabel')} options={domains} value={domain} onChange={setDomain} />
+          {results && bankSize > 0 && <span className="text-sm text-muted">{t('glossary.bankSize', { n: bankSize.toLocaleString('en-US') })}</span>}
+        </div>
+      </div>
+
+      {error && (
+        <p role="alert" className="rounded-2xl bg-maroon-soft p-4 font-semibold text-maroon-text">
+          {t('glossary.error')}
+        </p>
+      )}
+
+      {results ? (
+        <section aria-live="polite" aria-label={t('glossary.results', { n: results.length })}>
+          <p className="mt-0 mb-3 font-semibold text-ink-2">{t('glossary.results', { n: results.length })}</p>
+          {results.length === 0 && <p className="text-muted">{t('glossary.empty')}</p>}
+          <ul className="m-0 grid list-none grid-cols-1 gap-3 p-0 md:grid-cols-2">
+            {results.map((r) => (
+              <QuickCardItem key={r.id} r={r} full={cardById.get(r.id)} onOpen={setOpen} />
+            ))}
+          </ul>
+        </section>
+      ) : (
+        <section aria-labelledby="full-h">
+          <h2 id="full-h" className="m-0 font-display text-[22px] font-semibold text-maroon">
+            {t('glossary.fullCards')}
+          </h2>
+          <p className="mt-1 mb-4 text-muted">{t('glossary.fullCardsNote')}</p>
+          <ul className="m-0 grid list-none grid-cols-1 gap-3 p-0 min-[480px]:grid-cols-2 lg:grid-cols-3">
+            {shownCards.map((c) => (
+              <li key={c.id}>
+                <button
+                  type="button"
+                  onClick={() => setOpen(c)}
+                  className="flex min-h-[88px] w-full cursor-pointer items-center gap-3 rounded-2xl border border-line bg-surface p-4 text-start shadow-answer hover:border-maroon"
+                >
+                  <span className="flex size-11 shrink-0 items-center justify-center rounded-[14px] bg-maroon-soft text-maroon">
+                    <BookOpen aria-hidden="true" size={22} />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block font-display text-lg font-semibold text-maroon">{c.term_ar}</span>
+                    <span dir="ltr" lang="en" className="block font-en font-semibold text-ink-2">
+                      {c.term_en}
+                    </span>
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+      <FullCardDialog card={open} onClose={() => setOpen(null)} />
+    </>
+  )
+}
+
+function QuickCardItem({ r, full, onOpen }: { r: QuickCard; full?: GlossaryCard; onOpen: (c: GlossaryCard) => void }) {
+  const { t } = useI18n()
+  return (
+    <li className="flex flex-col gap-2 rounded-2xl border border-line bg-surface p-4 shadow-answer">
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div className="min-w-0">
+          <span className="block font-display text-lg font-semibold text-maroon" lang="ar">
+            {r.ar}
+          </span>
+          <span dir="ltr" lang="en" className="block font-en font-semibold text-ink-2">
+            {r.en}
+          </span>
+        </div>
+        {r.match === 'meaning' && (
+          <span className="flex items-center gap-1 rounded-full bg-teal-soft px-2.5 py-0.5 text-xs font-bold text-teal-text">
+            <Sparkles aria-hidden="true" size={12} />
+            {t('glossary.byMeaning')}
+          </span>
+        )}
+      </div>
+      {r.en_expanded && (
+        <p className="m-0 text-sm text-ink-2">
+          {t('glossary.expanded', { t: '' })}
+          <bdi lang="en">{r.en_expanded}</bdi>
+        </p>
+      )}
+      <p className="m-0 flex flex-wrap items-center gap-2 text-[13px] text-muted">
+        <span>{t(`glossary.source.${r.source}` as MessageKey)}</span>
+        {r.needs_review && <span className="rounded-full bg-gold-soft px-2 py-0.5 font-semibold text-gold-text">{t('glossary.needsReview')}</span>}
+      </p>
+      <div className="mt-1 flex flex-wrap gap-2">
+        {full && (
+          <button type="button" onClick={() => onOpen(full)} className="min-h-11 cursor-pointer rounded-xl border border-line bg-white px-3 font-bold text-ink hover:bg-surface-3">
+            {t('glossary.open')}
+          </button>
+        )}
+        <Link href={`/?text=${encodeURIComponent(r.en)}`} className="flex min-h-11 items-center rounded-xl px-3 font-bold no-underline">
+          {t('glossary.askFanar')}
+        </Link>
+      </div>
+    </li>
+  )
+}
+
+function FullCardDialog({ card, onClose }: { card: GlossaryCard | null; onClose: () => void }) {
+  const { t } = useI18n()
+  const ref = useRef<HTMLDialogElement>(null)
+  const opener = useRef<Element | null>(null)
+  const saved = useDictionary().terms[termKey(card?.term_en ?? '')]
+
+  useEffect(() => {
+    const d = ref.current
+    if (!d) return
+    if (card && !d.open) {
+      opener.current = document.activeElement
+      d.showModal?.()
+    } else if (!card && d.open) {
+      d.close()
+    }
+  }, [card])
+
+  const close = () => {
+    onClose()
+    // Safari does not focus buttons on click, so fall back to the element that was active when the dialog opened.
+    requestAnimationFrame(() => (opener.current as HTMLElement | null)?.focus?.())
+  }
+
+  return (
+    <dialog
+      ref={ref}
+      onClose={close}
+      onClick={(e) => e.target === ref.current && close()}
+      aria-labelledby="card-title"
+      className="m-auto w-[min(640px,calc(100vw-32px))] max-h-[calc(100dvh-32px)] rounded-3xl border border-line bg-surface p-0 text-ink shadow-card backdrop:bg-ink/40"
+    >
+      {card && (
+        <div className="flex flex-col gap-4 p-5 sm:p-7">
+          <div className="flex items-start gap-3">
+            <div className="min-w-0 flex-1">
+              <h2 id="card-title" className="m-0 font-display text-[26px] font-semibold text-maroon">
+                {card.term_ar}
+              </h2>
+              <span dir="ltr" lang="en" className="font-en text-lg font-semibold text-ink-2">
+                {card.term_en}
+              </span>
+            </div>
+            <button type="button" onClick={close} aria-label={t('glossary.close')} className="flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-line bg-white text-ink-2">
+              <X aria-hidden="true" size={20} />
+            </button>
+          </div>
+          {card.term_gulf && <p className="m-0 text-ink-2">{t('glossary.gulfUsage', { t: card.term_gulf })}</p>}
+          <Field label={t('glossary.definition')}>{card.explanation}</Field>
+          {card.analogy && <div className="rounded-[14px] bg-surface-3 px-4 py-3 text-ink-2">{card.analogy}</div>}
+          {card.example && <Field label={t('glossary.example')}>{card.example}</Field>}
+          {card.mistake && <Field label={t('glossary.mistake')}>{card.mistake}</Field>}
+          {card.related.length > 0 && (
+            <Field label={t('glossary.related')}>
+              <span dir="ltr" lang="en" className="font-en">
+                {card.related.join(', ')}
+              </span>
+            </Field>
+          )}
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              disabled={Boolean(saved)}
+              onClick={() => saveTerm(card)}
+              className="min-h-11 cursor-pointer rounded-full border border-line bg-white px-4 font-bold text-ink disabled:cursor-default disabled:bg-teal-soft disabled:text-teal-text"
+            >
+              {saved ? t('explain.saved') : t('explain.save')}
+            </button>
+            <Link href={`/?text=${encodeURIComponent(card.term_en)}`} className="flex min-h-11 items-center rounded-full px-4 font-bold no-underline">
+              {t('glossary.askFanar')}
+            </Link>
+          </div>
+        </div>
+      )}
+    </dialog>
+  )
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <h3 className="m-0 mb-1 text-sm font-bold text-maroon">{label}</h3>
+      <p className="m-0 text-[17px]">{children}</p>
+    </div>
+  )
+}

@@ -93,3 +93,29 @@ export async function streamExplain(
     }
   }
 }
+
+export type GlossaryCard = Card & { id: string; domain?: string; example?: string }
+export type QuickCard = {
+  id: string
+  en: string
+  ar: string
+  en_expanded: string | null
+  domain: 'ai' | 'software'
+  source: 'darby' | 'gist' | 'microsoft' | 'fanar'
+  reviewed: boolean
+  needs_review: boolean
+  has_full_card: boolean
+  match?: 'word' | 'meaning'
+}
+
+export async function glossaryCards(lang: ExplainLang): Promise<GlossaryCard[]> {
+  const r = await fetch(`/api/glossary/cards?lang=${lang}`)
+  if (!r.ok) throw new ApiError(r.status)
+  return (await r.json()).cards
+}
+
+export async function glossarySearch(q: string, domain: string, signal?: AbortSignal): Promise<{ results: QuickCard[]; semantic: boolean; terms: number }> {
+  const r = await fetch(`/api/glossary/search?${new URLSearchParams({ q, domain, limit: '20' })}`, { signal })
+  if (!r.ok) throw new ApiError(r.status)
+  return r.json()
+}
