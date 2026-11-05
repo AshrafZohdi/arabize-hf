@@ -26,6 +26,8 @@ def test_cards_in_each_language(tmp_path):
     gulf = c.get("/api/glossary/cards", params={"lang": "gulf"}).json()["cards"]
     en = c.get("/api/glossary/cards", params={"lang": "en"}).json()["cards"]
     assert len(gulf) == 40
+    assert {c["domain"] for c in gulf} == {"ai", "software"}
+    assert sum(c["domain"] == "ai" for c in gulf) == 28
     h_gulf = next(x for x in gulf if x["term_en"] == "Hallucination")
     h_en = next(x for x in en if x["term_en"] == "Hallucination")
     assert h_gulf["term_ar"] == "الهلوسة" and h_gulf["explanation"] != h_en["explanation"] and h_gulf["example"]

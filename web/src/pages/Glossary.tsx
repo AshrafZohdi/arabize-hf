@@ -48,7 +48,7 @@ export function GlossaryPage() {
     }
   }, [q, domain])
 
-  const shownCards = cards.filter((c) => domain === 'all' || (domain === 'ai' ? c.domain === 'ai' : c.domain !== 'ai'))
+  const shownCards = cards.filter((c) => domain === 'all' || c.domain === domain)
   const cardById = new Map(cards.map((c) => [c.id, c]))
   const domains: { value: Domain; label: string }[] = [
     { value: 'all', label: t('glossary.domain.all') },

@@ -37,7 +37,7 @@ def quick_card(r: dict[str, Any]) -> dict[str, Any]:
 @router.get("/api/glossary/cards")
 def cards(request: Request, lang: Lang = "gulf") -> dict[str, Any]:
     g = request.app.state.glossary
-    return {"cards": [g.card(i, lang) | {"domain": g.entries[i].get("domain")} for i in g.entries]}
+    return {"cards": [g.card(i, lang) | {"domain": g.entries[i]["domain"]} for i in g.entries]}
 
 
 @router.get("/api/glossary/search")

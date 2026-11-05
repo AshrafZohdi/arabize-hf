@@ -53,6 +53,7 @@ def load_glossary(content_dir: Path) -> Glossary:
             term_id = slug(e["term_en"])
             if term_id in entries:
                 continue
-            entries[term_id] = e
+            # The file decides the field: glossary.json is AI, terms-computing.json is software.
+            entries[term_id] = {**e, "domain": "ai" if source == "darby_glossary" else "software"}
             terms.append(Term(id=term_id, en=e["term_en"], ar=e["term_msa"], source=source, has_card=True))
     return Glossary(entries=entries, finder=TermFinder(terms))
