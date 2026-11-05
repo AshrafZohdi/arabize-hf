@@ -1,0 +1,205 @@
+priority,id,en,domain,ar_origin,en_expanded,ar_display,held_back,issues
+1,adversarial-prompt,adversarial prompt,ai,human_gist,,موجه عدائي,False,terminology: Darby uses أمر for prompt
+1,cloze-prompt,cloze prompt,ai,human_gist,,سؤال ملء الفراغ,False,terminology: Darby uses أمر for prompt
+1,few-shot-prompting,few-shot prompting,ai,human_gist,,تحفيز قليل الأمثلة,False,terminology: Darby uses أمر for prompt
+1,follow-up-prompt,follow-up prompt,software,human_ms,,مطالبة تتضمن ردًا,False,terminology: Darby uses أمر for prompt
+1,prompt-learning,prompt learning,ai,human_gist,,تعلم المطالبات,False,terminology: Darby uses أمر for prompt
+1,prompt-publishing-point,prompt publishing point,software,human_ms,,نقطة نشر الموجهات,False,terminology: Darby uses أمر for prompt
+1,prompt-tone,prompt tone,software,human_ms,,طنين المطالبة,False,terminology: Darby uses أمر for prompt
+1,prompt-tuning,prompt tuning,ai,human_gist,,تعديل التلميحات,False,terminology: Darby uses أمر for prompt
+1,system-prompt,system prompt,software,human_ms,,موجه النظام,False,terminology: Darby uses أمر for prompt
+1,zero-shot-prompting,zero-shot prompting,ai,human_gist,,التوجيه بدون أمثلة سابقة,False,terminology: Darby uses أمر for prompt
+2,tb,TB,software,human_ms,Terabyte,ТБ,True,
+3,aqa,AQA,ai,fanar_generated,Adaptive Query Augmentation,توسيع الاستعلام التكيفي (AQA: Adaptive Query Augmentation),False,expansion unverified: not in any source and no human Arabic to compare
+3,arena,ARENA,ai,fanar_generated,Artificial Reality Environment for Networked Agents,بيئة الواقع الافتراضي للوكلاء الشبكيين (ARENA: Artificial Reality Environment for Networked Agents),False,expansion unverified: not in any source and no human Arabic to compare
+3,bart,BART,ai,fanar_generated,Bidirectional and Auto-Regressive Transformers,محولات ثنائية الاتجاه وتلقائية الانحدار (BART: Bidirectional and Auto-Regressive Transformers),False,expansion unverified: not in any source and no human Arabic to compare
+3,bert,BERT,ai,human_gist,Bidirectional Encoder Representations from Transformers,بيرت (BERT),False,"expansion disagrees with the human Arabic (Bert, 0.75)"
+3,beto,BETO,ai,fanar_generated,Building Energy Optimization,تحسين طاقة المباني (BETO: Building Energy Optimization),False,expansion unverified: not in any source and no human Arabic to compare
+3,bio,BIO,ai,fanar_generated,Biology,علم الأحياء (BIO: Biology),False,expansion: several or uncertain options; expansion unverified: not in any source and no human Arabic to compare
+3,bleu,BLEU,ai,fanar_generated,Bilingual Evaluation Understudy,تقييم ثنائي اللغة تحت الإشراف (BLEU: Bilingual Evaluation Understudy),False,expansion unverified: not in any source and no human Arabic to compare
+3,bsard,BSARD,ai,fanar_generated,Bayesian Semi-supervised Active Learning for Robust Detection,التعلم النشط شبه الخاضع للرقابة البايزي لتعزيز الكشف (BSARD: Bayesian Semi-supervised Active Learning for Robust Detection),False,expansion unverified: not in any source and no human Arabic to compare
+3,cas,CAS,ai,fanar_generated,Computer Algebra System,نظام جبر الحاسوب (CAS: Computer Algebra System),False,expansion unverified: not in any source and no human Arabic to compare
+3,ceas,CEAS,ai,fanar_generated,Center for the Evaluation of AI Systems,مركز تقييم أنظمة الذكاء الاصطناعي (CEAS: Center for the Evaluation of AI Systems),False,expansion unverified: not in any source and no human Arabic to compare
+3,clip,CLIP,ai,fanar_generated,Contrastive Language-Image Pre-training,تدريب مسبق للغة والصورة التبايني (CLIP: Contrastive Language-Image Pre-training),False,expansion unverified: not in any source and no human Arabic to compare
+3,cls,CLS,ai,fanar_generated,Contrastive Language-Image Pre-training,تدريب مسبق على التباين بين اللغة والصورة (CLS: Contrastive Language-Image Pre-training),False,expansion: several or uncertain options; expansion unverified: not in any source and no human Arabic to compare
+3,conll,CONLL,ai,fanar_generated,Conference on Natural Language Learning,مؤتمر تعلم اللغة الطبيعية (CONLL: Conference on Natural Language Learning),False,expansion unverified: not in any source and no human Arabic to compare
+3,flr,FLR,ai,fanar_generated,Feature Learning Rate,معدل تعلم الميزات (FLR: Feature Learning Rate),False,expansion unverified: not in any source and no human Arabic to compare
+3,glue,GLUE,ai,fanar_generated,General Language Understanding Evaluation,تقييم الفهم العام للغة (GLUE: General Language Understanding Evaluation),False,expansion unverified: not in any source and no human Arabic to compare
+3,howto100m,HowTo100M,ai,fanar_generated,How to achieve 100 million parameters in a machine learning model,كيفية تحقيق 100 مليون معلمة في نموذج التعلم الآلي (HowTo100M: How to achieve 100 million parameters in a machine learning model),False,expansion unverified: not in any source and no human Arabic to compare
+3,iclr,ICLR,ai,fanar_generated,International Conference on Learning Representations,مؤتمر دولي عن تمثيل التعلم (ICLR: International Conference on Learning Representations),False,expansion unverified: not in any source and no human Arabic to compare
+3,mawps,MAWPS,ai,fanar_generated,Multi-Agent World Problem Solving,حل المشكلات في عالم متعدد الوكلاء (MAWPS: Multi-Agent World Problem Solving),False,expansion unverified: not in any source and no human Arabic to compare
+3,mtdnn,MTDNN,ai,fanar_generated,Multi-Task Deep Neural Network,شبكة عصبية عميقة متعددة المهام (MTDNN: Multi-Task Deep Neural Network),False,expansion unverified: not in any source and no human Arabic to compare
+3,oov,OOV,ai,fanar_generated,Out-of-Vocabulary,خارج المفردات (OOV: Out-of-Vocabulary),False,expansion unverified: not in any source and no human Arabic to compare
+3,qa,QA,ai,human_gist,Query Answering,ضمان الجودة (QA: Query Answering),False,expansion: several or uncertain options
+3,qed,QED,ai,fanar_generated,Quantum Electrodynamics,ديناميكا كهربائية كمومية (QED: Quantum Electrodynamics),False,expansion unverified: not in any source and no human Arabic to compare
+3,quoref,QUOREF,ai,fanar_generated,Quality of Reference,جودة المرجع (QUOREF: Quality of Reference),False,expansion unverified: not in any source and no human Arabic to compare
+3,realm,REALM,ai,fanar_generated,Resource-Efficient Adaptive Language Model,نموذج لغوي تكيفي موفر للموارد (REALM: Resource-Efficient Adaptive Language Model),False,expansion unverified: not in any source and no human Arabic to compare
+3,rgf,RGF,ai,fanar_generated,Random Geometric Graph,رسم بياني هندسي عشوائي (RGF: Random Geometric Graph),False,expansion unverified: not in any source and no human Arabic to compare
+3,rouge,ROUGE,ai,fanar_generated,Recall-Oriented Understudy for Gisting Evaluation,مقياس تقييم الملخصات المعتمد على الاستدعاء (ROUGE: Recall-Oriented Understudy for Gisting Evaluation),False,expansion unverified: not in any source and no human Arabic to compare
+3,sutd,SUTD,ai,fanar_generated,Singapore University of Technology and Design,جامعة سنغافورة للتكنولوجيا والتصميم (SUTD: Singapore University of Technology and Design),False,expansion unverified: not in any source and no human Arabic to compare
+3,svamp,SVAMP,ai,fanar_generated,Semantic Vector Attention Model for Prediction,نموذج الانتباه المتجهي الدلالي للتنبؤ (SVAMP: Semantic Vector Attention Model for Prediction),False,expansion unverified: not in any source and no human Arabic to compare
+3,valse,VALSE,ai,fanar_generated,Value Alignment for Large Language Models,محاذاة القيم لنموذج لغوي كبير (VALSE: Value Alignment for Large Language Models),False,expansion unverified: not in any source and no human Arabic to compare
+3,vfl,VFL,ai,fanar_generated,Visual Feature Learning,تعلم الميزات البصرية (VFL: Visual Feature Learning),False,expansion unverified: not in any source and no human Arabic to compare
+3,word2vec,Word2Vec,ai,fanar_generated,Word2Vec model,نموذج Word2Vec,False,expansion unverified: not in any source and no human Arabic to compare
+3,xlm,XLM,ai,fanar_generated,Extensible Markup Language,لغة ترميز قابلة للتوسيع (XLM: Extensible Markup Language),False,expansion unverified: not in any source and no human Arabic to compare
+4,blocked-2,#BLOCKED!,software,human_ms,Blocked,محظور! (#BLOCKED!),False,"expansion disagrees with the human Arabic (Forbidden, 0.85)"
+4,aa,AA,software,human_ms,Anonymous access,مانع التشويش (AA),False,"expansion: several or uncertain options; expansion disagrees with the human Arabic (Jammer, 0.79)"
+4,ace,ACE,software,human_ms,Access Control Entry,تنفيذ تعليمات برمجية تحكّمية (ACE),False,"expansion disagrees with the human Arabic (Execution of imperative programming instructions, 0.81)"
+4,acr,ACR,software,human_ms,Azure Consumed Revenue,تقرير التوافق مع معايير الوصول (ACR),False,"expansion: several or uncertain options; expansion disagrees with the human Arabic (Accessibility Conformance Report, 0.80)"
+4,ar,AR,software,human_ms,Accounts Receivable,الواقع المعزز (AR),False,"expansion disagrees with the human Arabic (Augmented Reality, 0.84)"
+4,atm,ATM,software,human_ms,asynchronous transfer mode,ماكينة الصرّاف الآلي (ATM),False,"expansion disagrees with the human Arabic (ATM, 0.82)"
+4,b2b,B2B,software,human_ms,Business to Business,متاجرة عمل-عمل (B2B),False,"expansion disagrees with the human Arabic (Currency trading, 0.84)"
+4,bcg,BCG,software,human_ms,Business Continuity Group,لقاح عُصية كالميت غيران (BCG),False,"expansion disagrees with the human Arabic (Bacillus Calmette-Guérin vaccine, 0.80); expansion unverified: not in any source and no human Arabic to compare"
+4,bmr,BMR,software,human_ms,bare-metal recovery,معدل الاستقلاب الأساسي (BMR),False,"expansion: several or uncertain options; expansion disagrees with the human Arabic (Basal Metabolic Rate, 0.84)"
+4,bpm,BPM,software,human_ms,Business Process Management,معدل النبضات لكل دقيقة (BPM),False,"expansion disagrees with the human Arabic (Heart rate per minute, 0.82); expansion unverified: not in any source and no human Arabic to compare"
+4,cad,CAD,software,human_ms,Computer-Aided Design,دولار كندي (CAD),False,"expansion disagrees with the human Arabic (Canadian dollar, 0.80); expansion unverified: not in any source and no human Arabic to compare"
+4,cc,CC,software,human_ms,Carbon Copy,شرح مكتوب لأحداث العرض (CC),False,"expansion disagrees with the human Arabic (Script, 0.85)"
+4,ccd,CCD,software,human_ms,Contact Center Desktop,سجل الرعاية المتواصلة (CCD),False,"expansion: several or uncertain options; expansion disagrees with the human Arabic (Continuous Care Record, 0.83)"
+4,ccr,CCR,software,human_ms,cluster continuous replication,وثيقة الرعاية المتواصلة (CCR),False,"expansion disagrees with the human Arabic (Continuing Care Document, 0.82)"
+4,chf,CHF,software,human_ms,Communication History folder,فرانك سويسري (CHF),False,"expansion disagrees with the human Arabic (Swiss franc, 0.79)"
+4,chid,CHID,software,human_ms,Child ID,معرّف مكونات الكمبيوتر (CHID),False,"expansion disagrees with the human Arabic (Computer Component Identifier, 0.85); expansion unverified: not in any source and no human Arabic to compare"
+4,clp,CLP,software,human_ms,Common Language Runtime,بيزو شيلي (CLP),False,"expansion disagrees with the human Arabic (Chilean peso, 0.80)"
+4,cod,COD,software,human_ms,coefficient of determination,الدفع عند التسليم (COD),False,"expansion: several or uncertain options; expansion disagrees with the human Arabic (Cash on Delivery, 0.81)"
+4,coda,CODA,software,human_ms,Common Object Data Architecture,تنسيق CODA,False,"expansion disagrees with the human Arabic (CODA Alignment, 0.84); expansion unverified: not in any source and no human Arabic to compare"
+4,cop,COP,software,human_ms,Conference of the Parties,بيزو كولومبي (COP),False,"expansion disagrees with the human Arabic (Colombian peso, 0.81); expansion unverified: not in any source and no human Arabic to compare"
+4,cps,CPS,software,human_ms,Centralized Payment System,قائمة أسعار العميل (CPS),False,"expansion: several or uncertain options; expansion disagrees with the human Arabic (Customer Price List, 0.84)"
+4,csr,CSR,software,human_ms,customer service representative,المسئولية المجتمعية للشركة (CSR),False,"expansion: several or uncertain options; expansion disagrees with the human Arabic (Corporate Social Responsibility, 0.83)"
+4,ct,CT,software,human_ms,content type,التصوير المقطعي الحوسبي (CT),False,"expansion: several or uncertain options; expansion disagrees with the human Arabic (Computed Tomography, 0.81)"
+4,dpi,DPI,software,human_ms,dots per inch,dpi (نقطة لكل بوصة),False,"expansion disagrees with the human Arabic (dpi, 0.81)"
+4,dt,DT,software,human_ms,drawing type,الدفتيريا والتيتانوس (DT),False,"expansion: several or uncertain options; expansion disagrees with the human Arabic (Diphtheria and Tetanus, 0.80)"
+4,dtp,DTP,software,human_ms,Desktop Publishing,الدفتيريا والتيتانوس والسعال الديكي (DTP),False,"expansion disagrees with the human Arabic (Diphtheria, Tetanus, and Pertussis, 0.80)"
+4,eac,EAC,software,human_ms,estimate at completion,مركز إدارة Exchange (EAC),False,"expansion: several or uncertain options; expansion disagrees with the human Arabic (Exchange Management Center, 0.79)"
+4,ecb,ECB,software,human_ms,European Central Bank,تحرير مجموعة عناصر تحكّم (ECB),False,"expansion disagrees with the human Arabic (Release Control Elements, 0.82); expansion unverified: not in any source and no human Arabic to compare"
+4,edr,EDR,software,human_ms,Event Data Recorder,الكشف التلقائي والاستجابة على النقط النهائية (EDR),False,"expansion disagrees with the human Arabic (Endpoint Detection and Response (EDR), 0.84); expansion unverified: not in any source and no human Arabic to compare"
+4,epc,EPC,software,human_ms,"Engineering, Procurement, Construction",المجلس الأوروبي للمدفوعات (EPC),False,"expansion disagrees with the human Arabic (European Payments Council, 0.82); expansion unverified: not in any source and no human Arabic to compare"
+4,er,ER,software,human_ms,exception report,غرفة الطوارئ (ER),False,"expansion: several or uncertain options; expansion disagrees with the human Arabic (Emergency Room, 0.83)"
+4,erp,ERP,software,human_ms,Enterprise Resource Planning,سعر التجزئة المقدر (ERP),False,"expansion disagrees with the human Arabic (Estimated Retail Price, 0.84); expansion unverified: not in any source and no human Arabic to compare"
+4,esr,ESR,software,human_ms,Enhanced summary report,أمر دفع ESR,False,"expansion disagrees with the human Arabic (Electronic Settlement Request, 0.82)"
+4,fubar,FUBAR,software,human_ms,Fucked Up Beyond All Recognition,مستاء (FUBAR),False,"expansion disagrees with the human Arabic (Disgruntled, 0.74); expansion unverified: not in any source and no human Arabic to compare"
+4,ga,GA,software,human_ms,Guideline Award,التوفر العام (GA),False,"expansion: several or uncertain options; expansion disagrees with the human Arabic (General Availability, 0.85)"
+4,gcc,GCC,software,human_ms,Gulf Cooperation Council,سحابة القطاع الحكومي (GCC),False,"expansion disagrees with the human Arabic (Government Cloud, 0.85); expansion unverified: not in any source and no human Arabic to compare"
+4,ioc,IOC,software,human_ms,indicator of compromise,مؤشر اختراق (IOC),False,"expansion disagrees with the human Arabic (Breach Index, 0.83)"
+4,ipv,IPV,software,human_ms,Internet Protocol version 4,لقاح شلل الأطفال المعطل (IPV),False,"expansion: several or uncertain options; expansion disagrees with the human Arabic (Inactivated Polio Vaccine, 0.82)"
+4,l-sa,L&SA,software,human_ms,Line Screen Angle,الترخيص وضمان البرنامج (L&SA),False,"expansion disagrees with the human Arabic (Software Licensing and Assurance, 0.81)"
+4,macrs,MACRS,software,human_ms,Modified Accelerated Cost Recovery System,طريقة MACRS,False,"expansion disagrees with the human Arabic (MACRS method, 0.83)"
+4,mcv,MCV,software,human_ms,Microsoft Cloud Voicemail,لقاح المكورات السحائية المتقارن (MCV),False,"expansion disagrees with the human Arabic (Conjugate Meningococcal Vaccine, 0.80)"
+4,mfa,MFA,software,human_ms,multi-factor authentication,مساعد المجلدات المُدارة (MFA),False,"expansion disagrees with the human Arabic (Managed Folders Assistant, 0.81)"
+4,mmr,MMR,software,human_ms,Microsoft Managed Rooms,الحصبة والتهاب الغدة النكافية والحصبة الألمانية (MMR),False,"expansion disagrees with the human Arabic (Measles, mumps, and rubella, 0.81)"
+4,mmrv,MMRV,software,human_ms,Microsoft Message Queue (MSMQ) Routing and Verification,الحصبة والتهاب الغدة النكافية والحصبة الألمانية والجديري المائي (MMRV),False,"expansion disagrees with the human Arabic (Measles, mumps, rubella, and chickenpox, 0.80); expansion unverified: not in any source and no human Arabic to compare"
+4,mpsv,MPSV,software,human_ms,Microsoft Project Server Virtualization,لقاح المكورات السحائية متعدد السكريات (MPSV),False,"expansion disagrees with the human Arabic (Meningococcal Polysaccharide Vaccine, 0.80); expansion unverified: not in any source and no human Arabic to compare"
+4,mr,MR,software,human_ms,mapped range,واقع مختلط (MR),False,"expansion: several or uncertain options; expansion disagrees with the human Arabic (Mixed Reality, 0.80)"
+4,mvp,MVP,software,human_ms,Minimum Viable Product,اللاعب الأول (MVP),False,"expansion disagrees with the human Arabic (First Player, 0.81); expansion unverified: not in any source and no human Arabic to compare"
+4,nd,ND,software,human_ms,network diagram,نسخة مشابهة (ND),False,"expansion: several or uncertain options; expansion disagrees with the human Arabic (Mirror Image, 0.79)"
+4,oct,OCT,software,human_ms,optical coherence tomography,متاح بدون وصفة (OCT),False,"expansion: several or uncertain options; expansion disagrees with the human Arabic (Over-the-counter, 0.79)"
+4,ok,OK,software,human_ms,Okay,موافق (OK),False,"expansion disagrees with the human Arabic (Compliant, 0.84); expansion unverified: not in any source and no human Arabic to compare"
+4,otc,OTC,software,human_ms,over the counter,تصوير مقطعي بصري (OTC),False,"expansion: several or uncertain options; expansion disagrees with the human Arabic (Optical Coherence Tomography, 0.80)"
+4,pal,PAL,software,human_ms,Picture Accent List,نظام PAL,False,"expansion disagrees with the human Arabic (PAL system, 0.82)"
+4,pap,PAP,software,human_ms,Picture Accent Process,ضغط الهواء الموجب (PAP),False,"expansion: several or uncertain options; expansion disagrees with the human Arabic (Positive Air Pressure, 0.83)"
+4,pcv,PCV,software,human_ms,Personal Computer Virus,لقاح المكورات الرئوية المتقارن متعدد السكريات (PCV),False,"expansion disagrees with the human Arabic (Pneumococcal conjugate vaccine, 0.83); expansion unverified: not in any source and no human Arabic to compare"
+4,pdl,PDL,software,human_ms,panning direction lock,موقع البيانات المفضل (PDL),False,"expansion: several or uncertain options; expansion disagrees with the human Arabic (Preferred Data Location, 0.78)"
+4,pef,PEF,software,human_ms,Portable Executable Format,معدل ذرورة التدفق الزفيري (PEF),False,"expansion disagrees with the human Arabic (Peak Expiratory Flow Rate, 0.80); expansion unverified: not in any source and no human Arabic to compare"
+4,plc,PLC,software,human_ms,Programmable Logic Controller,مجتمع التعلم المهني (PLC),False,"expansion disagrees with the human Arabic (Professional Learning Community, 0.82); expansion unverified: not in any source and no human Arabic to compare"
+4,ppsv,PPSV,software,human_ms,Personalized Pricing and Sales Volume,لقاح المكورات الرئوية متعدد السكريات (PPSV),False,"expansion disagrees with the human Arabic (Pneumococcal polysaccharide vaccine, 0.80); expansion unverified: not in any source and no human Arabic to compare"
+4,psap,PSAP,software,human_ms,PerformancePoint Service application proxy,مركز الرد للسلامة العامة (PSAP),False,"expansion: several or uncertain options; expansion disagrees with the human Arabic (Public Safety Answering Center, 0.83)"
+4,rmb,RMB,software,human_ms,right mouse button,رنمينبي (RMB),False,"expansion disagrees with the human Arabic (Renminbi, 0.77)"
+4,rtc,RTC,software,human_ms,replica tick count,التعاون في الوقت الحقيقي (RTC),False,"expansion: several or uncertain options; expansion disagrees with the human Arabic (Real-time collaboration, 0.77)"
+4,rtt,RTT,software,human_ms,Round Trip Time,عرض الكتابة في الوقت الحقيقي (RTT),False,"expansion disagrees with the human Arabic (Real-time writing display, 0.82); expansion unverified: not in any source and no human Arabic to compare"
+4,sca,SCA,software,human_ms,source company account,تنشيط الكمبيوتر المشترك (SCA),False,"expansion: several or uncertain options; expansion disagrees with the human Arabic (Computer Activation, 0.82)"
+4,sepa,SEPA,software,human_ms,Single Euro Payments Area,سيبا (SEPA),False,"expansion disagrees with the human Arabic (Siba, 0.77)"
+4,smb,SMB,software,human_ms,Server Message Block,الشركات الصغيرة ومتوسطة الحجم (SMB),False,"expansion disagrees with the human Arabic (Small and Medium Enterprises, 0.81)"
+4,spa,SPA,software,human_ms,Service Provider Access,مرشد نهج الأمان (SPA),False,"expansion: several or uncertain options; expansion disagrees with the human Arabic (Safety Path Guide, 0.84); expansion unverified: not in any source and no human Arabic to compare"
+4,spect,SPECT,software,human_ms,single-photon emission computed tomography,تصوير طبي بأشعة جاما (SPECT),False,"expansion disagrees with the human Arabic (Gamma imaging, 0.84)"
+4,spi,SPI,software,human_ms,Silverlight plug-in,مؤشر الأداء المجدول (SPI),False,"expansion: several or uncertain options; expansion disagrees with the human Arabic (Scheduled Performance Indicator, 0.79)"
+4,sspa,SSPA,software,human_ms,Self-Service Password Reset,برنامج الموردين لضمان الأمان والخصوصية (SSPA),False,"expansion disagrees with the human Arabic (Supplier Security and Privacy Assurance Program, 0.82)"
+4,stride-2,STRIDE,software,human_ms,Security Threat Remediation and Identification for Developers and Engineers,تصنيف المخاطر (STRIDE),False,"expansion disagrees with the human Arabic (Risk Classification, 0.82); expansion unverified: not in any source and no human Arabic to compare"
+4,try,TRY,software,human_ms,Try It,ليرة تركية (TRY),False,"expansion disagrees with the human Arabic (Turkish lira, 0.79)"
+4,tul,TUL,software,human_ms,Tenant User List,TUL (قائمة المستخدمين لدى المستأجر),False,"expansion disagrees with the human Arabic (TUL, 0.79)"
+4,tv-14,TV-14,software,human_ms,TV-14,لا يصلح لمن تقل أعمارهم عن 14 (TV-14),False,"expansion: same as the acronym; expansion disagrees with the human Arabic (Not suitable for those under 14 years old, 0.82)"
+4,tv-g,TV-G,software,human_ms,TV Guidance,يصلح لكافة الأعمار (TV-G),False,"expansion disagrees with the human Arabic (Suitable for all ages, 0.81); expansion unverified: not in any source and no human Arabic to compare"
+4,tv-ma,TV-MA,software,human_ms,TV-MA,يصلح للكبار فقط (TV-MA),False,"expansion: same as the acronym; expansion disagrees with the human Arabic (Adults only, 0.79)"
+4,tv-y,TV-Y,software,human_ms,TV Parental Guidelines rating for young children,يصلح لكافة الأعمار (TV-Y),False,"expansion disagrees with the human Arabic (Suitable for all ages, 0.81); expansion unverified: not in any source and no human Arabic to compare"
+4,tv-y7-fv,TV-Y7-FV,software,human_ms,TV-Y7-FV,يصلح لمن هم في السابعة وما فوق وقد يتضمن بعض العنف (TV-Y7-FV),False,"expansion: same as the acronym; expansion disagrees with the human Arabic (Suitable for ages 7 and up, may contain some violence, 0.82)"
+4,vbs,VBS,software,human_ms,Virtual Basic Script,الأمان المستند إلى الظاهرية (VBS),False,"expansion disagrees with the human Arabic (Apparent Security, 0.83); expansion unverified: not in any source and no human Arabic to compare"
+4,vl,VL,software,human_ms,Vertical Line,الترخيص المجمّع (VL),False,"expansion: several or uncertain options; expansion disagrees with the human Arabic (Bulk Licensing, 0.83)"
+4,wo,WO,software,human_ms,write off,أمر العمل (WO),False,"expansion: several or uncertain options; expansion disagrees with the human Arabic (Work Order, 0.84)"
+4,wtf,WTF…,software,human_ms,What the fuck,شتيمة... (WTF…),False,"expansion: several or uncertain options; expansion disagrees with the human Arabic (Abuse, 0.84); expansion unverified: not in any source and no human Arabic to compare"
+4,xp,XP,software,human_ms,Windows XP,نقطة امتياز (XP),False,"expansion disagrees with the human Arabic (Point of Distinction, 0.82); expansion unverified: not in any source and no human Arabic to compare"
+5,a-b-testing,A/B testing,software,human_ms,A/B testing,إجراءات اختبار أ (A/B testing),False,expansion: same as the acronym
+5,a-v-edge-server,A/V Edge server,software,human_ms,A/V Edge server,خادم Edge للصوت (A/V Edge server),False,expansion: same as the acronym
+5,air,AIR,software,human_ms,Automated Incident Response,الفحص والاستجابة التلقائيين (AIR: Automated Incident Response),False,expansion: several or uncertain options
+5,bpa,BPA,software,human_ms,Business Process Automation,أتمتة عمليات الأعمال (BPA),False,expansion: several or uncertain options
+5,cdoc,CDOC,software,human_ms,Cyber Defense Operations Center,مركز عمليات الدفاع الإلكتروني (CDOC: Cyber Defense Operations Center),False,expansion: several or uncertain options
+5,cpc,CPC,software,human_ms,cost per click,التكلفة لكل نقرة (CPC: cost per click),False,expansion: several or uncertain options
+5,dpa,DPA,software,human_ms,Data Protection Authority,هيئة حماية البيانات (DPA: Data Protection Authority),False,expansion: several or uncertain options
+5,dsr,DSR,software,human_ms,data subject request,طلب صاحب البيانات (DSR: data subject request),False,expansion: several or uncertain options
+5,dss,DSS,software,fanar_generated,Digital Signature Standard,معيار التوقيع الرقمي (DSS: Digital Signature Standard),False,expansion: several or uncertain options
+5,fup,FUP,software,human_ms,Fair Usage Policy,سياسة الاستخدام المقبول (FUP: Fair Usage Policy),False,expansion: several or uncertain options
+5,id,ID,software,human_ms,Identification,معرّف (ID: Identification),False,expansion: several or uncertain options
+5,ltm,LTM,software,human_ms,Linked Table Manager,إدارة الجداول المرتبطة (LTM: Linked Table Manager),False,expansion: several or uncertain options
+5,now,NOW,software,human_ms,Now,الآن (NOW),False,expansion: same as the acronym
+5,oledb,OLEDB,software,fanar_generated,OLE DB,قاعدة بيانات كائنات OLE (OLEDB: OLE DB),False,expansion unverified: not in any source and no human Arabic to compare
+5,pan-2,PAN,software,human_ms,Personal Area Network,رقم الحساب الدائم (PAN: Personal Area Network),False,expansion: several or uncertain options
+5,rtv,RTV,software,human_ms,Restore this version,إرجاع إلى البائع (RTV),False,expansion: several or uncertain options
+5,sam,SAM,software,human_ms,Software Assurance Membership,عضوية ضمان البرنامج (SAM: Software Assurance Membership),False,expansion: several or uncertain options
+5,sbc,SBC,software,human_ms,Session Border Controller,وحدة التحكم في حد الجلسة (SBC: Session Border Controller),False,expansion: several or uncertain options
+5,ts,TS,software,fanar_generated,Terminal Services,خدمات المحطة الطرفية (TS: Terminal Services),False,expansion unverified: not in any source and no human Arabic to compare
+5,via,VIA,software,human_ms,Virus Information Alliance,تحالف تبادل المعلومات حول الفيروسات (VIA: Virus Information Alliance),False,expansion: several or uncertain options
+6,mswmm,.mswmm,software,fanar_generated,,ملف تعريف الوسائط لنظام ويندوز مايكروسوفت (.mswmm),False,description of a name written by Fanar: check
+6,vsl,.vsl,software,fanar_generated,,حلول استوديو بصري (.vsl),False,description of a name written by Fanar: check
+6,ambigqa,AmbigQA,ai,fanar_generated,,مجموعة بيانات للأسئلة والأجوبة مع الأسئلة الغامضة (AmbigQA),False,description of a name written by Fanar: check
+6,autopilot,AutoPilot,software,fanar_generated,,طيار آلي (AutoPilot),False,description of a name written by Fanar: check
+6,banco-do-brasil,Banco do Brasil,software,fanar_generated,,بنكو دو برازيل (Banco do Brasil),False,description of a name written by Fanar: check
+6,business-contact-manager-for-outlook-2010,Business Contact Manager for Outlook 2010,software,fanar_generated,,مدير جهات الاتصال التجارية لـ Outlook 2010 (Business Contact Manager for Outlook 2010),False,description of a name written by Fanar: check
+6,caps-lock,CAPS LOCK,software,fanar_generated,,حروف كبيرة (CAPS LOCK),False,description of a name written by Fanar: check
+6,camembert,CamemBERT,ai,fanar_generated,,نموذج لغوي فرنسي قائم على BERT (CamemBERT),False,description of a name written by Fanar: check
+6,codebert,CodeBERT,ai,fanar_generated,,نموذج مدرب مسبقًا للغات البرمجة واللغات الطبيعية (CodeBERT),False,description of a name written by Fanar: check
+6,etf-movers,ETF Movers,software,fanar_generated,,مؤشرات صناديق الاستثمار المتداولة في البورصة (ETF Movers),False,description of a name written by Fanar: check
+6,feste,FeSTE,ai,fanar_generated,,تقييم تقنيات اختيار الميزات (FeSTE),False,description of a name written by Fanar: check
+6,gopher,Gopher,software,fanar_generated,,بروتوكول غوفر (Gopher),False,description of a name written by Fanar: check
+6,idc-htx-files,IDC/HTX files,software,fanar_generated,,ملفات مركز بيانات الإنترنت/تبادل هاتف المضيف (IDC/HTX files),False,description of a name written by Fanar: check
+6,ipsec,IPsec,software,fanar_generated,,بروتوكول أمان الإنترنت (IPsec),False,description of a name written by Fanar: check
+6,kinyabert,KinyaBERT,ai,fanar_generated,,نموذج لغوي كبير للغة الكينيارواندا (KinyaBERT),False,description of a name written by Fanar: check
+6,lxmert,LXMert,ai,fanar_generated,,نموذج كبير قابل للتفسير (LXMert),False,description of a name written by Fanar: check
+6,lince,LinCE,ai,fanar_generated,,إنتروبيا السلسلة الخطية الشرطية (LinCE),False,description of a name written by Fanar: check
+6,mathqa,MathQA,ai,fanar_generated,,الرياضيات للإجابة على الأسئلة (MathQA),False,description of a name written by Fanar: check
+6,meditative,Meditative,software,fanar_generated,,حالة تأملية (Meditative),False,description of a name written by Fanar: check; back-translation similarity 0.85 below 0.85
+6,merengue,Merengue,software,fanar_generated,,ميرينغوي (Merengue),False,description of a name written by Fanar: check
+6,metal,Metal,software,fanar_generated,,إطار عمل معدني (Metal),False,description of a name written by Fanar: check
+6,microsoft-graph-data-connect,Microsoft Graph data connect,software,fanar_generated,,اتصال بيانات مايكروسوفت جراف (Microsoft Graph data connect),False,description of a name written by Fanar: check
+6,microsoft-office-365-small-business,Microsoft Office 365 Small Business,software,fanar_generated,,مايكروسوفت أوفيس 365 للشركات الصغيرة (Microsoft Office 365 Small Business),False,description of a name written by Fanar: check
+6,microsoft-office-live,Microsoft Office Live,software,fanar_generated,,مايكروسوفت أوفيس لايف (Microsoft Office Live),False,description of a name written by Fanar: check
+6,microsoft-office-live-essentials,Microsoft Office Live Essentials,software,fanar_generated,,مجموعة أساسيات مايكروسوفت أوفيس لايف (Microsoft Office Live Essentials),False,description of a name written by Fanar: check
+6,microsoft-office-outlook-live,Microsoft Office Outlook Live,software,fanar_generated,,مايكروسوفت أوتلوك لايف (Microsoft Office Outlook Live),False,description of a name written by Fanar: check
+6,microsoft-sharepoint-online,Microsoft SharePoint Online,software,fanar_generated,,مايكروسوفت شيربوينت أونلاين (Microsoft SharePoint Online),False,description of a name written by Fanar: check
+6,microsoft-office-language-pack-2007,Microsoft® Office Language Pack 2007,software,fanar_generated,,حزمة لغة مايكروسوفت أوفيس 2007 (Microsoft® Office Language Pack 2007),False,description of a name written by Fanar: check
+6,office-home-and-business-2010,Office Home and Business 2010,software,fanar_generated,,مايكروسوفت أوفيس هوم أند بيزنس 2010 (Office Home and Business 2010),False,description of a name written by Fanar: check
+6,pkcs-10,PKCS #10,software,fanar_generated,,معايير التشفير بالمفتاح العام رقم 10 (PKCS #10),False,description of a name written by Fanar: check
+6,pkcs-12,PKCS #12,software,fanar_generated,,معايير التشفير بالمفتاح العام رقم 12 (PKCS #12),False,description of a name written by Fanar: check
+6,pkcs-7,PKCS #7,software,fanar_generated,,معايير التشفير بالمفتاح العام رقم 7 (PKCS #7),False,description of a name written by Fanar: check
+6,palm,PaLM,ai,fanar_generated,,نموذج لغة المسارات (PaLM),False,description of a name written by Fanar: check
+6,pivotchart,PivotChart,software,fanar_generated,,رسم بياني محوري (PivotChart),False,description of a name written by Fanar: check
+6,pubmed,PubMed,ai,fanar_generated,,ببمد (PubMed),False,description of a name written by Fanar: check
+6,rnsum,RNSum,ai,fanar_generated,,مجموع الأعداد العشوائية (RNSum),False,description of a name written by Fanar: check
+6,smcalflow,SMCalFlow,ai,fanar_generated,,تدفق معايرة النموذج (SMCalFlow),False,description of a name written by Fanar: check
+6,spim,Spim,software,fanar_generated,,رسائل غير مرغوب فيها عبر الإنترنت (Spim),False,description of a name written by Fanar: check
+6,system-dsn,System DSN,software,fanar_generated,,اسم مصدر البيانات (System DSN),False,description of a name written by Fanar: check
+6,treedst,TreeDST,ai,fanar_generated,,أداة دعم القرار القائمة على الشجرة (TreeDST),False,description of a name written by Fanar: check
+6,vilbert,ViLBERT,ai,fanar_generated,,بيرت البصري اللغوي (ViLBERT),False,description of a name written by Fanar: check; back-translation similarity 0.83 below 0.85
+6,visio-language-pack-2016,Visio Language Pack 2016,software,fanar_generated,,حزمة لغة مايكروسوفت فيزيو 2016 (Visio Language Pack 2016),False,description of a name written by Fanar: check
+6,visualbert,VisualBERT,ai,fanar_generated,,نموذج VisualBERT هو نموذج قائم على BERT للإجابة على الأسئلة المرئية.,False,description of a name written by Fanar: check
+6,xlnet,XLNet,ai,fanar_generated,,نموذج مدرب مسبقًا لفهم اللغة (XLNet),False,description of a name written by Fanar: check
+6,certificate-of-authenticity,certificate of authenticity,software,fanar_generated,,شهادة الأصالة (certificate of authenticity),False,description of a name written by Fanar: check
+6,desk-free-worker,desk-free worker,software,fanar_generated,,عامل بدون مكتب (desk-free worker),False,description of a name written by Fanar: check
+6,deskless-worker,deskless worker,software,fanar_generated,,عامل بدون مكتب (deskless worker),False,description of a name written by Fanar: check
+6,dual-tone-multiple-frequency,dual-tone multiple-frequency,software,fanar_generated,,نظام الترددات المتعددة المزدوجة النغمة (dual-tone multiple-frequency),False,description of a name written by Fanar: check
+6,dynamic-html,dynamic HTML,software,fanar_generated,,لغة ترميز النص الفائق الديناميكية (dynamic HTML),False,description of a name written by Fanar: check
+6,event-monitor,event monitor,software,fanar_generated,,مراقب الأحداث (event monitor),False,description of a name written by Fanar: check
+6,holi,holi,software,fanar_generated,,هولي (holi),False,description of a name written by Fanar: check
+6,platform-as-a-service,platform-as-a-service,software,fanar_generated,,منصة كخدمة (platform-as-a-service),False,description of a name written by Fanar: check
+6,srgb,sRGB,software,fanar_generated,,نموذج أحمر أخضر أزرق قياسي (sRGB),False,description of a name written by Fanar: check
+6,shadow-it,shadow IT,software,fanar_generated,,تقنية المعلومات الظلية (shadow IT),False,description of a name written by Fanar: check; back-translation similarity 0.84 below 0.85
+6,softmax,softmax,ai,fanar_generated,,دالة سوفت ماكس (softmax),False,description of a name written by Fanar: check
+6,sway,sway,software,fanar_generated,,مايكروسوفت سواي (sway),False,description of a name written by Fanar: check
+6,text-davinci-002,text-davinci-002,ai,fanar_generated,,نموذج لغوي كبير من تطوير OpenAI (text-davinci-002),False,description of a name written by Fanar: check
+6,text-davinci-003,text-davinci-003,ai,fanar_generated,,نموذج لغوي كبير من تطوير OpenAI (text-davinci-003),False,description of a name written by Fanar: check
+6,transaction-service,transaction service,software,fanar_generated,,خدمة المعاملات (transaction service),False,description of a name written by Fanar: check

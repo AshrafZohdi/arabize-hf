@@ -167,10 +167,12 @@ def build_clean(df):
     for key, d in df.groupby("key", sort=False):
         first = d.iloc[0]
         variants: list[str] = []
-        for a in d.ar:
+        variant_sources: list[str] = []
+        for a, src in zip(d.ar, d.source):
             for v in split_packed(a):
                 if v not in variants:
                     variants.append(v)
+                    variant_sources.append(src)
         top = d[d.prio == d.prio.min()]
         if first.source == "ms":
             # MS often lists the same term several times: take its most common translation.
@@ -192,6 +194,7 @@ def build_clean(df):
                 "ar_display": ar_display,
                 "ar_full": None,
                 "ar_variants": variants,
+                "ar_variant_sources": variant_sources,
                 "ar_key": ar_key(ar_display),
                 "ar_origin": ORIGIN[first.source],
                 "reviewed": first.source == "darby",
@@ -304,12 +307,26 @@ def terminology_issues(en: str, ar: str, domain: str) -> list[str]:
     return []
 
 
+def review_priority(r) -> int:
+    """1 prompt terminology, 2 held back, 3 AI terms, 4 software disagreements, 5 other software, 6 name descriptions."""
+    issues = r["issues"]
+    if "terminology" in issues:
+        return 1
+    if r["held_back"]:
+        return 2
+    if "description of a name" in issues:
+        return 6
+    if r["domain"] == "ai":
+        return 3
+    return 4 if "disagrees" in issues else 5
+
+
 def merge_stage3(bank, res, overrides):
     """Stage 3 merge as a pure function: (clean bank, Job results, overrides) to (final, published, held).
     Rows still without an Arabic meaning, or acronyms without an expansion, are held back from `published`."""
     import pandas as pd
 
-    from data.text import ar_key, is_latin_only
+    from data.text import ar_key, has_arabic
 
     res = res.set_index("id") if "id" in res.columns else res
     rows = []
@@ -324,9 +341,11 @@ def merge_stage3(bank, res, overrides):
                 r["ar_origin"] = "fanar_generated"
                 r["reviewed"] = False
                 r["ar_display"] = display_form(x["ar_full"], r["en"], expanded)
-            elif r["is_acronym"] and not is_latin_only(r["ar_display"]):
+            elif r["is_acronym"] and has_arabic(r["ar_display"]):
                 r["ar_full"] = r["ar_display"]
-                r["ar_display"] = display_form(r["ar_display"], r["en"], expanded)
+                # A disputed expansion stays out of the display: the human Arabic meaning is shown on its own.
+                disputed = any("disagrees with the human Arabic" in str(i) for i in x["issues"])
+                r["ar_display"] = display_form(r["ar_display"], r["en"], None if disputed else expanded)
             r["needs_review"] = bool(x["needs_review"])
             r["review_issues"] = [str(i) for i in x["issues"]]
         else:
@@ -340,7 +359,7 @@ def merge_stage3(bank, res, overrides):
         rows.append(r)
     final = apply_overrides(pd.DataFrame(rows), overrides)
     final["ar_key"] = final.ar_display.map(ar_key)
-    held_mask = final.ar_display.map(is_latin_only) | (final.is_acronym & final.en_expanded.isna())
+    held_mask = ~final.ar_display.map(has_arabic) | (final.is_acronym & final.en_expanded.isna())
     published = final[~held_mask].drop(columns=["stage3_reason"])
     return final, published, final[held_mask]
 
@@ -365,8 +384,9 @@ def stage3(results_path: Path | None = None) -> dict:
     queue = final[final.needs_review | final.index.isin(held.index)].copy()
     queue["held_back"] = queue.index.isin(held.index)
     queue["issues"] = queue.review_issues.map("; ".join)
-    review_cols = ["id", "en", "domain", "ar_origin", "en_expanded", "ar_display", "held_back", "issues"]
-    queue.sort_values(["held_back", "domain", "en"], ascending=[False, True, True])[review_cols].to_csv(REVIEW / "needs_review.csv", index=False)
+    queue["priority"] = queue.apply(review_priority, axis=1)
+    review_cols = ["priority", "id", "en", "domain", "ar_origin", "en_expanded", "ar_display", "held_back", "issues"]
+    queue.sort_values(["priority", "en"])[review_cols].to_csv(REVIEW / "needs_review.csv", index=False)
 
     report = {
         "terms_in": int(len(bank)),
@@ -380,6 +400,47 @@ def stage3(results_path: Path | None = None) -> dict:
     }
     (REPORTS / "stage3.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     return report
+
+
+def publish(folder: Path = ROOT / "data" / "public") -> dict:
+    """Write the public dataset folder from the final bank (stage 3 merge) and the staging vectors."""
+    import pandas as pd
+    from huggingface_hub import hf_hub_download
+
+    from data.publish import STAGING_REPO, write_public
+
+    bank = pd.read_parquet(INTERIM / "term_bank_clean.parquet")
+    res = pd.read_parquet(hf_hub_download(STAGING_REPO, "stage3/results.parquet", repo_type="dataset"))
+    overrides = pd.read_csv(CURATED / "overrides.csv", dtype=str).fillna("")
+    final, published, held = merge_stage3(bank, res, overrides)
+    emb = pd.read_parquet(hf_hub_download(STAGING_REPO, "embeddings/e5_small.parquet", repo_type="dataset"))
+    s2 = json.loads((REPORTS / "stage2.json").read_text(encoding="utf-8"))
+    eda = json.loads((REPORTS / "eda_summary.json").read_text(encoding="utf-8"))
+    numbers = {
+        "rows_darby": s2["rows_in_by_source"]["darby"], "rows_gist": s2["rows_in_by_source"]["gist"], "rows_ms": s2["rows_in_by_source"]["ms"],
+        "gist_same": eda["untranslated"]["gist"]["ar_same_as_en"], "dropped": sum(s2["dropped"].values()), "rows_in": s2["rows_in"],
+        "terms_out": s2["terms_out"], "acronyms": int(final.en_expanded.notna().sum()), "translated": int((final.ar_origin == "fanar_generated").sum()),
+        "needs_review": int(final.needs_review.sum()), "held": int(len(held)), "all_terms": int(len(emb)),
+        "ms_url": "https://huggingface.co/datasets/" + SOURCES["ms"]["repo_id"], "ms_rev": SOURCES["ms"]["revision"],
+        "github": "https://github.com/AshrafZohdi/arabize-hf",
+    }
+    # Publish exactly what the Space shows: the held-back rows stay out.
+    write_public(folder, published.assign(ar_variant_sources=final.loc[published.index, "ar_variant_sources"]), emb, REPORTS, CURATED, numbers)
+    stage3_md = [
+        "# Stage 3: completing the translations",
+        "",
+        f"Fanar 2 (bf16, vLLM, HF Job on 1x A100) on {len(res)} queued terms. Full English forms: {numbers['acronyms']}. "
+        f"Arabic written by Fanar: {numbers['translated']}. Flagged for review: {numbers['needs_review']}. Held back (no Arabic meaning yet): {numbers['held']}. "
+        f"Reviewer overrides applied: {len(overrides)}.",
+        "",
+        "Checks: back-translation similarity with multilingual-e5-small (threshold 0.85); every expansion compared with the term bank in the same domain "
+        "and with the human Arabic where one exists; prompt terms that do not use أمر flagged.",
+    ]
+    (REPORTS / "stage3.md").write_text("\n".join(stage3_md) + "\n", encoding="utf-8")
+    import shutil
+
+    shutil.copy(REPORTS / "stage3.md", folder / "reports" / "stage3.md")
+    return {"folder": str(folder.relative_to(ROOT)), **numbers}
 
 
 def hub_rows():
@@ -421,6 +482,8 @@ if __name__ == "__main__":
         print(json.dumps(stage0(), ensure_ascii=False, indent=2))
     elif stage == "stage2":
         print(json.dumps(stage2(), ensure_ascii=False, indent=2))
+    elif stage == "publish":
+        print(json.dumps(publish(), ensure_ascii=False, indent=2))
     elif stage == "stage3":
         print(json.dumps(stage3(Path(sys.argv[2]) if len(sys.argv) > 2 else None), ensure_ascii=False, indent=2))
     else:

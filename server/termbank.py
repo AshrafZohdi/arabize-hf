@@ -130,7 +130,7 @@ def load_term_bank(content_dir: Path, token: str | None = None) -> TermBank:
     """Build the bank from the Hub. Steps that fail are skipped and reported in `status`."""
     import pandas as pd
 
-    from data.pipeline import build_clean, hub_rows, merge_stage3
+    from data.pipeline import build_clean, hub_rows
 
     t0 = time.time()
     status: dict[str, Any] = {"steps": {}}
@@ -142,17 +142,22 @@ def load_term_bank(content_dir: Path, token: str | None = None) -> TermBank:
         status["steps"]["sources"] = f"failed: {type(e).__name__}"
         return _glossary_only(content_dir, status)
 
-    try:
-        from huggingface_hub import hf_hub_download
+    from huggingface_hub import hf_hub_download
 
-        res = pd.read_parquet(hf_hub_download(TERM_BANK_REPO, "stage3/results.parquet", repo_type="dataset", token=token))
-        overrides = pd.read_csv(hf_hub_download(TERM_BANK_REPO, "curated/overrides.csv", repo_type="dataset", token=token), dtype=str).fillna("")
-        _, published, held = merge_stage3(bank, res, overrides)
-        status["steps"]["stage3"] = f"ok ({len(held)} held back for review)"
-        frame = published
+    from data.publish import apply_public, key_hash
+
+    def hub(path: str) -> str:
+        return hf_hub_download(TERM_BANK_REPO, path, repo_type="dataset", token=token)
+
+    try:
+        train = pd.read_parquet(hub("data/train.parquet"))
+        completions = pd.read_parquet(hub("completions/ms.parquet"))
+        overrides = pd.read_csv(hub("curated/overrides.csv"), dtype=str).fillna("")
+        frame = apply_public(bank, train, completions, overrides)
+        status["steps"]["published"] = f"ok ({len(train)} own and GIST terms, {len(completions)} Microsoft completions)"
     except Exception as e:
-        log.warning("term bank: stage 3 results not loaded (%s)", type(e).__name__)
-        status["steps"]["stage3"] = f"skipped: {type(e).__name__}"
+        log.warning("term bank: published files not loaded (%s)", type(e).__name__)
+        status["steps"]["published"] = f"skipped: {type(e).__name__}"
         frame = bank
 
     tb = TermBank.from_rows(_rows_from_frame(frame), status)
@@ -165,14 +170,14 @@ def load_term_bank(content_dir: Path, token: str | None = None) -> TermBank:
     try:
         from huggingface_hub import hf_hub_download
 
-        emb = pd.read_parquet(hf_hub_download(TERM_BANK_REPO, "embeddings/e5_small.parquet", repo_type="dataset", token=token))
-        index = dict(zip(emb.en_key, emb.vector))
-        missing = sum(r["en_key"] not in index for r in tb.rows)
+        emb = pd.read_parquet(hub("embeddings/e5_small.parquet"))
+        index = dict(zip(emb.key, emb.vector))
+        missing = sum(key_hash(r["en_key"]) not in index for r in tb.rows)
         if missing:
             status["steps"]["vectors"] = f"skipped: {missing} terms without a vector"
         else:
             # Built from the bank's own row order, so row i and vector i always belong together.
-            tb.vectors = np.stack([np.asarray(index[r["en_key"]], dtype=np.float32) for r in tb.rows])
+            tb.vectors = np.stack([np.asarray(index[key_hash(r["en_key"])], dtype=np.float32) for r in tb.rows])
             status["steps"]["vectors"] = f"ok ({len(tb.vectors)})"
     except Exception as e:
         status["steps"]["vectors"] = f"skipped: {type(e).__name__}"

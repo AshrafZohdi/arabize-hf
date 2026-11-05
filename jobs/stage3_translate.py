@@ -244,7 +244,8 @@ def is_latin_only(s: str) -> bool:
 
 
 def needs_arabic(ar_display: str, en: str) -> bool:
-    return is_latin_only(ar_display) or ar_display.strip().lower() == en.strip().lower()
+    """No Arabic letters at all (Latin, or Cyrillic like MS's "ТБ" for TB), or the English copied."""
+    return not re.search(r"[\u0621-\u064A]", ar_display) or ar_display.strip().lower() == en.strip().lower()
 
 
 @dataclass

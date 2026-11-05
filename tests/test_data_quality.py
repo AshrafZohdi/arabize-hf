@@ -72,9 +72,10 @@ def final():
 
 
 def test_final_no_latin_only_arabic(final):
-    from data.text import is_latin_only
+    from data.text import has_arabic, is_latin_only
 
     assert not final.ar_display.map(is_latin_only).any()
+    assert final.ar_display.map(has_arabic).all()
 
 
 def test_final_every_acronym_has_expansion(final):

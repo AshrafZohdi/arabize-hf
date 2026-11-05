@@ -12,3 +12,4 @@ audio_cache/
 data/raw/
 data/interim/
 data/processed/
+data/public/

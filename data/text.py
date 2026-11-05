@@ -29,6 +29,10 @@ def arabic_share(s: str) -> float:
     return ar / (ar + lat) if ar + lat else 0.0
 
 
+def has_arabic(s: str) -> bool:
+    return bool(ARABIC_LETTER.search(s))
+
+
 def is_latin_only(s: str) -> bool:
     return bool(LATIN_LETTER.search(s)) and not ARABIC_LETTER.search(s)
 

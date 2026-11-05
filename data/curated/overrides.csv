@@ -1,2 +1,4 @@
 id,field,value,reviewer,note
 prompt-engineering,ar_display,هندسة الأوامر,darby glossary,"content/glossary.json (Prompt, other_forms_ar): هندسة الأوامر = prompt engineering; GIST had هندسة الموجهات"
+a2c,en_expanded,Advantage Actor-Critic,docs/BRIEF.md,"P0-2 example; Fanar wrote Asynchronous Advantage Actor Critic (A3C)"
+a2c,ar_display,الممثل والناقد ذو الميزة (A2C: Advantage Actor-Critic),docs/BRIEF.md,P0-2 example
