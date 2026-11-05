@@ -1,0 +1,71 @@
+{
+ "input": {
+  "text": "Before you send the summary to the client, check it for hallucinations. Give the model more context in your prompt and ask it to cite the source paragraph.",
+  "lang": "gulf",
+  "style": "work"
+ },
+ "output": {
+  "off_topic": false,
+  "explanation": "النص يطلب منك التحقق من وجود هلوسات في الملخص قبل إرساله للعميل. يجب عليك تقديم المزيد من السياق في الأمر (prompt) وطلب من النموذج أن يذكر الفقرة المصدر. هذا مهم لضمان دقة المعلومات التي يتم تقديمها للعميل.",
+  "cards": [
+   {
+    "term_en": "hallucination",
+    "term_ar": "هلوسة",
+    "explanation": "الهلوسة هي عندما يولد النموذج معلومات غير موجودة في البيانات الأصلية. في سياق الذكاء الاصطناعي، يمكن أن يكون هذا خطأً في الملخص أو الاستنتاج.",
+    "analogy": "مثلما قد ترى شيئًا غير موجود في الظلام، يمكن للنموذج أن يولد معلومات غير موجودة في البيانات.",
+    "related": [
+     "context",
+     "prompt",
+     "model"
+    ]
+   },
+   {
+    "term_en": "context",
+    "term_ar": "سياق",
+    "explanation": "السياق هو المعلومات المحيطة بالنص أو الأمر. في هذا السياق، يعني تقديم المزيد من المعلومات للنموذج لتقليل احتمالية الهلوسة.",
+    "analogy": "مثلما تحتاج إلى معرفة من أين جاءت المعلومة لفهمها بشكل صحيح، يحتاج النموذج إلى سياق لفهم الطلب بشكل صحيح.",
+    "related": [
+     "prompt",
+     "model"
+    ]
+   },
+   {
+    "term_en": "prompt",
+    "term_ar": "أمر",
+    "explanation": "الأمر هو التعليمات التي تقدمها للنموذج. في هذا السياق، يعني تقديم تعليمات واضحة ومحددة للنموذج لتقليل الهلوسة.",
+    "analogy": "مثلما تحتاج إلى تعليمات واضحة لإكمال مهمة، يحتاج النموذج إلى أمر واضح لتقديم إجابة دقيقة.",
+    "related": [
+     "model",
+     "context"
+    ]
+   }
+  ],
+  "question": {
+   "question": "ما هو المصطلح الذي يشير إلى المعلومات غير الموجودة في البيانات الأصلية التي قد يولدها النموذج؟",
+   "options": [
+    "context",
+    "prompt",
+    "model",
+    "hallucination"
+   ],
+   "correct_index": 3,
+   "why": "الهلوسة هي مصطلح يشير إلى المعلومات غير الموجودة في البيانات الأصلية التي قد يولدها النموذج."
+  }
+ },
+ "recorded": {
+  "model": "nuvais/Fanar-2-27B-Instruct-Q5_K_M-GGUF",
+  "hardware": "1x L4",
+  "wall_s": 51.0,
+  "timings": {
+   "cache_n": 965,
+   "prompt_n": 5,
+   "prompt_ms": 431.774,
+   "prompt_per_token_ms": 86.3548,
+   "prompt_per_second": 11.580132198789181,
+   "predicted_n": 572,
+   "predicted_ms": 49770.125,
+   "predicted_per_token_ms": 87.16309106830123,
+   "predicted_per_second": 11.472745949502839
+  }
+ }
+}

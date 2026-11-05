@@ -28,3 +28,9 @@ The USD 100 credits are on Fayez's personal account (`FayezAlkh12`, can pay); th
 
 ## D8. 2026-11-05: Two remotes, LFS objects only on Hugging Face
 `origin` is GitHub (`AshrafZohdi/arabize-hf`), `space` is the HF Space (`FayezAlkh12/darby`). HF rejects plain binaries, so images and audio are tracked with Git LFS. The GitHub account is over its LFS budget, so pushes to GitHub skip the LFS upload (`GIT_LFS_SKIP_PUSH=1 git push origin main`): code is complete on GitHub, and screenshots there are pointer files until the budget is raised and `git lfs push origin --all` is run. The HF Space repo holds every LFS object.
+
+## D9. 2026-11-05: Fanar endpoint setup and first measurements
+- Model repo `nuvais/Fanar-2-27B-Instruct-Q5_K_M-GGUF`: the static Q5_K_M file from `mradermacher/Fanar-2-27B-Instruct-GGUF` (revision 0816cf7f, sha256 checked), copied server side with `hf repos cp` so the endpoint downloads 19.3 GB instead of every quant in the source repo. Static rather than imatrix quant because we could not check whether the imatrix calibration text covers Arabic.
+- Fanar 2's chat template uses `{% raw %}`, which llama.cpp's Jinja engine rejects. The repo carries `chat_template.jinja` with that block written as a string literal; rendering is identical for plain chat, `no_thinking` and tools (checked with jinja2). The endpoint loads it with `LLAMA_ARG_CHAT_TEMPLATE_FILE`.
+- Endpoint `FayezAlkh12/darby-fanar`: llama.cpp server image, 1x L4, 2 slots of 4,096 tokens, q8_0 KV cache, flash attention, scale to zero after 15 minutes. `modelPath` is relative to `/repository`.
+- Measured on 1x L4: 11.5 to 12.1 tokens/s generation, about 150 tokens/s prompt processing, prompt prefix cache works (965 of 970 tokens cached on a repeat). A full Smart Explain answer (572 tokens, 3 cards) took 51 s. Valid JSON first try with the schema grammar, no think block, used أمر for prompt, but wrote MSA when asked for Gulf.

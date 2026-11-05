@@ -1,0 +1,18 @@
+{{ '<bos>' }}{% if messages[0]['role'] == 'system' %}{% set loop_messages = messages[1:] %}{% set system_message = messages[0]['content'] %}{% else %}{% set loop_messages = messages %}{% endif %}{% if system_message is defined %}{{ system_message }}{% endif %}
+{%- if tools %}
+    {{- "# Tools\n\nYou may call one or more functions to assist with the user query.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>" }}
+    {%- for tool in tools %}
+        {{- "
+" }}
+        {{- tool | tojson }}
+    {%- endfor %}
+{{ "\n</tools>\n\nFor each function call, return a json object with function name and arguments within <tool_call></tool_call> XML tags:\n<tool_call>\n{\"name\": <function-name>, \"arguments\": <args-json-object>}\n</tool_call>\n\n" }}
+{%- endif %}{% for message in loop_messages %}{% set content = message['content'] %}{% set is_last = loop.index == loop_messages|length %}{% set next_role = (loop_messages[loop.index]['role'] if not is_last else None) %}{% if message['role'] == 'user' %}{{ '<start_of_turn>user
+' + content + '<end_of_turn>
+<start_of_turn>model
+' }}{% if is_last and (no_thinking is defined and no_thinking) %}{{ '<think>
+
+</think>
+
+' }}{% endif %}{% elif message['role'] == 'assistant' %}{{ content + '<end_of_turn>
+' }}{% elif message['role'] == 'tool' %}{{ '<start_of_turn>tool\n' + content + '<end_of_turn>\n' }}{% if is_last or next_role == 'assistant' %}{{ '<start_of_turn>model\n' }}{% endif %}{% endif %}{% endfor %}
