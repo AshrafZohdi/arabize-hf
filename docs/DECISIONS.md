@@ -40,3 +40,11 @@ The USD 100 credits are on Fayez's personal account (`FayezAlkh12`, can pay); th
 - Explain streams: `llm.json_stream` sends the `explanation` field as it is written (first text at 3.0 s on A10G), then validates the full object.
 - A full answer with 3 model-written cards was about 650 tokens (31.5 s). So terms that already have a Darby glossary card get that card directly, and Fanar writes cards only for important terms the glossary does not cover (at most 2). Fields are ordered explanation, question, cards so the question arrives early.
 - The Gulf request is spelled out with everyday Gulf words and an example sentence, placed last in the system prompt; one line saying "Gulf dialect" produced MSA. The word list needs a check by a Gulf Arabic speaker.
+
+## D11. 2026-11-05: Term bank cleaning rules (stages 0 to 2)
+- Sources pinned by revision in `data/pipeline.py`; raw files re-download exactly and are checked by sha256 against `data/manifest.json` (raw, interim and processed data are not in git).
+- MS column names are `text_en`/`text_ar` (the card's other names do not exist in the file). GIST is read as text only.
+- Highlighting: MS single words caused almost all noise (31.5 matches per 100 words of lesson text; multi-word MS terms 0.5). MS single words are highlighted only when GIST uses the word in at least 5 of its terms: the demo email then marks exactly model, context, prompt and source, and send, client, check and more stay plain. Every term stays searchable in the glossary.
+- "Acronym" means the term itself is a short form (SAC, A2C, GPT-4, LLMs, F1, A/B testing, i.i.d.), not any term containing one ("USB port"): 265 acronyms need `en_expanded`; a separate `has_acronym` flag marks the rest.
+- Rows over 8 words are UI sentences, not terms: 52 dropped, each logged in `data/reports/dropped.csv`.
+- Arabic conflicts are compared with `ar_compare_key` (no diacritics, unified alef, ى, ة, no leading ال), so المصدر and مصدر agree.

@@ -9,3 +9,6 @@ audio_cache/
 .DS_Store
 .pytest_cache/
 *.tsbuildinfo
+data/raw/
+data/interim/
+data/processed/

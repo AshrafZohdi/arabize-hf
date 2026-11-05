@@ -1,0 +1,722 @@
+{
+ "rows": {
+  "darby": 40,
+  "gist": 4844,
+  "ms": 22061
+ },
+ "rows_total": 26945,
+ "empty": {
+  "darby": {
+   "en_empty": 0,
+   "ar_empty": 0
+  },
+  "gist": {
+   "en_empty": 0,
+   "ar_empty": 0
+  },
+  "ms": {
+   "en_empty": 0,
+   "ar_empty": 0
+  }
+ },
+ "duplicates_within": {
+  "darby": {
+   "exact_pairs": 0,
+   "exact_en": 0,
+   "case_insensitive_en": 0,
+   "same_key": 0
+  },
+  "gist": {
+   "exact_pairs": 0,
+   "exact_en": 0,
+   "case_insensitive_en": 0,
+   "same_key": 16
+  },
+  "ms": {
+   "exact_pairs": 1082,
+   "exact_en": 1964,
+   "case_insensitive_en": 2422,
+   "same_key": 2642
+  }
+ },
+ "overlap": {
+  "darby_gist": 12,
+  "darby_ms": 27,
+  "gist_ms": 203,
+  "all_three": 7
+ },
+ "unique_keys_all": 24052,
+ "case_split_keys": 20,
+ "untranslated": {
+  "darby": {
+   "ar_same_as_en": 0,
+   "ar_latin_only": 0,
+   "ar_acronym_only": 0,
+   "ar_mixed_script": 0
+  },
+  "gist": {
+   "ar_same_as_en": 60,
+   "ar_latin_only": 60,
+   "ar_acronym_only": 37,
+   "ar_mixed_script": 83
+  },
+  "ms": {
+   "ar_same_as_en": 16,
+   "ar_latin_only": 45,
+   "ar_acronym_only": 8,
+   "ar_mixed_script": 2636
+  }
+ },
+ "acronym_kinds": {
+  "all_caps": 1397,
+  "digit_mix": 171,
+  "slash": 8,
+  "acronym_plural": 6,
+  "dots": 7
+ },
+ "acronym_terms": {
+  "darby": 2,
+  "gist": 47,
+  "ms": 232
+ },
+ "acronym_top50": [
+  {
+   "en": "IM",
+   "sources": "ms",
+   "ar": "رسالة فورية"
+  },
+  {
+   "en": "AI",
+   "sources": "darby,gist,ms",
+   "ar": "الذكاء الاصطناعي"
+  },
+  {
+   "en": "A/B test",
+   "sources": "gist,ms",
+   "ar": "اختبار A/B"
+  },
+  {
+   "en": "API",
+   "sources": "darby,gist",
+   "ar": "واجهة برمجة التطبيقات"
+  },
+  {
+   "en": "CDA",
+   "sources": "gist,ms",
+   "ar": "CDA"
+  },
+  {
+   "en": "DSS",
+   "sources": "ms",
+   "ar": "DDS"
+  },
+  {
+   "en": "MFA",
+   "sources": "ms",
+   "ar": "مصادقة متعددة العوامل (MFA)"
+  },
+  {
+   "en": "RSVP",
+   "sources": "ms",
+   "ar": "طلب الاستجابة"
+  },
+  {
+   "en": "TV",
+   "sources": "ms",
+   "ar": "التلفزيون"
+  },
+  {
+   "en": "VAT",
+   "sources": "ms",
+   "ar": "ضريبة القيمة المضافة"
+  },
+  {
+   "en": "#BLOCKED!",
+   "sources": "ms",
+   "ar": "محظور!"
+  },
+  {
+   "en": "2-D",
+   "sources": "ms",
+   "ar": "ثنائي الأبعاد"
+  },
+  {
+   "en": "3D",
+   "sources": "ms",
+   "ar": "ثلاثي الأبعاد"
+  },
+  {
+   "en": "A/B testing",
+   "sources": "ms",
+   "ar": "إجراءات اختبار أ/ب"
+  },
+  {
+   "en": "A/V Conferencing Edge service",
+   "sources": "ms",
+   "ar": "خدمة Conferencing Edge للصوت/الفيديو"
+  },
+  {
+   "en": "A/V Edge server",
+   "sources": "ms",
+   "ar": "خادم Edge للصوت/الفيديو"
+  },
+  {
+   "en": "A2C",
+   "sources": "gist",
+   "ar": "A2C"
+  },
+  {
+   "en": "AA",
+   "sources": "ms",
+   "ar": "مانع التشويش (AA)"
+  },
+  {
+   "en": "AAD",
+   "sources": "ms",
+   "ar": "AAD (دليل Azure النشط)"
+  },
+  {
+   "en": "ACE",
+   "sources": "ms",
+   "ar": "تنفيذ تعليمات برمجية تحكّمية"
+  },
+  {
+   "en": "ACR",
+   "sources": "ms",
+   "ar": "تقرير التوافق مع معايير الوصول"
+  },
+  {
+   "en": "ADG",
+   "sources": "ms",
+   "ar": "إدارة البيانات المتقدمة"
+  },
+  {
+   "en": "AIR",
+   "sources": "ms",
+   "ar": "الفحص والاستجابة التلقائيين"
+  },
+  {
+   "en": "AND",
+   "sources": "ms",
+   "ar": "و"
+  },
+  {
+   "en": "APN",
+   "sources": "ms",
+   "ar": "اسم نقطة الوصول"
+  },
+  {
+   "en": "AQA",
+   "sources": "gist",
+   "ar": "AQA"
+  },
+  {
+   "en": "AR",
+   "sources": "ms",
+   "ar": "الواقع المعزز"
+  },
+  {
+   "en": "ARENA",
+   "sources": "gist",
+   "ar": "ARENA"
+  },
+  {
+   "en": "ATM",
+   "sources": "ms",
+   "ar": "ماكينة الصرّاف الآلي"
+  },
+  {
+   "en": "AUD",
+   "sources": "ms",
+   "ar": "دولار استرالي"
+  },
+  {
+   "en": "B2B",
+   "sources": "ms",
+   "ar": "متاجرة عمل-عمل"
+  },
+  {
+   "en": "B2C",
+   "sources": "ms",
+   "ar": "متاجرة عمل-مستهلك"
+  },
+  {
+   "en": "BART",
+   "sources": "gist",
+   "ar": "BART"
+  },
+  {
+   "en": "BCG",
+   "sources": "ms",
+   "ar": "لقاح عُصية كالميت غيران (BCG)"
+  },
+  {
+   "en": "BERT",
+   "sources": "gist",
+   "ar": "بيرت"
+  },
+  {
+   "en": "BERTs",
+   "sources": "gist",
+   "ar": "BERTs"
+  },
+  {
+   "en": "BETO",
+   "sources": "gist",
+   "ar": "BETO"
+  },
+  {
+   "en": "BIO",
+   "sources": "gist",
+   "ar": "BIO"
+  },
+  {
+   "en": "BLEU",
+   "sources": "gist",
+   "ar": "BLEU"
+  },
+  {
+   "en": "BMD",
+   "sources": "ms",
+   "ar": "كثافة المعادن في العظام (BMD)"
+  },
+  {
+   "en": "BMI",
+   "sources": "ms",
+   "ar": "مؤشر كتلة الجسم (BMI)"
+  },
+  {
+   "en": "BMR",
+   "sources": "ms",
+   "ar": "معدل الاستقلاب الأساسي (BMR)"
+  },
+  {
+   "en": "BPA",
+   "sources": "ms",
+   "ar": "أتمتة عمليات الأعمال (BPA)"
+  },
+  {
+   "en": "BPE",
+   "sources": "gist",
+   "ar": "BPE"
+  },
+  {
+   "en": "BPM",
+   "sources": "ms",
+   "ar": "معدل النبضات لكل دقيقة"
+  },
+  {
+   "en": "BRL",
+   "sources": "ms",
+   "ar": "ريال برازيلي"
+  },
+  {
+   "en": "BSARD",
+   "sources": "gist",
+   "ar": "BSARD"
+  },
+  {
+   "en": "C&C",
+   "sources": "ms",
+   "ar": "الأوامر والتحكّم"
+  },
+  {
+   "en": "CAD",
+   "sources": "ms",
+   "ar": "دولار كندي"
+  },
+  {
+   "en": "CAS",
+   "sources": "gist",
+   "ar": "CAS"
+  }
+ ],
+ "acronyms_without_arabic_meaning": 45,
+ "acronyms_with_mixed_arabic": 73,
+ "script": {
+  "darby": {
+   "diacritics": 0,
+   "tatweel": 0,
+   "presentation_forms": 0,
+   "eastern_digits": 0,
+   "western_digits": 0,
+   "html": 0,
+   "extra_whitespace": 0,
+   "latin_punct_in_ar": 0,
+   "brackets": 0
+  },
+  "gist": {
+   "diacritics": 139,
+   "tatweel": 3,
+   "presentation_forms": 0,
+   "eastern_digits": 0,
+   "western_digits": 45,
+   "html": 0,
+   "extra_whitespace": 3,
+   "latin_punct_in_ar": 0,
+   "brackets": 4
+  },
+  "ms": {
+   "diacritics": 888,
+   "tatweel": 329,
+   "presentation_forms": 1,
+   "eastern_digits": 1,
+   "western_digits": 414,
+   "html": 0,
+   "extra_whitespace": 0,
+   "latin_punct_in_ar": 6,
+   "brackets": 233
+  }
+ },
+ "arabic_share_lt_1": {
+  "gist": 143,
+  "ms": 2682
+ },
+ "packed": {
+  "gist": 4,
+  "ms": 104
+ },
+ "conflicting_keys": 146,
+ "agreeing_cross_source_keys": 82,
+ "conflict_pairs": {
+  "darby-gist": 5,
+  "darby-ms": 13,
+  "gist-ms": 136
+ },
+ "darby_conflicts": [
+  {
+   "key": "AI",
+   "source": "darby",
+   "ar": "الذكاء الاصطناعي"
+  },
+  {
+   "key": "AI",
+   "source": "gist",
+   "ar": "AI"
+  },
+  {
+   "key": "AI",
+   "source": "ms",
+   "ar": "الذكاء الاصطناعي"
+  },
+  {
+   "key": "API",
+   "source": "darby",
+   "ar": "واجهة برمجة التطبيقات"
+  },
+  {
+   "key": "API",
+   "source": "gist",
+   "ar": "API"
+  },
+  {
+   "key": "binary",
+   "source": "darby",
+   "ar": "النظام الثنائي"
+  },
+  {
+   "key": "binary",
+   "source": "ms",
+   "ar": "ثنائي"
+  },
+  {
+   "key": "binary",
+   "source": "ms",
+   "ar": "ثنائي"
+  },
+  {
+   "key": "chaining",
+   "source": "darby",
+   "ar": "تسلسل الأوامر"
+  },
+  {
+   "key": "chaining",
+   "source": "ms",
+   "ar": "تسلسل"
+  },
+  {
+   "key": "chart",
+   "source": "darby",
+   "ar": "رسم بياني"
+  },
+  {
+   "key": "chart",
+   "source": "ms",
+   "ar": "مخطط"
+  },
+  {
+   "key": "chart",
+   "source": "ms",
+   "ar": "مخطط بياني"
+  },
+  {
+   "key": "chart",
+   "source": "ms",
+   "ar": "مخططات"
+  },
+  {
+   "key": "chart",
+   "source": "ms",
+   "ar": "التصنيف"
+  },
+  {
+   "key": "chart",
+   "source": "ms",
+   "ar": "المخططات"
+  },
+  {
+   "key": "chart",
+   "source": "ms",
+   "ar": "مخطط"
+  },
+  {
+   "key": "citation",
+   "source": "darby",
+   "ar": "استشهاد مرجعي"
+  },
+  {
+   "key": "citation",
+   "source": "ms",
+   "ar": "اقتباس"
+  },
+  {
+   "key": "data policy",
+   "source": "darby",
+   "ar": "سياسة البيانات"
+  },
+  {
+   "key": "data policy",
+   "source": "ms",
+   "ar": "نهج البيانات"
+  },
+  {
+   "key": "draft",
+   "source": "darby",
+   "ar": "مسودة"
+  },
+  {
+   "key": "draft",
+   "source": "ms",
+   "ar": "مسودة"
+  },
+  {
+   "key": "draft",
+   "source": "ms",
+   "ar": "مسودة"
+  },
+  {
+   "key": "draft",
+   "source": "ms",
+   "ar": "مسودة"
+  },
+  {
+   "key": "draft",
+   "source": "ms",
+   "ar": "إعداد"
+  },
+  {
+   "key": "formula",
+   "source": "darby",
+   "ar": "معادلة"
+  },
+  {
+   "key": "formula",
+   "source": "ms",
+   "ar": "صيغة"
+  },
+  {
+   "key": "formula",
+   "source": "ms",
+   "ar": "معادلة"
+  },
+  {
+   "key": "function",
+   "source": "darby",
+   "ar": "دالة"
+  },
+  {
+   "key": "function",
+   "source": "ms",
+   "ar": "دالة"
+  },
+  {
+   "key": "function",
+   "source": "ms",
+   "ar": "دالة"
+  },
+  {
+   "key": "function",
+   "source": "ms",
+   "ar": "وظيفة"
+  },
+  {
+   "key": "iteration",
+   "source": "darby",
+   "ar": "تكرار التحسين"
+  },
+  {
+   "key": "iteration",
+   "source": "gist",
+   "ar": "تكرار"
+  },
+  {
+   "key": "iteration",
+   "source": "ms",
+   "ar": "تكرار"
+  },
+  {
+   "key": "iteration",
+   "source": "ms",
+   "ar": "تكرار"
+  },
+  {
+   "key": "iteration",
+   "source": "ms",
+   "ar": "تكرار"
+  },
+  {
+   "key": "machine learning",
+   "source": "darby",
+   "ar": "تعلم الآلة"
+  },
+  {
+   "key": "machine learning",
+   "source": "gist",
+   "ar": "تعُّلم الآلة"
+  },
+  {
+   "key": "machine learning",
+   "source": "ms",
+   "ar": "التعلم الآلي"
+  },
+  {
+   "key": "machine learning",
+   "source": "ms",
+   "ar": "التعلّم الآلي"
+  },
+  {
+   "key": "prompt",
+   "source": "darby",
+   "ar": "أمر"
+  },
+  {
+   "key": "prompt",
+   "source": "gist",
+   "ar": "موجه"
+  },
+  {
+   "key": "prompt",
+   "source": "ms",
+   "ar": "مطالبة"
+  },
+  {
+   "key": "prompt",
+   "source": "ms",
+   "ar": "موجه"
+  },
+  {
+   "key": "prompt",
+   "source": "ms",
+   "ar": "يطالب"
+  },
+  {
+   "key": "workflow",
+   "source": "darby",
+   "ar": "سير العمل"
+  },
+  {
+   "key": "workflow",
+   "source": "ms",
+   "ar": "سير العمل"
+  },
+  {
+   "key": "workflow",
+   "source": "ms",
+   "ar": "سير العمل"
+  },
+  {
+   "key": "workflow",
+   "source": "ms",
+   "ar": "سير العمل"
+  },
+  {
+   "key": "workflow",
+   "source": "ms",
+   "ar": "مهام سير العمل"
+  }
+ ],
+ "length": {
+  "darby": {
+   "en_words_max": 3,
+   "en_chars_p99": 20.61,
+   "single_word_share": 0.775
+  },
+  "gist": {
+   "en_words_max": 6,
+   "en_chars_p99": 33.0,
+   "single_word_share": 0.147
+  },
+  "ms": {
+   "en_words_max": 29,
+   "en_chars_p99": 44.0,
+   "single_word_share": 0.261
+  }
+ },
+ "junk_candidates": {
+  "ms": 52
+ },
+ "corpus_words": 1214,
+ "noise": {
+  "darby": {
+   "matches": 91,
+   "per_100_words": 7.5,
+   "distinct_terms": 33
+  },
+  "gist": {
+   "matches": 53,
+   "per_100_words": 4.4,
+   "distinct_terms": 17
+  },
+  "ms": {
+   "matches": 383,
+   "per_100_words": 31.5,
+   "distinct_terms": 183
+  },
+  "ms multi-word only": {
+   "matches": 6,
+   "per_100_words": 0.5,
+   "distinct_terms": 5
+  },
+  "ms single-word only": {
+   "matches": 387,
+   "per_100_words": 31.9,
+   "distinct_terms": 180
+  }
+ },
+ "ms_single_word_terms": 5759,
+ "demo_email_matches": {
+  "darby": [
+   "summary",
+   "hallucinations",
+   "context",
+   "prompt",
+   "source"
+  ],
+  "gist": [
+   "prompt",
+   "source"
+  ],
+  "ms": [
+   "send",
+   "summary",
+   "client",
+   "check",
+   "model",
+   "more",
+   "context",
+   "prompt",
+   "source",
+   "paragraph"
+  ]
+ }
+}

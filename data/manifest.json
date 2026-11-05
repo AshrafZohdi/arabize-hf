@@ -1,0 +1,84 @@
+{
+  "sources": {
+    "gist": {
+      "repo_id": "Jerry999/multilingual-terminology",
+      "revision": "0a4c2be4f2c49a7fc8d0bbb074c31616112fd7c9",
+      "filename": "Arabic.csv",
+      "licence": "apache-2.0",
+      "local_path": "data/raw/gist/Arabic.csv",
+      "rows": 4844,
+      "columns": [
+        "Index",
+        "English",
+        "Arabic"
+      ],
+      "sha256": "bd21fe32bd4f275df5fca64de02b1d9b87e130eb24ef6f4b90f1a164e925d0c8"
+    },
+    "ms": {
+      "repo_id": "ymoslem/MS-Glossary-EN-AR",
+      "revision": "580155fa32168ebac2ec52a4ae5c041a4519977a",
+      "filename": "data/train-00000-of-00001.parquet",
+      "licence": "not stated on the card (team decision: used for the hackathon, referenced by repo id, not re-uploaded)",
+      "local_path": "data/raw/ms/train-00000-of-00001.parquet",
+      "rows": 22061,
+      "columns": [
+        "text_en",
+        "text_ar"
+      ],
+      "sha256": "e6050e521fa7a2286212680fb0ca621269a60715dff1a30341706a4121f162ce"
+    },
+    "darby_glossary": {
+      "repo_id": null,
+      "local_path": "content/glossary.json",
+      "rows": 28,
+      "columns": [
+        "analogy_ar",
+        "analogy_en",
+        "def_ar",
+        "def_en",
+        "def_gulf",
+        "domain",
+        "example_ar",
+        "example_en",
+        "example_gulf",
+        "mistake_ar",
+        "mistake_en",
+        "other_forms_ar",
+        "related",
+        "sources",
+        "technical_ar",
+        "technical_en",
+        "term_en",
+        "term_gulf",
+        "term_msa"
+      ],
+      "sha256": "8919faf78590474287e9b89d7906df0b007a3e34b1564d575574cb77c5756ac3",
+      "licence": "ours"
+    },
+    "darby_computing": {
+      "repo_id": null,
+      "local_path": "content/terms-computing.json",
+      "rows": 12,
+      "columns": [
+        "analogy_ar",
+        "analogy_en",
+        "code",
+        "def_ar",
+        "def_en",
+        "domain",
+        "example_ar",
+        "example_en",
+        "formula",
+        "mistake_ar",
+        "mistake_en",
+        "related",
+        "technical_ar",
+        "technical_en",
+        "term_en",
+        "term_msa"
+      ],
+      "sha256": "3439e68a0724d8497254cfc58d4de619281e4c99ac54510f6e20fa0f4cd42231",
+      "licence": "ours"
+    }
+  }
+}

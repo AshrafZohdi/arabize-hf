@@ -1,0 +1,8 @@
+# Term bank pipeline and EDA notebook (local and HF Jobs). Not installed in the Space image.
+-r requirements-dev.txt
+pandas==3.1.1
+pyarrow==26.0.1
+matplotlib==3.11.2
+nbformat==5.11.1
+nbclient==0.11.0
+ipykernel==7.4.0

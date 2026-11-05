@@ -1,0 +1,27 @@
+{
+  "rows_in": 26945,
+  "rows_in_by_source": {
+    "darby": 40,
+    "gist": 4844,
+    "ms": 22061
+  },
+  "dropped": {
+    "more than 8 words (a UI sentence, not a term)": 52
+  },
+  "rows_after_drop": 26893,
+  "terms_out": 24000,
+  "merged_rows": 2893,
+  "terms_by_first_source": {
+    "human_ms": 19144,
+    "human_gist": 4816,
+    "darby_editor": 40
+  },
+  "multi_source_terms": 228,
+  "highlight_terms": 20634,
+  "acronyms": 265,
+  "stage3_queue": {
+    "acronym without expansion": 265,
+    "untranslated": 59
+  },
+  "packed_variant_terms": 1203
+}
