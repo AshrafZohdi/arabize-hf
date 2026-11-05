@@ -27,7 +27,8 @@ def test_health(client):
     assert r.status_code == 200
     body = r.json()
     assert body["status"] == "ok"
-    assert set(body) >= {"version", "demo_mode", "llm_configured", "voice_enabled"}
+    assert set(body) >= {"version", "demo_mode", "llm", "voice_enabled"}
+    assert body["llm"]["state"] in {"ready", "waking", "demo", "unconfigured", "unknown"}
 
 
 def test_unknown_api_path_is_404_not_spa(client):
