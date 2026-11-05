@@ -1,0 +1,118 @@
+@import "tailwindcss";
+@import "./styles/tokens.css";
+
+@import "@fontsource/readex-pro/arabic-500.css";
+@import "@fontsource/readex-pro/arabic-600.css";
+@import "@fontsource/readex-pro/latin-500.css";
+@import "@fontsource/readex-pro/latin-600.css";
+@import "@fontsource/ibm-plex-sans-arabic/arabic-400.css";
+@import "@fontsource/ibm-plex-sans-arabic/arabic-500.css";
+@import "@fontsource/ibm-plex-sans-arabic/arabic-600.css";
+@import "@fontsource/ibm-plex-sans-arabic/arabic-700.css";
+@import "@fontsource/ibm-plex-sans/latin-400.css";
+@import "@fontsource/ibm-plex-sans/latin-500.css";
+@import "@fontsource/ibm-plex-sans/latin-600.css";
+@import "@fontsource/ibm-plex-sans/latin-700.css";
+
+@theme inline {
+  --color-*: initial;
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-line: var(--line);
+  --color-shadow: var(--shadow);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-muted: var(--muted);
+  --color-maroon: var(--maroon);
+  --color-maroon-deep: var(--maroon-deep);
+  --color-maroon-soft: var(--maroon-soft);
+  --color-maroon-text: var(--maroon-text);
+  --color-teal: var(--teal);
+  --color-teal-soft: var(--teal-soft);
+  --color-teal-text: var(--teal-text);
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+  --color-gold-text: var(--gold-text);
+  --color-flame: var(--flame);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-success-text: var(--success-text);
+  --color-present: var(--present);
+  --color-absent: var(--absent);
+  --color-locked: var(--locked);
+  --color-white: var(--white);
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  --font-display: "Readex Pro", "IBM Plex Sans Arabic", sans-serif;
+  --font-ar: "IBM Plex Sans Arabic", "IBM Plex Sans", sans-serif;
+  --font-en: "IBM Plex Sans", "IBM Plex Sans Arabic", sans-serif;
+
+  --shadow-card: 0 6px 0 var(--shadow);
+  --shadow-btn: 0 5px 0 var(--maroon-deep);
+  --shadow-btn-pressed: 0 2px 0 var(--maroon-deep);
+  --shadow-answer: 0 4px 0 var(--shadow);
+  --shadow-logo: 0 4px 0 var(--maroon-deep);
+}
+
+@layer base {
+html {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-ar);
+  font-size: 16px;
+  line-height: 1.7;
+  -webkit-text-size-adjust: 100%;
+}
+html[lang="en"] { font-family: var(--font-en); line-height: 1.6; }
+body { margin: 0; min-width: 320px; overflow-x: hidden; }
+
+/* Western digits everywhere, also inside Arabic text. */
+body { font-variant-numeric: lining-nums; }
+
+:focus-visible { outline: 3px solid var(--maroon); outline-offset: 2px; }
+
+a { color: var(--maroon); }
+a:hover { color: var(--maroon-deep); }
+
+}
+
+@layer components {
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: var(--shadow-card);
+}
+@media (min-width: 640px) { .card { padding: 28px; } }
+
+.btn-primary {
+  border: 0;
+  background: var(--maroon);
+  color: var(--white);
+  font: inherit;
+  font-weight: 700;
+  min-height: 56px;
+  padding: 12px 32px;
+  border-radius: 16px;
+  box-shadow: var(--shadow-btn);
+  cursor: pointer;
+  transition: transform 80ms ease, box-shadow 80ms ease;
+}
+.btn-primary:hover { background: var(--maroon-deep); }
+.btn-primary:active { transform: translateY(3px); box-shadow: var(--shadow-btn-pressed); }
+.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

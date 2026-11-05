@@ -1,0 +1,30 @@
+/* The only place colours are written. Source: docs/design/tokens.md */
+:root {
+  --bg: #F5EBDD;
+  --surface: #FFFDF9;
+  --surface-2: #FBF6EE;
+  --surface-3: #F7F0E6;
+  --line: #E8D9C3;
+  --shadow: #E2CFB3;
+  --ink: #22181A;
+  --ink-2: #4A3D38;
+  --muted: #6A5D55;
+  --maroon: #8A1538;
+  --maroon-deep: #5E0E26;
+  --maroon-soft: #F6E1E6;
+  --maroon-text: #7A1231;
+  --teal: #0B6E69;
+  --teal-soft: #DDEFEC;
+  --teal-text: #0A5A56;
+  --gold: #E9A93B;
+  --gold-soft: #FBE7BF;
+  --gold-text: #6B4300;
+  --flame: #D9622B;
+  --success: #1F7A4D;
+  --success-soft: #E2F3E9;
+  --success-text: #145236;
+  --present: #C98A1A;
+  --absent: #CFC3B4;
+  --locked: #EADCC8;
+  --white: #FFFFFF;
+}
