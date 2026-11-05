@@ -1,0 +1,53 @@
+{
+  "slug": "day-1", "order": 1, "est_minutes": 10,
+  "title": { "en": "What AI can and can't do at work", "ar": "ماذا يستطيع الذكاء الاصطناعي أن يفعل في عملكم؟", "gulf": "شنو يقدر يسوي الذكاء الاصطناعي في شغلكم؟" },
+  "blocks": [
+    { "type": "hook",
+      "en": "Your manager in Doha asks for a one-page summary of a 40-page policy by tomorrow. A colleague says, \"Just use AI.\" Can you trust what it writes?",
+      "ar": "يطلب مديركم في الدوحة ملخصًا من صفحة واحدة لسياسة من 40 صفحة قبل الغد. يقول زميل: \"استخدموا الذكاء الاصطناعي.\" هل يمكن الوثوق بما يكتبه؟",
+      "gulf": "مديركم في الدوحة يبي ملخص صفحة وحدة لسياسة من 40 صفحة قبل باجر. زميلكم يقول: \"خلوا الـ AI يسويها.\" بس تقدرون تثقون باللي يكتبه؟" },
+    { "type": "concept",
+      "en": "Tools like ChatGPT and Claude run on a [[Large language model]]. It learned patterns from a huge amount of text, then predicts what words should come next. It writes fast, and it sounds sure. But it can state false things with confidence: that is a [[Hallucination]]. Three limits to remember: it can be wrong, it may not know recent events, and it does not understand your workplace unless you explain it. The instruction you give it is called a [[Prompt]].",
+      "ar": "تعمل أدوات مثل ChatGPT وClaude بواسطة [[Large language model|نموذج لغوي كبير]] (large language model). تعلّم الأنماط من كمية ضخمة من النصوص، ثم يتوقع الكلمات التالية. يكتب بسرعة وبثقة، لكنه قد يذكر معلومات خاطئة بثقة أيضًا، وهذه هي [[Hallucination|الهلوسة]] (hallucination). تذكّروا ثلاثة حدود: قد يخطئ، وقد لا يعرف الأحداث الحديثة، ولا يفهم بيئة عملكم ما لم تشرحوها له. أما التعليمات التي تعطونها له فتسمى [[Prompt|الأمر]] (prompt).",
+      "gulf": "أدوات مثل ChatGPT وClaude تشتغل على [[Large language model|نموذج لغوي كبير]] (large language model). تعلم الأنماط من نصوص وايد، وبعدين يتوقع الكلمة اللي بعدها. يكتب بسرعة وبثقة، بس ممكن يقول شي غلط بكل ثقة، وهذا اسمه [[Hallucination|هلوسة]] (hallucination). تذكروا ثلاث حدود: ممكن يغلط، وممكن ما يعرف الأخبار الجديدة، وما يفهم شغلكم إلا إذا شرحتوا له. والكلام اللي تعطونه إياه اسمه [[Prompt|برومبت]] (prompt)." },
+    { "type": "example",
+      "en": "Weak: \"Summarize this policy.\" The result is long and generic, and one date is wrong. Better: give it the text, ask for five points for a busy manager, and tell it to quote the section number for each point. Now you can check every point against the policy in minutes.",
+      "ar": "ضعيف: \"لخّص هذه السياسة.\" النتيجة طويلة وعامة، وفيها تاريخ خاطئ. أفضل: أعطوه النص، واطلبوا خمس نقاط لمدير مشغول، مع ذكر رقم القسم لكل نقطة. الآن يمكنكم التحقق من كل نقطة في دقائق.",
+      "gulf": "ضعيف: \"لخص هالسياسة.\" الجواب طويل وعام، وفيه تاريخ غلط. أحسن: عطوه النص، واطلبوا خمس نقاط لمدير مشغول، ومع كل نقطة رقم القسم. الحين تقدرون تتأكدون من كل نقطة في دقايق." },
+    { "type": "key_terms", "en": "", "ar": "", "terms": ["AI", "Large language model", "Prompt", "Hallucination"] },
+    { "type": "exercise", "en": "", "ar": "",
+      "exercises": [
+        { "type": "match",
+          "prompt": { "en": "Match each term with its Arabic", "ar": "صِلوا كل مصطلح بما يقابله", "gulf": "وصلوا كل مصطلح باللي يقابله" },
+          "pairs": [
+            { "left": "AI", "right": { "ar": "الذكاء الاصطناعي", "en": "الذكاء الاصطناعي", "gulf": "الـ AI" } },
+            { "left": "Prompt", "right": { "ar": "أمر", "en": "أمر", "gulf": "برومبت" } },
+            { "left": "Hallucination", "right": { "ar": "الهلوسة", "en": "الهلوسة", "gulf": "تأليف" } }
+          ],
+          "explanation": { "en": "These three terms come up in every lesson.", "ar": "تتكرر هذه المصطلحات الثلاثة في كل درس.", "gulf": "هالمصطلحات الثلاثة بتمر عليكم في كل درس." } },
+        { "type": "mcq",
+          "question": { "en": "The AI gives a law number with full confidence, but no such law exists. What is this called?", "ar": "يذكر الذكاء الاصطناعي رقم قانون بثقة تامة، لكن هذا القانون غير موجود. ماذا يسمى هذا؟", "gulf": "الـ AI قال رقم قانون بكل ثقة، بس القانون مو موجود. شنو اسم هالشي؟" },
+          "options": [
+            { "en": "A prompt", "ar": "أمر" },
+            { "en": "A hallucination", "ar": "هلوسة" },
+            { "en": "A summary", "ar": "ملخص" }
+          ],
+          "correct": 1, "speak": "hallucination",
+          "explanation": { "en": "A hallucination is false information stated with confidence. Always check names, numbers and laws.", "ar": "الهلوسة معلومة خاطئة تُذكر بثقة. تحققوا دائمًا من الأسماء والأرقام والقوانين.", "gulf": "الهلوسة يعني معلومة غلط يقولها بثقة. دايمًا تأكدوا من الأسماء والأرقام والقوانين." } },
+        { "type": "order", "lang": "en",
+          "prompt": { "en": "Build this sentence in English: \"Check the answer before you use it.\"", "ar": "كوّنوا هذه الجملة بالإنجليزية: \"تحققوا من الإجابة قبل استخدامها.\"", "gulf": "ركبوا هالجملة بالإنجليزي: \"تأكدوا من الجواب قبل ما تستخدمونه.\"" },
+          "items": ["Check", "the", "answer", "before", "you", "use", "it"],
+          "explanation": { "en": "Check the answer before you use it.", "ar": "Check the answer before you use it.", "gulf": "Check the answer before you use it." } }
+      ] },
+    { "type": "prompt_lab",
+      "config": {
+        "task_en": "Write a prompt asking an AI to summarize a short public article for your team, and to list one claim you should verify.",
+        "task_ar": "اكتبوا أمرًا يطلب من الذكاء الاصطناعي تلخيص مقال عام قصير لفريقكم، وذكر معلومة واحدة ينبغي التحقق منها.",
+        "task_gulf": "اكتبوا برومبت يطلب من الـ AI يلخص مقال عام قصير لفريقكم، ويذكر معلومة وحدة لازم تتأكدون منها."
+      } },
+    { "type": "recap",
+      "en": "AI predicts words from patterns, and it writes fast.\nIt can be wrong with confidence: that is a [[Hallucination]].\nYou stay responsible, so check before you use. Tomorrow: how to write a [[Prompt]] that works.",
+      "ar": "يتوقع الذكاء الاصطناعي الكلمات من الأنماط ويكتب بسرعة.\nقد يخطئ بثقة، وهذه هي [[Hallucination|الهلوسة]].\nتبقى المسؤولية عليكم، فتحققوا قبل الاستخدام. غدًا: كيف تكتبون [[Prompt|أمرًا]] ناجحًا.",
+      "gulf": "الـ AI يتوقع الكلام من الأنماط ويكتب بسرعة.\nممكن يغلط بكل ثقة، وهذي [[Hallucination|الهلوسة]].\nالمسؤولية عليكم، فتأكدوا قبل ما تستخدمون. باجر: كيف تكتبون [[Prompt|برومبت]] زين." }
+  ]
+}

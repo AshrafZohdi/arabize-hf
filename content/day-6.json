@@ -1,0 +1,55 @@
+{
+  "slug": "day-6", "order": 6, "est_minutes": 10,
+  "title": { "en": "Safe and responsible AI at work", "ar": "الاستخدام الآمن والمسؤول للذكاء الاصطناعي", "gulf": "الاستخدام الآمن للـ AI في الشغل" },
+  "blocks": [
+    { "type": "hook",
+      "en": "A colleague pastes a client contract with names and prices into a free AI tool to \"make it shorter.\" Nobody meant any harm. Could this still be a serious problem?",
+      "ar": "يلصق زميل عقد عميل بأسمائه وأسعاره في أداة ذكاء اصطناعي مجانية \"لاختصاره\". لم يقصد أحد الإضرار. هل يمكن أن تكون هذه مشكلة خطيرة رغم ذلك؟",
+      "gulf": "زميلكم لصق عقد عميل فيه أسماء وأسعار في أداة AI مجانية \"عشان يختصره\". محد قصده شي. بس ممكن تصير مشكلة كبيرة؟" },
+    { "type": "concept",
+      "en": "Before you paste anything, ask three questions. Does it contain [[Personal data]], such as names or ID numbers? Is it covered by [[Confidentiality]], such as contracts or prices? What does your employer's [[Data policy]] allow? If you are unsure, remove the details and use placeholders like [client name]. AI can also carry [[Bias]] from its training data, so a person must review any decision about people.",
+      "ar": "قبل لصق أي شيء، اسألوا ثلاثة أسئلة. هل يحتوي على [[Personal data|بيانات شخصية]] (personal data) مثل الأسماء أو أرقام الهوية؟ هل تشمله [[Confidentiality|السرية]] (confidentiality) مثل العقود أو الأسعار؟ ماذا تسمح به [[Data policy|سياسة البيانات]] (data policy) في جهة عملكم؟ إن لم تتأكدوا، احذفوا التفاصيل واستخدموا بدائل مثل [اسم العميل]. وقد يحمل الذكاء الاصطناعي [[Bias|تحيزًا]] (bias) من بيانات تدريبه، لذا يجب أن يراجع إنسان أي قرار يخص الناس.",
+      "gulf": "قبل ما تلصقون أي شي، اسألوا ثلاث أسئلة. فيه [[Personal data|بيانات شخصية]] (personal data) مثل الأسماء أو أرقام البطاقات؟ داخل تحت [[Confidentiality|السرية]] (confidentiality) مثل العقود أو الأسعار؟ شنو تسمح فيه [[Data policy|سياسة البيانات]] (data policy) في شركتكم؟ إذا مو متأكدين، شيلوا التفاصيل واستخدموا بدايل مثل [اسم العميل]. والـ AI ممكن يكون فيه [[Bias|تحيز]] (bias) من البيانات اللي تدرب عليها، فلازم إنسان يراجع أي قرار يخص الناس." },
+    { "type": "example",
+      "en": "Unsafe: \"Shorten this contract with Al Noor Trading, price QAR 2.4 million, signed by Ahmed Hassan.\"\nSafer: \"Shorten this contract clause. Client: [client]. Price: [amount]. Signatory: [name].\" You lose nothing, and you share nothing private.",
+      "ar": "غير آمن: \"اختصر هذا العقد مع شركة النور للتجارة، بقيمة 2.4 مليون ريال، بتوقيع أحمد حسن.\"\nأكثر أمانًا: \"اختصر هذا البند. العميل: [العميل]. السعر: [المبلغ]. الموقّع: [الاسم].\" لا تخسرون شيئًا، ولا تشاركون شيئًا خاصًا.",
+      "gulf": "مو آمن: \"اختصر هالعقد مع شركة النور للتجارة، بقيمة 2.4 مليون ريال، بتوقيع أحمد حسن.\"\nآمن أكثر: \"اختصر هالبند. العميل: [العميل]. السعر: [المبلغ]. الموقع: [الاسم].\" ما تخسرون شي، وما تشاركون شي خاص." },
+    { "type": "key_terms", "en": "", "ar": "", "terms": ["Personal data", "Confidentiality", "Bias", "Data policy"] },
+    { "type": "exercise", "en": "", "ar": "",
+      "exercises": [
+        { "type": "mcq",
+          "question": { "en": "Which one is personal data?", "ar": "أي مما يلي بيانات شخصية؟", "gulf": "أي واحد من هذي بيانات شخصية؟" },
+          "options": [
+            { "en": "The average price of oil last year", "ar": "متوسط سعر النفط العام الماضي" },
+            { "en": "An employee's ID number", "ar": "رقم هوية موظف" },
+            { "en": "The name of a public law", "ar": "اسم قانون عام" }
+          ],
+          "correct": 1, "speak": "personal data",
+          "explanation": { "en": "An ID number can identify a person, so it is personal data.", "ar": "رقم الهوية يحدد شخصًا، فهو بيانات شخصية.", "gulf": "رقم البطاقة يعرف منه الشخص، فهو بيانات شخصية." } },
+        { "type": "match",
+          "prompt": { "en": "Match each term with its Arabic", "ar": "صِلوا كل مصطلح بما يقابله", "gulf": "وصلوا كل مصطلح باللي يقابله" },
+          "pairs": [
+            { "left": "Confidentiality", "right": { "ar": "السرية", "en": "السرية" } },
+            { "left": "Bias", "right": { "ar": "التحيز", "en": "التحيز" } },
+            { "left": "Data policy", "right": { "ar": "سياسة البيانات", "en": "سياسة البيانات" } }
+          ],
+          "explanation": { "en": "Know these three before you paste work text into any tool.", "ar": "اعرفوا هذه الثلاثة قبل لصق نصوص العمل في أي أداة.", "gulf": "اعرفوا هالثلاثة قبل ما تلصقون نصوص الشغل في أي أداة." } },
+        { "type": "fill", "lang": "en",
+          "prompt": { "en": "Choose the missing word", "ar": "اختاروا الكلمة الناقصة", "gulf": "اختاروا الكلمة الناقصة" },
+          "sentence": { "en": "Remove personal ___ before you paste the text.", "ar": "Remove personal ___ before you paste the text." },
+          "bank": [ { "en": "data" }, { "en": "tone" }, { "en": "chart" } ],
+          "answer": 0,
+          "explanation": { "en": "Remove personal data before you paste the text.", "ar": "Remove personal data: احذفوا البيانات الشخصية قبل لصق النص.", "gulf": "Remove personal data: شيلوا البيانات الشخصية قبل ما تلصقون النص." } }
+      ] },
+    { "type": "prompt_lab",
+      "config": {
+        "task_en": "Rewrite this prompt so it holds no confidential information: \"Write a reply to Sara Al Thani about her salary of QAR 18,000 and her medical leave.\"",
+        "task_ar": "أعيدوا كتابة هذا الأمر ليخلو من المعلومات السرية: \"اكتب ردًا إلى سارة الثاني بشأن راتبها البالغ 18,000 ريال وإجازتها المرضية.\"",
+        "task_gulf": "عيدوا كتابة هالبرومبت عشان ما يكون فيه معلومات سرية: \"اكتب رد لسارة الثاني عن راتبها 18,000 ريال وإجازتها المرضية.\""
+      } },
+    { "type": "recap",
+      "en": "Check for [[Personal data]] and [[Confidentiality]] first.\nUse placeholders such as [client name].\nFollow your [[Data policy]], and review decisions for [[Bias]]. Tomorrow: your own AI workflow.",
+      "ar": "ابحثوا أولًا عن [[Personal data|البيانات الشخصية]] و[[Confidentiality|السرية]].\nاستخدموا بدائل مثل [اسم العميل].\nاتبعوا [[Data policy|سياسة البيانات]]، وراجعوا القرارات بحثًا عن [[Bias|التحيز]]. غدًا: سير عملكم الشخصي.",
+      "gulf": "شيكوا أول على [[Personal data|البيانات الشخصية]] و[[Confidentiality|السرية]].\nاستخدموا بدايل مثل [اسم العميل].\nامشوا على [[Data policy|سياسة البيانات]]، وراجعوا القرارات من [[Bias|التحيز]]. باجر: طريقتكم الخاصة في الشغل مع الـ AI." }
+  ]
+}

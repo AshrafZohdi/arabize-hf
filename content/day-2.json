@@ -1,0 +1,56 @@
+{
+  "slug": "day-2", "order": 2, "est_minutes": 10,
+  "title": { "en": "Anatomy of a good prompt", "ar": "مكوّنات الأمر الجيد", "gulf": "شلون تكتبون برومبت زين" },
+  "blocks": [
+    { "type": "hook",
+      "en": "You ask AI to \"write a message about the meeting.\" It gives you a long, stiff message about the wrong thing. The tool is not the problem. The request is.",
+      "ar": "تطلبون من الذكاء الاصطناعي \"كتابة رسالة عن الاجتماع\"، فيعطيكم رسالة طويلة وجافة عن موضوع آخر. المشكلة ليست في الأداة، بل في الطلب.",
+      "gulf": "تقولون للـ AI \"اكتب رسالة عن الاجتماع\"، ويعطيكم رسالة طويلة وناشفة عن شي ثاني. المشكلة مو في الأداة، المشكلة في الطلب." },
+    { "type": "concept",
+      "en": "A good prompt has four parts. Goal: what you want and why. [[Context]]: the background it needs, such as who will read it. [[Output format]]: the shape of the answer. [[Constraint]]: the limits, such as length or what to avoid. You can also give it a [[Role]], such as \"act as an HR manager.\" If you remember only one thing: the AI knows nothing about your situation until you tell it.",
+      "ar": "للأمر الجيد أربعة أجزاء. الهدف: ماذا تريدون ولماذا. [[Context|السياق]] (context): الخلفية اللازمة، مثل من سيقرأ النص. [[Output format|صيغة المخرجات]] (output format): شكل الإجابة. [[Constraint|القيود]] (constraints): الحدود، مثل الطول أو ما يجب تجنبه. ويمكن أيضًا تحديد [[Role|دور]] (role)، مثل \"تصرّف كمدير موارد بشرية\". تذكّروا: لا يعرف الذكاء الاصطناعي شيئًا عن وضعكم حتى تخبروه.",
+      "gulf": "البرومبت الزين فيه أربعة أجزاء. الهدف: شنو تبون وليش. [[Context|السياق]] (context): المعلومات اللي يحتاجها، مثل منو بيقرا. [[Output format|صيغة الجواب]] (output format): شكل الجواب. [[Constraint|الشروط]] (constraints): الحدود، مثل الطول أو الأشياء اللي ما تبونها. وتقدرون بعد تعطونه [[Role|دور]] (role)، مثل \"تصرف كمدير موارد بشرية\". تذكروا: الـ AI ما يدري عن وضعكم شي إلا إذا قلتوا له." },
+    { "type": "example",
+      "en": "Before: \"Write a message about the meeting.\"\nAfter: \"Write a short message to my team (goal) saying Sunday's meeting moved to 10 am in room 3 because the manager is travelling (context). Use 3 lines (format). Keep it polite and do not mention the manager's trip details (constraints).\"",
+      "ar": "قبل: \"اكتب رسالة عن الاجتماع.\"\nبعد: \"اكتب رسالة قصيرة إلى فريقي (الهدف) بأن اجتماع الأحد انتقل إلى الساعة 10 صباحًا في القاعة 3 لأن المدير مسافر (السياق). في 3 أسطر (الصيغة). بأسلوب مهذب ومن دون ذكر تفاصيل سفر المدير (القيود).\"",
+      "gulf": "قبل: \"اكتب رسالة عن الاجتماع.\"\nبعد: \"اكتب رسالة قصيرة لفريقي (الهدف) إن اجتماع الأحد صار الساعة 10 الصبح في قاعة 3 لأن المدير مسافر (السياق). في 3 أسطر (الصيغة). بأسلوب محترم وبدون تفاصيل سفر المدير (الشروط).\"" },
+    { "type": "key_terms", "en": "", "ar": "", "terms": ["Context", "Constraint", "Output format", "Role"] },
+    { "type": "exercise", "en": "", "ar": "",
+      "exercises": [
+        { "type": "mcq",
+          "question": { "en": "\"No more than 100 words\" is an example of what?", "ar": "\"ألا يزيد النص على 100 كلمة\" مثال على ماذا؟", "gulf": "\"ما يزيد عن 100 كلمة\" مثال على شنو؟" },
+          "options": [
+            { "en": "A role", "ar": "دور" },
+            { "en": "Context", "ar": "سياق" },
+            { "en": "A constraint", "ar": "قيد" }
+          ],
+          "correct": 2, "speak": "constraint",
+          "explanation": { "en": "A constraint sets a limit on the answer.", "ar": "القيد يضع حدًا للإجابة.", "gulf": "الشرط يحط حد للجواب." } },
+        { "type": "match",
+          "prompt": { "en": "Match each term with its Arabic", "ar": "صِلوا كل مصطلح بما يقابله", "gulf": "وصلوا كل مصطلح باللي يقابله" },
+          "pairs": [
+            { "left": "Context", "right": { "ar": "السياق", "en": "السياق" } },
+            { "left": "Role", "right": { "ar": "دور", "en": "دور" } },
+            { "left": "Output format", "right": { "ar": "صيغة المخرجات", "en": "صيغة المخرجات" } },
+            { "left": "Constraint", "right": { "ar": "قيد", "en": "قيد" } }
+          ],
+          "explanation": { "en": "Goal, context, format and constraints are the four parts of a good prompt.", "ar": "الهدف والسياق والصيغة والقيود هي أجزاء الأمر الجيد الأربعة.", "gulf": "الهدف والسياق والصيغة والشروط هي أربعة أجزاء البرومبت الزين." } },
+        { "type": "fill", "lang": "en",
+          "prompt": { "en": "Choose the missing word", "ar": "اختاروا الكلمة الناقصة", "gulf": "اختاروا الكلمة الناقصة" },
+          "sentence": { "en": "Add more ___: who will read this report?", "ar": "Add more ___: who will read this report?" },
+          "bank": [ { "en": "context" }, { "en": "chart" }, { "en": "bias" } ],
+          "answer": 0,
+          "explanation": { "en": "Context is the background the AI needs.", "ar": "السياق (context) هو الخلفية التي يحتاجها الذكاء الاصطناعي.", "gulf": "السياق (context) هو المعلومات اللي يحتاجها الـ AI." } }
+      ] },
+    { "type": "prompt_lab",
+      "config": {
+        "task_en": "Rewrite this weak prompt into a full one with a goal, context, format and constraints: \"Write something about our new leave policy.\"",
+        "task_ar": "أعيدوا كتابة هذا الأمر الضعيف ليصبح كاملًا بهدف وسياق وصيغة وقيود: \"اكتب شيئًا عن سياسة الإجازات الجديدة.\"",
+        "task_gulf": "عيدوا كتابة هالبرومبت الضعيف عشان يكون كامل، فيه هدف وسياق وصيغة وشروط: \"اكتب شي عن سياسة الإجازات الجديدة.\""
+      } },
+    { "type": "recap",
+      "en": "Four parts: goal, [[Context]], [[Output format]], [[Constraint]].\nA [[Role]] can shape the answer.\nThe AI only knows what you tell it. Tomorrow: emails and reports.",
+      "ar": "أربعة أجزاء: الهدف، و[[Context|السياق]]، و[[Output format|صيغة المخرجات]]، و[[Constraint|القيود]].\nقد يغيّر [[Role|الدور]] شكل الإجابة.\nلا يعرف الذكاء الاصطناعي إلا ما تخبرونه به. غدًا: الرسائل والتقارير.",
+      "gulf": "أربعة أجزاء: الهدف، و[[Context|السياق]]، و[[Output format|صيغة الجواب]]، و[[Constraint|الشروط]].\nالـ [[Role|دور]] يغير شكل الجواب.\nالـ AI يعرف بس اللي تقولون له. باجر: الإيميلات والتقارير." }
+  ]
+}

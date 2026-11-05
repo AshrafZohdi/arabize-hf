@@ -1,0 +1,53 @@
+{
+  "slug": "day-3", "order": 3, "est_minutes": 10,
+  "title": { "en": "Emails and reports with AI", "ar": "كتابة الرسائل والتقارير بالذكاء الاصطناعي", "gulf": "الإيميلات والتقارير مع الـ AI" },
+  "blocks": [
+    { "type": "hook",
+      "en": "You have four bullet points from a meeting and need a formal email to your director in 10 minutes, in Arabic. You know what to say, but not how to say it well.",
+      "ar": "لديكم أربع نقاط من اجتماع، وتحتاجون إلى رسالة رسمية إلى المدير خلال 10 دقائق بالعربية. تعرفون ماذا تقولون، لكن كيف تصوغونه جيدًا؟",
+      "gulf": "عندكم أربع نقاط من اجتماع، وتحتاجون إيميل رسمي للمدير خلال 10 دقايق بالعربي. تدرون شنو تبون تقولون، بس شلون تكتبونه زين؟" },
+    { "type": "concept",
+      "en": "Treat the first answer as a [[Draft]], not the finished work. Then improve it by asking again: this is [[Iteration]]. Ask for one change at a time: \"shorter\", \"more polite\", \"move the deadline to the top\". Say the [[Tone]] you want. For senior readers, ask for a [[Formal register]]. Your facts must come from you: give the AI your notes, and it will shape them.",
+      "ar": "تعاملوا مع الإجابة الأولى على أنها [[Draft|مسودة]] (draft) وليست عملًا نهائيًا. ثم حسّنوها بإعادة الطلب، وهذا هو [[Iteration|تكرار التحسين]] (iteration). اطلبوا تغييرًا واحدًا كل مرة: \"أقصر\"، \"أكثر تهذيبًا\"، \"ضع الموعد النهائي في البداية\". حددوا [[Tone|النبرة]] (tone) التي تريدونها، ولكبار المسؤولين اطلبوا [[Formal register|الأسلوب الرسمي]] (formal register). الحقائق تأتي منكم: أعطوه ملاحظاتكم ليصوغها.",
+      "gulf": "اعتبروا أول جواب [[Draft|درافت]] (draft) مو شغل نهائي. بعدين حسنوه وأنتوا تطلبون مرة ثانية، وهذا اسمه [[Iteration|تكرار التحسين]] (iteration). اطلبوا تغيير واحد كل مرة: \"أقصر\"، \"أكثر أدب\"، \"حط الموعد في البداية\". قولوا له [[Tone|أسلوب الكلام]] (tone) اللي تبونه، وللمسؤولين الكبار اطلبوا [[Formal register|الأسلوب الرسمي]] (formal register). المعلومات منكم أنتوا: عطوه ملاحظاتكم وهو يرتبها." },
+    { "type": "example",
+      "en": "First prompt: \"Turn these 4 notes into a formal Arabic email to the director.\"\nSecond: \"Good. Make it shorter and put the decision needed in the first line.\"\nThird: \"Add a polite closing. Do not add any facts that are not in my notes.\"",
+      "ar": "الأمر الأول: \"حوّل هذه الملاحظات الأربع إلى رسالة رسمية بالعربية إلى المدير.\"\nالثاني: \"جيد. اجعلها أقصر وضع القرار المطلوب في السطر الأول.\"\nالثالث: \"أضف خاتمة مهذبة. لا تضف أي معلومات غير موجودة في ملاحظاتي.\"",
+      "gulf": "البرومبت الأول: \"حول هالملاحظات الأربع لإيميل رسمي بالعربي للمدير.\"\nالثاني: \"زين. خله أقصر وحط القرار المطلوب في أول سطر.\"\nالثالث: \"زيد خاتمة محترمة. لا تزيد أي معلومة مو في ملاحظاتي.\"" },
+    { "type": "key_terms", "en": "", "ar": "", "terms": ["Tone", "Draft", "Iteration", "Formal register"] },
+    { "type": "exercise", "en": "", "ar": "",
+      "exercises": [
+        { "type": "match",
+          "prompt": { "en": "Match each term with its Arabic", "ar": "صِلوا كل مصطلح بما يقابله", "gulf": "وصلوا كل مصطلح باللي يقابله" },
+          "pairs": [
+            { "left": "Draft", "right": { "ar": "مسودة", "en": "مسودة", "gulf": "درافت" } },
+            { "left": "Tone", "right": { "ar": "نبرة", "en": "نبرة", "gulf": "أسلوب الكلام" } },
+            { "left": "Formal register", "right": { "ar": "الأسلوب الرسمي", "en": "الأسلوب الرسمي" } }
+          ],
+          "explanation": { "en": "You will use these words whenever you edit with AI.", "ar": "ستحتاجون إلى هذه الكلمات كلما عدّلتم مع الذكاء الاصطناعي.", "gulf": "بتحتاجون هالكلمات كل ما عدلتوا مع الـ AI." } },
+        { "type": "mcq",
+          "question": { "en": "The first email is too long. What is the best next step?", "ar": "الرسالة الأولى طويلة جدًا. ما أفضل خطوة تالية؟", "gulf": "أول إيميل طويل وايد. شنو أحسن خطوة بعدها؟" },
+          "options": [
+            { "en": "Start again with a new tool", "ar": "البدء من جديد بأداة أخرى" },
+            { "en": "Ask for one change: make it shorter", "ar": "طلب تغيير واحد: اجعلها أقصر" },
+            { "en": "Send it as it is", "ar": "إرسالها كما هي" }
+          ],
+          "correct": 1, "speak": "iteration",
+          "explanation": { "en": "Iteration means improving step by step, one change at a time.", "ar": "تكرار التحسين يعني التحسين خطوة بخطوة، بتغيير واحد كل مرة.", "gulf": "تكرار التحسين يعني تحسنون خطوة خطوة، تغيير واحد كل مرة." } },
+        { "type": "order", "lang": "en",
+          "prompt": { "en": "Build this request in English: \"Make the tone more formal.\"", "ar": "كوّنوا هذا الطلب بالإنجليزية: \"اجعل النبرة أكثر رسمية.\"", "gulf": "ركبوا هالطلب بالإنجليزي: \"خل أسلوب الكلام أكثر رسمية.\"" },
+          "items": ["Make", "the", "tone", "more", "formal"],
+          "explanation": { "en": "Make the tone more formal.", "ar": "Make the tone more formal.", "gulf": "Make the tone more formal." } }
+      ] },
+    { "type": "prompt_lab",
+      "config": {
+        "task_en": "Write a prompt that turns these notes into a formal email to your manager: budget approved, start date 1 March, two new hires, need a decision on the vendor by Thursday.",
+        "task_ar": "اكتبوا أمرًا يحوّل هذه الملاحظات إلى رسالة رسمية إلى مديركم: اعتُمدت الميزانية، البداية في 1 مارس، موظفان جديدان، المطلوب قرار بشأن المورّد قبل الخميس.",
+        "task_gulf": "اكتبوا برومبت يحول هالملاحظات لإيميل رسمي لمديركم: الميزانية انعتمدت، البداية 1 مارس، موظفين جداد، نحتاج قرار عن المورد قبل الخميس."
+      } },
+    { "type": "recap",
+      "en": "The first answer is a [[Draft]].\n[[Iteration]]: one change at a time.\nThe facts come from you, and the [[Tone]] is your call. Tomorrow: summaries and checking facts.",
+      "ar": "الإجابة الأولى [[Draft|مسودة]].\n[[Iteration|تكرار التحسين]]: تغيير واحد كل مرة.\nالحقائق منكم، و[[Tone|النبرة]] قراركم. غدًا: التلخيص والتحقق.",
+      "gulf": "أول جواب [[Draft|درافت]].\n[[Iteration|تكرار التحسين]]: تغيير واحد كل مرة.\nالمعلومات منكم، و[[Tone|أسلوب الكلام]] قراركم. باجر: التلخيص والتأكد من المعلومات." }
+  ]
+}

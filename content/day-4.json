@@ -1,0 +1,55 @@
+{
+  "slug": "day-4", "order": 4, "est_minutes": 10,
+  "title": { "en": "Summaries, research and fact-checking", "ar": "التلخيص والبحث والتحقق", "gulf": "التلخيص والبحث والتأكد من المعلومات" },
+  "blocks": [
+    { "type": "hook",
+      "en": "An AI summary of a new regulation looks perfect. It even gives an article number. You put it in your report. The next day, a colleague finds that the article does not say that.",
+      "ar": "يبدو ملخص الذكاء الاصطناعي لنظام جديد مثاليًا، بل يذكر رقم المادة. تضعونه في تقريركم. في اليوم التالي يكتشف زميل أن المادة لا تقول ذلك.",
+      "gulf": "ملخص الـ AI لقانون جديد شكله ممتاز، وحتى فيه رقم المادة. تحطونه في التقرير. وباجر زميلكم يكتشف إن المادة ما تقول جذي." },
+    { "type": "concept",
+      "en": "AI is strong at making a [[Summary]] of text you give it. It is weaker when it answers from memory. So paste the text, and ask it to use only that text. Ask for the [[Source]] of each point. Be careful: AI can invent a [[Citation]] that looks real. Before you use anything important, [[Fact-check]] names, numbers, dates and laws against the original.",
+      "ar": "يتقن الذكاء الاصطناعي كتابة [[Summary|الملخص]] (summary) للنص الذي تعطونه إياه، لكنه أضعف حين يجيب من ذاكرته. لذلك الصقوا النص واطلبوا الاعتماد عليه فقط، واطلبوا [[Source|المصدر]] (source) لكل نقطة. انتبهوا: قد يخترع [[Citation|استشهادًا مرجعيًا]] (citation) يبدو حقيقيًا. قبل استخدام أي شيء مهم، [[Fact-check|تحققوا]] (fact-check) من الأسماء والأرقام والتواريخ والقوانين في الأصل.",
+      "gulf": "الـ AI زين في كتابة [[Summary|الملخص]] (summary) للنص اللي تعطونه، بس أضعف لما يجاوب من راسه. فالصقوا النص وقولوا له يعتمد عليه بس، واطلبوا [[Source|المصدر]] (source) لكل نقطة. انتبهوا: ممكن يألف [[Citation|مرجع]] (citation) شكله حقيقي. قبل ما تستخدمون شي مهم، [[Fact-check|تأكدوا]] (fact-check) من الأسماء والأرقام والتواريخ والقوانين في الأصل." },
+    { "type": "example",
+      "en": "Weak: \"What does the new leave law say?\"\nBetter: \"Using only the text below, summarize the leave rules in 5 points. After each point, give the article number. Then list 3 facts I should verify.\" Then open the law and check those 3 facts yourself.",
+      "ar": "ضعيف: \"ماذا يقول قانون الإجازات الجديد؟\"\nأفضل: \"بالاعتماد على النص أدناه فقط، لخّص قواعد الإجازات في 5 نقاط، واذكر رقم المادة بعد كل نقطة، ثم اذكر 3 معلومات ينبغي أن أتحقق منها.\" ثم افتحوا القانون وتحققوا منها بأنفسكم.",
+      "gulf": "ضعيف: \"شنو يقول قانون الإجازات الجديد؟\"\nأحسن: \"من النص اللي تحت بس، لخص قواعد الإجازات في 5 نقاط، واكتب رقم المادة بعد كل نقطة، وبعدين اذكر 3 معلومات لازم أتأكد منها.\" وبعدها افتحوا القانون وتأكدوا بنفسكم." },
+    { "type": "key_terms", "en": "", "ar": "", "terms": ["Summary", "Source", "Citation", "Fact-check"] },
+    { "type": "exercise", "en": "", "ar": "",
+      "exercises": [
+        { "type": "mcq",
+          "question": { "en": "When is an AI summary most reliable?", "ar": "متى يكون ملخص الذكاء الاصطناعي أكثر موثوقية؟", "gulf": "متى يكون ملخص الـ AI أوثق؟" },
+          "options": [
+            { "en": "When you paste the text and ask it to use only that text", "ar": "عند لصق النص وطلب الاعتماد عليه فقط" },
+            { "en": "When you ask it from memory", "ar": "عند سؤاله من ذاكرته" },
+            { "en": "When the answer sounds confident", "ar": "عندما تبدو الإجابة واثقة" }
+          ],
+          "correct": 0,
+          "explanation": { "en": "Giving it the text keeps the answer tied to something you can check.", "ar": "إعطاؤه النص يربط الإجابة بشيء يمكن التحقق منه.", "gulf": "لما تعطونه النص، الجواب يكون مربوط بشي تقدرون تتأكدون منه." } },
+        { "type": "fill", "lang": "en",
+          "prompt": { "en": "Choose the missing word", "ar": "اختاروا الكلمة الناقصة", "gulf": "اختاروا الكلمة الناقصة" },
+          "sentence": { "en": "Always ___ the numbers against the original report.", "ar": "Always ___ the numbers against the original report." },
+          "bank": [ { "en": "summarize" }, { "en": "fact-check" }, { "en": "draft" } ],
+          "answer": 1,
+          "explanation": { "en": "To fact-check is to compare a claim with a trusted source.", "ar": "التحقق (fact-check) هو مقارنة المعلومة بمصدر موثوق.", "gulf": "التأكد (fact-check) يعني تقارنون المعلومة بمصدر موثوق." } },
+        { "type": "match",
+          "prompt": { "en": "Match each term with its Arabic", "ar": "صِلوا كل مصطلح بما يقابله", "gulf": "وصلوا كل مصطلح باللي يقابله" },
+          "pairs": [
+            { "left": "Summary", "right": { "ar": "ملخص", "en": "ملخص" } },
+            { "left": "Source", "right": { "ar": "مصدر", "en": "مصدر" } },
+            { "left": "Citation", "right": { "ar": "استشهاد مرجعي", "en": "استشهاد مرجعي" } }
+          ],
+          "explanation": { "en": "A citation points to a source, so open the link and read it.", "ar": "الاستشهاد المرجعي يشير إلى مصدر، فافتحوا الرابط واقرؤوه.", "gulf": "المرجع يشير لمصدر، فافتحوا الرابط واقروه." } }
+      ] },
+    { "type": "prompt_lab",
+      "config": {
+        "task_en": "Write a prompt that summarizes a pasted policy excerpt in 5 points, uses only that text, and lists 3 facts you should verify.",
+        "task_ar": "اكتبوا أمرًا يلخص مقطعًا ملصوقًا من سياسة في 5 نقاط، بالاعتماد على النص فقط، ويذكر 3 معلومات ينبغي التحقق منها.",
+        "task_gulf": "اكتبوا برومبت يلخص مقطع ملصوق من سياسة في 5 نقاط، من النص بس، ويذكر 3 معلومات لازم تتأكدون منها."
+      } },
+    { "type": "recap",
+      "en": "Paste the text, then ask for a [[Summary]].\nAsk for the [[Source]] of each point.\n[[Fact-check]] before you use it. Tomorrow: data and spreadsheets.",
+      "ar": "الصقوا النص ثم اطلبوا [[Summary|الملخص]].\nاطلبوا [[Source|المصدر]] لكل نقطة.\n[[Fact-check|تحققوا]] قبل الاستخدام. غدًا: البيانات والجداول.",
+      "gulf": "الصقوا النص وبعدين اطلبوا [[Summary|الملخص]].\nاطلبوا [[Source|المصدر]] لكل نقطة.\n[[Fact-check|تأكدوا]] قبل ما تستخدمون. باجر: البيانات والإكسل." }
+  ]
+}

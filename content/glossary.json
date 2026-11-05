@@ -1,0 +1,313 @@
+[
+  {
+    "term_en": "AI", "term_msa": "الذكاء الاصطناعي", "term_gulf": "الـ AI",
+    "domain": "ai",
+    "analogy_ar": "مثل موظف جديد سريع يتعلم من أمثلة كثيرة، لكنه يحتاج إلى من يراجع عمله.",
+    "analogy_en": "Like a fast new colleague who learned from many examples but still needs someone to check the work.",
+    "mistake_ar": "الظن أنه يفهم ويفكر كما يفكر الإنسان.",
+    "mistake_en": "Thinking it understands and reasons the way a person does.",
+    "related": ["Large language model","Hallucination"],
+    "def_en": "Computer systems that do tasks that usually need human thinking, such as writing or finding patterns.",
+    "def_ar": "أنظمة حاسوبية تؤدي مهام تحتاج عادةً إلى تفكير بشري، مثل الكتابة أو اكتشاف الأنماط.",
+    "def_gulf": "برامج كمبيوتر تسوي شغل يحتاج عادةً تفكير، مثل الكتابة أو ملاحظة الأنماط.",
+    "example_en": "Our team uses AI to draft meeting notes.",
+    "example_ar": "يستخدم فريقنا الذكاء الاصطناعي لصياغة محاضر الاجتماعات.",
+    "example_gulf": "فريقنا يستخدم الـ AI عشان يكتب محاضر الاجتماعات."
+  },
+  {
+    "term_en": "Large language model", "term_msa": "نموذج لغوي كبير", "term_gulf": null,
+    "domain": "ai",
+    "analogy_ar": "مثل إكمال الجملة تلقائيًا في هاتفك، لكن بقدرة أكبر بكثير.",
+    "analogy_en": "Like your phone's autocomplete, but far more capable.",
+    "technical_ar": "نموذج يتدرب على نصوص كثيرة ليتوقع الكلمة التالية، ومن ذلك يكتب إجابات كاملة.",
+    "technical_en": "A model trained on large amounts of text to predict the next word, and in doing so writes whole answers.",
+    "mistake_ar": "الظن أنه يبحث عن الإجابة في قاعدة حقائق.",
+    "mistake_en": "Thinking it looks answers up in a database of facts.",
+    "related": ["AI","Prompt","Hallucination"],
+    "def_en": "An AI system trained on a very large amount of text to predict and write language.",
+    "def_ar": "نظام ذكاء اصطناعي دُرِّب على كمية ضخمة من النصوص ليتوقع اللغة ويكتبها.",
+    "def_gulf": "نظام ذكاء اصطناعي تدرّب على نصوص وايد عشان يتوقع الكلام ويكتبه.",
+    "example_en": "A large language model writes one word at a time, based on patterns.",
+    "example_ar": "يكتب النموذج اللغوي الكبير كلمة تلو أخرى بناءً على الأنماط.",
+    "example_gulf": "النموذج اللغوي الكبير يكتب كلمة ورا كلمة حسب الأنماط.",
+    "other_forms_ar": "نموذج لغة كبير (UNESCO)؛ النماذج اللغوية الكبرى (Okaz)",
+    "sources": [
+      { "label": "MBZUAI", "url": "https://mbzuai.ac.ae/ar/?p=22399" },
+      { "label": "UNESCO", "url": "https://gcedclearinghouse.org/sites/default/files/resources/230069ara.pdf" },
+      { "label": "Google ML glossary", "url": "https://developers.google.com/machine-learning/glossary?hl=ar" }
+    ]
+  },
+  {
+    "term_en": "Prompt", "term_msa": "أمر", "term_gulf": "برومبت",
+    "domain": "ai",
+    "analogy_ar": "مثل التعليمات التي تعطيها لزميل جديد: كلما كانت أوضح جاء العمل أفضل.",
+    "analogy_en": "Like instructions to a new colleague: the clearer they are, the better the work.",
+    "mistake_ar": "كتابة طلب قصير جدًا بلا سياق أو شكل مطلوب.",
+    "mistake_en": "Writing a very short request with no context or format.",
+    "related": ["Context","Constraint","Output format"],
+    "def_en": "The instruction you write to tell an AI tool what you want.",
+    "def_ar": "التعليمات التي تكتبونها لإخبار أداة الذكاء الاصطناعي بما تريدون.",
+    "def_gulf": "الكلام اللي تكتبونه عشان تقولون للـ AI شنو تبون.",
+    "example_en": "A clear prompt saves time.",
+    "example_ar": "الأمر الواضح يوفر الوقت.",
+    "example_gulf": "البرومبت الواضح يوفر عليكم وقت.",
+    "other_forms_ar": "مُطالبة (UNESCO)؛ طلب (Google)؛ المحفّز النصي، التوجيه (Microsoft)؛ هندسة الأوامر = prompt engineering",
+    "sources": [
+      { "label": "UNESCO", "url": "https://gcedclearinghouse.org/sites/default/files/resources/230069ara.pdf" },
+      { "label": "Microsoft Learn", "url": "https://learn.microsoft.com/ar-sa/azure/ai-services/openai/concepts/prompt-engineering" },
+      { "label": "MBZUAI", "url": "https://mbzuai.ac.ae/ar/?p=22399" }
+    ]
+  },
+  {
+    "term_en": "Hallucination", "term_msa": "الهلوسة", "term_gulf": "تأليف",
+    "domain": "ai",
+    "analogy_ar": "مثل شخص واثق يجيب عن سؤال لا يعرفه بدل أن يقول: لا أعرف.",
+    "analogy_en": "Like a confident person who answers a question they do not know instead of saying so.",
+    "mistake_ar": "تصديق الإجابة لأنها مكتوبة بثقة، دون التحقق منها.",
+    "mistake_en": "Believing an answer because it sounds confident, without checking it.",
+    "related": ["Fact-check","Source"],
+    "def_en": "When an AI states something false with confidence, as if it were a fact.",
+    "def_ar": "أن يذكر الذكاء الاصطناعي معلومة خاطئة بثقة كأنها حقيقة.",
+    "def_gulf": "لما الـ AI يقول شي غلط بكل ثقة كأنه صح.",
+    "example_en": "Check the numbers: this report may contain a hallucination.",
+    "example_ar": "تحققوا من الأرقام، فقد يحتوي هذا التقرير على هلوسة.",
+    "example_gulf": "شيكوا على الأرقام، يمكن فيها تأليف من الـ AI.",
+    "other_forms_ar": "هلوَس (فعل، UNESCO)",
+    "sources": [
+      { "label": "MBZUAI", "url": "https://mbzuai.ac.ae/ar/?p=22399" },
+      { "label": "UNESCO", "url": "https://gcedclearinghouse.org/sites/default/files/resources/230069ara.pdf" }
+    ]
+  },
+  {
+    "term_en": "Context", "term_msa": "السياق", "term_gulf": null,
+    "def_en": "The background information an AI needs to give a useful answer.",
+    "def_ar": "المعلومات الخلفية التي يحتاجها الذكاء الاصطناعي ليعطي إجابة مفيدة.",
+    "def_gulf": "المعلومات اللي يحتاجها الـ AI عشان يعطيكم جواب ينفع.",
+    "example_en": "Add context: who will read this email?",
+    "example_ar": "أضيفوا السياق: من سيقرأ هذه الرسالة؟",
+    "example_gulf": "زيدوا السياق: منو بيقرا هالإيميل؟"
+  },
+  {
+    "term_en": "Constraint", "term_msa": "قيد", "term_gulf": null,
+    "def_en": "A limit you set for the answer, such as length or what to avoid.",
+    "def_ar": "حدّ تضعونه للإجابة، مثل الطول أو ما يجب تجنبه.",
+    "def_gulf": "شرط تحطونه للجواب، مثل الطول أو الأشياء اللي ما تبونها.",
+    "example_en": "One constraint: no more than 100 words.",
+    "example_ar": "أحد القيود: ألا يزيد النص على 100 كلمة.",
+    "example_gulf": "من الشروط: ما يزيد عن 100 كلمة."
+  },
+  {
+    "term_en": "Output format", "term_msa": "صيغة المخرجات", "term_gulf": null,
+    "def_en": "The shape you want the answer in, such as a table, a list or an email.",
+    "def_ar": "الشكل الذي تريدون أن تأتي به الإجابة، مثل جدول أو قائمة أو رسالة.",
+    "def_gulf": "الشكل اللي تبون الجواب فيه، مثل جدول أو نقاط أو إيميل.",
+    "example_en": "Output format: a table with three columns.",
+    "example_ar": "صيغة المخرجات: جدول من ثلاثة أعمدة.",
+    "example_gulf": "صيغة الجواب: جدول فيه ثلاثة أعمدة."
+  },
+  {
+    "term_en": "Role", "term_msa": "دور", "term_gulf": null,
+    "def_en": "A part you ask the AI to play, which shapes how it answers.",
+    "def_ar": "شخصية تطلبون من الذكاء الاصطناعي تقمّصها، فتؤثر في طريقة إجابته.",
+    "def_gulf": "دور تطلبون من الـ AI يلعبه، ويأثر على طريقة جوابه.",
+    "example_en": "Role: act as an HR manager.",
+    "example_ar": "الدور: تصرّف كمدير موارد بشرية.",
+    "example_gulf": "الدور: تصرف كأنك مدير موارد بشرية."
+  },
+  {
+    "term_en": "Tone", "term_msa": "نبرة", "term_gulf": "أسلوب الكلام",
+    "def_en": "The feeling of a piece of writing, such as formal or friendly.",
+    "def_ar": "الطابع العام للنص، مثل الرسمي أو الودي.",
+    "def_gulf": "طريقة الكلام في النص، رسمية أو ودية.",
+    "example_en": "Make the tone more polite.",
+    "example_ar": "اجعلوا النبرة أكثر تهذيبًا.",
+    "example_gulf": "خلوا أسلوب الكلام أكثر أدب."
+  },
+  {
+    "term_en": "Draft", "term_msa": "مسودة", "term_gulf": "درافت",
+    "def_en": "A first version that you still need to check and change.",
+    "def_ar": "نسخة أولى تحتاج إلى مراجعة وتعديل.",
+    "def_gulf": "أول نسخة، باقي تحتاج مراجعة وتعديل.",
+    "example_en": "AI wrote the draft, and I edited it.",
+    "example_ar": "كتب الذكاء الاصطناعي المسودة، وعدّلتها أنا.",
+    "example_gulf": "الـ AI كتب الدرافت، وأنا عدلته."
+  },
+  {
+    "term_en": "Iteration", "term_msa": "تكرار التحسين", "term_gulf": null,
+    "def_en": "Improving a result step by step by asking again with changes.",
+    "def_ar": "تحسين النتيجة خطوة بخطوة بإعادة الطلب مع تعديلات.",
+    "def_gulf": "تحسنون النتيجة خطوة خطوة، تطلبون مرة ثانية مع تعديلات.",
+    "example_en": "The third iteration was much better.",
+    "example_ar": "كانت المحاولة الثالثة من تكرار التحسين أفضل بكثير.",
+    "example_gulf": "المحاولة الثالثة طلعت أحسن بوايد."
+  },
+  {
+    "term_en": "Formal register", "term_msa": "الأسلوب الرسمي", "term_gulf": null,
+    "def_en": "The careful, respectful language used in official writing.",
+    "def_ar": "اللغة المنضبطة والمحترمة المستخدمة في الكتابة الرسمية.",
+    "def_gulf": "اللغة المرتبة والمحترمة اللي نستخدمها في الكتابة الرسمية.",
+    "example_en": "Use a formal register when writing to a minister.",
+    "example_ar": "استخدموا الأسلوب الرسمي عند الكتابة إلى وزير.",
+    "example_gulf": "استخدموا الأسلوب الرسمي لما تكتبون لوزير."
+  },
+  {
+    "term_en": "Summary", "term_msa": "ملخص", "term_gulf": null,
+    "def_en": "A short version that keeps only the main points.",
+    "def_ar": "نسخة قصيرة تحتفظ بالنقاط الرئيسية فقط.",
+    "def_gulf": "نسخة قصيرة فيها النقاط المهمة بس.",
+    "example_en": "Give me a summary in three points.",
+    "example_ar": "أعطني ملخصًا في ثلاث نقاط.",
+    "example_gulf": "عطني ملخص في ثلاث نقاط."
+  },
+  {
+    "term_en": "Source", "term_msa": "مصدر", "term_gulf": null,
+    "def_en": "Where a piece of information comes from.",
+    "def_ar": "المكان الذي جاءت منه المعلومة.",
+    "def_gulf": "المكان اللي جات منه المعلومة.",
+    "example_en": "What is the source of this number?",
+    "example_ar": "ما مصدر هذا الرقم؟",
+    "example_gulf": "من وين هالرقم؟ شنو مصدره؟"
+  },
+  {
+    "term_en": "Citation", "term_msa": "استشهاد مرجعي", "term_gulf": null,
+    "def_en": "A note that says exactly which source a statement came from.",
+    "def_ar": "إشارة تحدد المصدر الذي أُخذت منه المعلومة بدقة.",
+    "def_gulf": "إشارة تقول بالضبط من أي مصدر جات المعلومة.",
+    "example_en": "AI can invent a citation, so open the link yourself.",
+    "example_ar": "قد يخترع الذكاء الاصطناعي استشهادًا مرجعيًا، فافتحوا الرابط بأنفسكم.",
+    "example_gulf": "الـ AI ممكن يألف مرجع، فافتحوا الرابط بنفسكم."
+  },
+  {
+    "term_en": "Fact-check", "term_msa": "التحقق من المعلومات", "term_gulf": null,
+    "def_en": "Checking a claim against a trusted source before you use it.",
+    "def_ar": "مطابقة المعلومة بمصدر موثوق قبل استخدامها.",
+    "def_gulf": "تتأكدون من المعلومة من مصدر موثوق قبل ما تستخدمونها.",
+    "example_en": "Fact-check every date in the report.",
+    "example_ar": "تحققوا من كل تاريخ في التقرير.",
+    "example_gulf": "تأكدوا من كل تاريخ في التقرير."
+  },
+  {
+    "term_en": "Dataset", "term_msa": "مجموعة بيانات", "term_gulf": "داتا",
+    "def_en": "An organised collection of information, often in rows and columns.",
+    "def_ar": "معلومات منظمة، غالبًا في صفوف وأعمدة.",
+    "def_gulf": "معلومات مرتبة، غالبًا في صفوف وأعمدة.",
+    "example_en": "This dataset has one row for each sale.",
+    "example_ar": "تحتوي مجموعة البيانات هذه على صف لكل عملية بيع.",
+    "example_gulf": "هالداتا فيها صف لكل عملية بيع.",
+    "other_forms_ar": "بيانات التدريب (training data، UAE)",
+    "sources": [
+      { "label": "Google ML glossary", "url": "https://developers.google.com/machine-learning/glossary?hl=ar" },
+      { "label": "UNESCO", "url": "https://gcedclearinghouse.org/sites/default/files/resources/230069ara.pdf" }
+    ]
+  },
+  {
+    "term_en": "Formula", "term_msa": "معادلة", "term_gulf": "فورمولا",
+    "def_en": "An instruction in a spreadsheet that calculates a value.",
+    "def_ar": "تعليمة في جدول البيانات تحسب قيمة.",
+    "def_gulf": "أمر في الإكسل يحسب لكم رقم.",
+    "example_en": "Ask AI to explain this formula.",
+    "example_ar": "اطلبوا من الذكاء الاصطناعي شرح هذه المعادلة.",
+    "example_gulf": "خلوا الـ AI يشرح لكم هالفورمولا."
+  },
+  {
+    "term_en": "Column", "term_msa": "عمود", "term_gulf": null,
+    "def_en": "A vertical list of values in a table.",
+    "def_ar": "قائمة عمودية من القيم في جدول.",
+    "def_gulf": "قائمة من فوق لتحت في الجدول.",
+    "example_en": "The price is in column C.",
+    "example_ar": "السعر في العمود C.",
+    "example_gulf": "السعر في عمود C."
+  },
+  {
+    "term_en": "Chart", "term_msa": "رسم بياني", "term_gulf": "تشارت",
+    "def_en": "A picture of numbers that makes a pattern easy to see.",
+    "def_ar": "صورة للأرقام تسهّل رؤية النمط.",
+    "def_gulf": "رسمة للأرقام تخلي النمط واضح.",
+    "example_en": "A chart shows the monthly trend.",
+    "example_ar": "يوضح الرسم البياني الاتجاه الشهري.",
+    "example_gulf": "التشارت يوضح الاتجاه كل شهر."
+  },
+  {
+    "term_en": "Personal data", "term_msa": "البيانات الشخصية", "term_gulf": null,
+    "analogy_ar": "مثل الهوية والعنوان ورقم الهاتف: لا تعطيها لشخص لا تعرفه.",
+    "analogy_en": "Like your ID, address and phone number: you would not hand them to a stranger.",
+    "mistake_ar": "لصق بيانات عميل أو موظف في أداة ذكاء اصطناعي غير معتمدة.",
+    "mistake_en": "Pasting customer or employee details into an AI tool that has not been approved.",
+    "related": ["Confidentiality","Data policy"],
+    "def_en": "Information that can identify a person, such as a name or ID number.",
+    "def_ar": "معلومات يمكن أن تحدد هوية شخص، مثل الاسم أو رقم الهوية.",
+    "def_gulf": "معلومات تعرف منها الشخص، مثل الاسم أو رقم البطاقة.",
+    "example_en": "Remove personal data before you paste the text.",
+    "example_ar": "احذفوا البيانات الشخصية قبل لصق النص.",
+    "example_gulf": "شيلوا البيانات الشخصية قبل ما تلصقون النص."
+  },
+  {
+    "term_en": "Confidentiality", "term_msa": "السرية", "term_gulf": null,
+    "def_en": "Keeping work information from people who should not see it.",
+    "def_ar": "إبقاء معلومات العمل بعيدًا عمن لا يحق لهم الاطلاع عليها.",
+    "def_gulf": "إن معلومات الشغل ما توصل لناس ما لهم حق يشوفونها.",
+    "example_en": "This contract falls under confidentiality rules.",
+    "example_ar": "يخضع هذا العقد لقواعد السرية.",
+    "example_gulf": "هالعقد داخل تحت قواعد السرية."
+  },
+  {
+    "term_en": "Bias", "term_msa": "التحيز", "term_gulf": null,
+    "domain": "ai",
+    "analogy_ar": "مثل موظف تدرب على حالات من فئة واحدة، فيخطئ مع غيرها.",
+    "analogy_en": "Like a colleague trained only on cases from one group, who then gets others wrong.",
+    "mistake_ar": "الظن أن النتيجة عادلة لأن من أخرجها جهاز.",
+    "mistake_en": "Assuming a result is fair because a machine produced it.",
+    "related": ["Dataset","Fact-check"],
+    "def_en": "A pattern of unfair results, often learned from the training data.",
+    "def_ar": "نمط من النتائج غير العادلة، يُكتسب غالبًا من بيانات التدريب.",
+    "def_gulf": "نتايج مو عادلة بشكل متكرر، غالبًا من البيانات اللي تدرب عليها.",
+    "example_en": "Check CV screening tools for bias.",
+    "example_ar": "افحصوا أدوات فرز السير الذاتية بحثًا عن التحيز.",
+    "example_gulf": "شيكوا أدوات فرز السير الذاتية إذا فيها تحيز."
+  },
+  {
+    "term_en": "Data policy", "term_msa": "سياسة البيانات", "term_gulf": null,
+    "def_en": "Your employer's rules on what data can go where.",
+    "def_ar": "قواعد جهة العمل بشأن البيانات وأين يمكن استخدامها.",
+    "def_gulf": "قوانين الشركة عن البيانات ووين ممكن تستخدمونها.",
+    "example_en": "Read the data policy before using a new tool.",
+    "example_ar": "اقرؤوا سياسة البيانات قبل استخدام أداة جديدة.",
+    "example_gulf": "اقروا سياسة البيانات قبل ما تستخدمون أداة جديدة."
+  },
+  {
+    "term_en": "Workflow", "term_msa": "سير العمل", "term_gulf": null,
+    "def_en": "The steps you follow, in order, to finish a recurring task.",
+    "def_ar": "الخطوات التي تتبعونها بالترتيب لإنجاز مهمة متكررة.",
+    "def_gulf": "الخطوات اللي تمشون عليها بالترتيب عشان تخلصون شغل يتكرر.",
+    "example_en": "My weekly report workflow has three steps.",
+    "example_ar": "يتكون سير عمل تقريري الأسبوعي من ثلاث خطوات.",
+    "example_gulf": "شغل تقريري الأسبوعي فيه ثلاث خطوات."
+  },
+  {
+    "term_en": "Template", "term_msa": "قالب", "term_gulf": "تمبلت",
+    "def_en": "A reusable text with blanks you fill in each time.",
+    "def_ar": "نص يُعاد استخدامه وفيه فراغات تُملأ في كل مرة.",
+    "def_gulf": "نص جاهز تستخدمونه كل مرة وتعبون الفراغات فيه.",
+    "example_en": "Save this prompt as a template.",
+    "example_ar": "احفظوا هذا الأمر كقالب.",
+    "example_gulf": "احفظوا هالبرومبت كتمبلت."
+  },
+  {
+    "term_en": "Variable", "term_msa": "متغير", "term_gulf": null,
+    "def_en": "A blank in a template that changes each time, such as [client name].",
+    "def_ar": "فراغ في القالب يتغير كل مرة، مثل [اسم العميل].",
+    "def_gulf": "فراغ في التمبلت يتغير كل مرة، مثل [اسم العميل].",
+    "example_en": "Put the date in a variable.",
+    "example_ar": "ضعوا التاريخ في متغير.",
+    "example_gulf": "حطوا التاريخ في متغير."
+  },
+  {
+    "term_en": "Chaining", "term_msa": "تسلسل الأوامر", "term_gulf": null,
+    "def_en": "Using the answer from one prompt as the input to the next.",
+    "def_ar": "استخدام إجابة أمر كمدخل للأمر التالي.",
+    "def_gulf": "تاخذون جواب برومبت وتحطونه في البرومبت اللي بعده.",
+    "example_en": "Chaining: first summarize, then write the email.",
+    "example_ar": "تسلسل الأوامر: لخّصوا أولًا ثم اكتبوا الرسالة.",
+    "example_gulf": "لخصوا أول، بعدين اكتبوا الإيميل من الملخص."
+  }
+]

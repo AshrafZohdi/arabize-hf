@@ -1,0 +1,54 @@
+{
+  "slug": "day-5", "order": 5, "est_minutes": 10,
+  "title": { "en": "Working with data and spreadsheets", "ar": "التعامل مع البيانات والجداول", "gulf": "البيانات والإكسل" },
+  "blocks": [
+    { "type": "hook",
+      "en": "You have a spreadsheet of a year of sales and need the monthly totals by noon. You know it is possible, but you cannot remember the formula.",
+      "ar": "لديكم جدول مبيعات لسنة كاملة، وتحتاجون إلى المجاميع الشهرية قبل الظهر. تعرفون أن ذلك ممكن، لكنكم لا تتذكرون المعادلة.",
+      "gulf": "عندكم إكسل فيه مبيعات سنة كاملة، وتحتاجون مجموع كل شهر قبل الظهر. تدرون إنه ممكن، بس ناسين الفورمولا." },
+    { "type": "concept",
+      "en": "AI can write a [[Formula]] for you and explain it. Describe your [[Dataset]]: what each [[Column]] holds and which row the data starts on. Say what you want to calculate, and which spreadsheet tool you use. Ask it to explain the formula in simple words. Then test it on a few rows you can check by hand. It can also suggest a [[Chart]] that shows the pattern clearly.",
+      "ar": "يمكن للذكاء الاصطناعي كتابة [[Formula|المعادلة]] (formula) وشرحها. صفوا [[Dataset|مجموعة البيانات]] (dataset): ماذا يحتوي كل [[Column|عمود]] (column)، ومن أي صف تبدأ البيانات. حددوا ما تريدون حسابه والبرنامج الذي تستخدمونه. اطلبوا شرح المعادلة بكلمات بسيطة، ثم جرّبوها على صفوف قليلة يمكن حسابها يدويًا. ويمكنه أيضًا اقتراح [[Chart|رسم بياني]] (chart) يوضح النمط.",
+      "gulf": "الـ AI يقدر يكتب لكم [[Formula|الفورمولا]] (formula) ويشرحها. وصفوا له [[Dataset|الداتا]] (dataset): شنو في كل [[Column|عمود]] (column)، ومن أي صف تبدا البيانات. قولوا له شنو تبون تحسبون وأي برنامج تستخدمون. اطلبوا يشرحها بكلام بسيط، وبعدين جربوها على كم صف تقدرون تحسبونه بيدكم. ويقدر بعد يقترح [[Chart|تشارت]] (chart) يوضح النمط." },
+    { "type": "example",
+      "en": "Prompt: \"In Excel, column A has dates and column B has sale amounts, from row 2 to row 500. Write a formula for the total for March 2026. Explain each part in simple words.\" Then check March by hand on a small sample.",
+      "ar": "الأمر: \"في Excel، يحتوي العمود A على التواريخ والعمود B على مبالغ البيع، من الصف 2 إلى الصف 500. اكتب معادلة لمجموع مارس 2026، واشرح كل جزء بكلمات بسيطة.\" ثم تحققوا يدويًا على عينة صغيرة.",
+      "gulf": "البرومبت: \"في Excel، عمود A فيه التواريخ وعمود B فيه مبالغ البيع، من صف 2 لين صف 500. اكتب فورمولا لمجموع مارس 2026، واشرح كل جزء بكلام بسيط.\" وبعدين تأكدوا بيدكم على عينة صغيرة." },
+    { "type": "key_terms", "en": "", "ar": "", "terms": ["Dataset", "Formula", "Column", "Chart"] },
+    { "type": "exercise", "en": "", "ar": "",
+      "exercises": [
+        { "type": "match",
+          "prompt": { "en": "Match each term with its Arabic", "ar": "صِلوا كل مصطلح بما يقابله", "gulf": "وصلوا كل مصطلح باللي يقابله" },
+          "pairs": [
+            { "left": "Formula", "right": { "ar": "معادلة", "en": "معادلة", "gulf": "فورمولا" } },
+            { "left": "Column", "right": { "ar": "عمود", "en": "عمود" } },
+            { "left": "Chart", "right": { "ar": "رسم بياني", "en": "رسم بياني", "gulf": "تشارت" } },
+            { "left": "Dataset", "right": { "ar": "مجموعة بيانات", "en": "مجموعة بيانات", "gulf": "داتا" } }
+          ],
+          "explanation": { "en": "These four words come up in almost every data request.", "ar": "تتكرر هذه الكلمات الأربع في معظم طلبات البيانات.", "gulf": "هالكلمات الأربع تمر في أغلب طلبات البيانات." } },
+        { "type": "mcq",
+          "question": { "en": "AI gives you a formula. What should you do before using it on the whole file?", "ar": "أعطاكم الذكاء الاصطناعي معادلة. ماذا تفعلون قبل استخدامها على الملف كله؟", "gulf": "الـ AI عطاكم فورمولا. شنو تسوون قبل ما تستخدمونها على الملف كله؟" },
+          "options": [
+            { "en": "Trust it, because it looks complex", "ar": "الوثوق بها لأنها تبدو معقدة" },
+            { "en": "Test it on a few rows you can check by hand", "ar": "تجربتها على صفوف قليلة يمكن حسابها يدويًا" },
+            { "en": "Ask a different AI tool to approve it", "ar": "طلب موافقة أداة ذكاء اصطناعي أخرى" }
+          ],
+          "correct": 1, "speak": "formula",
+          "explanation": { "en": "A formula can run without errors and still give the wrong number. Check a small sample.", "ar": "قد تعمل المعادلة من دون أخطاء وتعطي رقمًا خاطئًا. تحققوا من عينة صغيرة.", "gulf": "الفورمولا ممكن تشتغل بدون خطأ وتعطي رقم غلط. تأكدوا من عينة صغيرة." } },
+        { "type": "order", "lang": "en",
+          "prompt": { "en": "Build this request in English: \"Explain this formula in simple words.\"", "ar": "كوّنوا هذا الطلب بالإنجليزية: \"اشرح هذه المعادلة بكلمات بسيطة.\"", "gulf": "ركبوا هالطلب بالإنجليزي: \"اشرح هالفورمولا بكلام بسيط.\"" },
+          "items": ["Explain", "this", "formula", "in", "simple", "words"],
+          "explanation": { "en": "Explain this formula in simple words.", "ar": "Explain this formula in simple words.", "gulf": "Explain this formula in simple words." } }
+      ] },
+    { "type": "prompt_lab",
+      "config": {
+        "task_en": "Write a prompt asking for a formula that calculates monthly totals. Describe the columns, the rows and your spreadsheet tool, and ask for an explanation in simple words.",
+        "task_ar": "اكتبوا أمرًا يطلب معادلة لحساب المجاميع الشهرية. صفوا الأعمدة والصفوف والبرنامج، واطلبوا شرحًا بكلمات بسيطة.",
+        "task_gulf": "اكتبوا برومبت يطلب فورمولا تحسب مجموع كل شهر. وصفوا الأعمدة والصفوف والبرنامج، واطلبوا شرح بكلام بسيط."
+      } },
+    { "type": "recap",
+      "en": "Describe your [[Dataset]] and each [[Column]].\nAsk for the [[Formula]] and an explanation.\nTest it on a small sample first. Tomorrow: safe use of AI at work.",
+      "ar": "صفوا [[Dataset|مجموعة البيانات]] وكل [[Column|عمود]].\nاطلبوا [[Formula|المعادلة]] وشرحها.\nجرّبوها على عينة صغيرة أولًا. غدًا: الاستخدام الآمن في العمل.",
+      "gulf": "وصفوا [[Dataset|الداتا]] وكل [[Column|عمود]].\nاطلبوا [[Formula|الفورمولا]] وشرحها.\nجربوها على عينة صغيرة أول. باجر: الاستخدام الآمن في الشغل." }
+  ]
+}

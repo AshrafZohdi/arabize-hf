@@ -1,0 +1,59 @@
+{
+  "slug": "day-7", "order": 7, "est_minutes": 12,
+  "title": { "en": "Build your personal AI workflow", "ar": "ابنوا سير عملكم الشخصي بالذكاء الاصطناعي", "gulf": "سووا طريقتكم الخاصة مع الـ AI" },
+  "blocks": [
+    { "type": "hook",
+      "en": "Every Thursday you write the same weekly update, and every Thursday you write the prompt from nothing. You have now learned enough to stop doing that.",
+      "ar": "تكتبون التقرير الأسبوعي نفسه كل خميس، وتكتبون الأمر من الصفر كل مرة. تعلّمتم الآن ما يكفي للتوقف عن ذلك.",
+      "gulf": "كل خميس تكتبون نفس التقرير الأسبوعي، وكل مرة تكتبون البرومبت من الصفر. الحين تعلمتوا اللي يكفي عشان توقفون هالشي." },
+    { "type": "concept",
+      "en": "Find a task you repeat, and write its steps: that is your [[Workflow]]. Turn the prompt into a [[Template]]: fixed text, with a [[Variable]] for whatever changes, such as [week] or [client]. For bigger tasks, use [[Chaining]]: the answer from one prompt becomes the input to the next. Summarize first, then write the email from the summary. Save your templates where you can find them.",
+      "ar": "اختاروا مهمة تتكرر واكتبوا خطواتها: هذا هو [[Workflow|سير العمل]] (workflow). حوّلوا الأمر إلى [[Template|قالب]] (template): نص ثابت مع [[Variable|متغير]] (variable) لكل ما يتغير، مثل [الأسبوع] أو [العميل]. وفي المهام الأكبر استخدموا [[Chaining|تسلسل الأوامر]] (chaining): تصبح إجابة أمر مدخلًا للأمر التالي. لخّصوا أولًا، ثم اكتبوا الرسالة من الملخص. احفظوا قوالبكم في مكان يسهل الوصول إليه.",
+      "gulf": "اختاروا شغلة تتكرر واكتبوا خطواتها: هذا هو [[Workflow|سير العمل]] (workflow). حولوا البرومبت إلى [[Template|تمبلت]] (template): نص ثابت مع [[Variable|متغير]] (variable) لكل شي يتغير، مثل [الأسبوع] أو [العميل]. وفي الشغل الأكبر استخدموا [[Chaining|تسلسل الأوامر]] (chaining): جواب برومبت يدخل في اللي بعده. لخصوا أول، وبعدين اكتبوا الإيميل من الملخص. احفظوا التمبلتات في مكان سهل توصلون له." },
+    { "type": "example",
+      "en": "Template: \"Act as my assistant. Using the notes below, write a weekly update for [manager name] covering [week]. Use 3 sections: done, next, blocked. Keep it under 120 words, in a formal tone. Notes: [notes]\". Next Thursday, you only fill in the blanks.",
+      "ar": "القالب: \"تصرّف كمساعدي. بالاعتماد على الملاحظات أدناه، اكتب تقريرًا أسبوعيًا إلى [اسم المدير] عن [الأسبوع]، في 3 أقسام: ما أُنجز، والتالي، والعوائق. في أقل من 120 كلمة وبنبرة رسمية. الملاحظات: [الملاحظات]\". في الخميس التالي، املؤوا الفراغات فقط.",
+      "gulf": "التمبلت: \"تصرف كمساعدي. من الملاحظات اللي تحت، اكتب تقرير أسبوعي لـ [اسم المدير] عن [الأسبوع]، في 3 أقسام: اللي خلص، واللي بعده، والعوايق. أقل من 120 كلمة وبأسلوب رسمي. الملاحظات: [الملاحظات]\". الخميس الجاي، بس عبوا الفراغات." },
+    { "type": "key_terms", "en": "", "ar": "", "terms": ["Workflow", "Template", "Variable", "Chaining"] },
+    { "type": "exercise", "en": "", "ar": "",
+      "exercises": [
+        { "type": "match",
+          "prompt": { "en": "Match each term with its Arabic", "ar": "صِلوا كل مصطلح بما يقابله", "gulf": "وصلوا كل مصطلح باللي يقابله" },
+          "pairs": [
+            { "left": "Workflow", "right": { "ar": "سير العمل", "en": "سير العمل" } },
+            { "left": "Template", "right": { "ar": "قالب", "en": "قالب", "gulf": "تمبلت" } },
+            { "left": "Variable", "right": { "ar": "متغير", "en": "متغير" } },
+            { "left": "Chaining", "right": { "ar": "تسلسل الأوامر", "en": "تسلسل الأوامر" } }
+          ],
+          "explanation": { "en": "Together, these turn one good prompt into a habit that saves time every week.", "ar": "معًا تحوّل هذه الأمر الجيد إلى عادة توفر الوقت كل أسبوع.", "gulf": "مع بعض، تخلي البرومبت الزين عادة توفر عليكم وقت كل أسبوع." } },
+        { "type": "mcq",
+          "question": { "en": "In a template, what is [client name]?", "ar": "في القالب، ماذا يكون [اسم العميل]؟", "gulf": "في التمبلت، شنو يكون [اسم العميل]؟" },
+          "options": [
+            { "en": "A variable", "ar": "متغير" },
+            { "en": "A hallucination", "ar": "هلوسة" },
+            { "en": "A citation", "ar": "استشهاد مرجعي" }
+          ],
+          "correct": 0, "speak": "variable",
+          "explanation": { "en": "A variable is a blank you fill in each time.", "ar": "المتغير فراغ تملؤونه في كل مرة.", "gulf": "المتغير فراغ تعبونه كل مرة." } },
+        { "type": "order",
+          "prompt": { "en": "Put these chaining steps in order", "ar": "رتّبوا خطوات تسلسل الأوامر", "gulf": "رتبوا خطوات تسلسل الأوامر" },
+          "items": [
+            { "en": "Summarize the report", "ar": "لخّصوا التقرير", "gulf": "لخصوا التقرير" },
+            { "en": "Write the email from the summary", "ar": "اكتبوا الرسالة من الملخص", "gulf": "اكتبوا الإيميل من الملخص" },
+            { "en": "Fact-check the email", "ar": "تحققوا من الرسالة", "gulf": "تأكدوا من الإيميل" },
+            { "en": "Send it", "ar": "أرسلوها", "gulf": "أرسلوه" }
+          ],
+          "explanation": { "en": "Each answer feeds the next step, and the check comes before you send.", "ar": "كل إجابة تغذي الخطوة التالية، والتحقق يأتي قبل الإرسال.", "gulf": "كل جواب يدخل في الخطوة اللي بعده، والتأكد يكون قبل الإرسال." } }
+      ] },
+    { "type": "prompt_lab",
+      "config": {
+        "task_en": "Write a reusable template for one task you repeat at work. Use at least two variables in square brackets, and include a goal, context, format and constraints.",
+        "task_ar": "اكتبوا قالبًا يُعاد استخدامه لمهمة تتكرر في عملكم. استخدموا متغيرين على الأقل بين قوسين مربعين، مع هدف وسياق وصيغة وقيود.",
+        "task_gulf": "اكتبوا تمبلت تستخدمونه كل مرة لشغلة تتكرر عندكم. استخدموا متغيرين على الأقل بين قوسين مربعة، وفيه هدف وسياق وصيغة وشروط."
+      } },
+    { "type": "recap",
+      "en": "Find a repeated task: that is your [[Workflow]].\nSave a [[Template]] with a [[Variable]] for what changes.\nUse [[Chaining]] for bigger work. You finished the course, and your terms will keep coming back in review.",
+      "ar": "اختاروا مهمة متكررة: هذا هو [[Workflow|سير العمل]].\nاحفظوا [[Template|قالبًا]] مع [[Variable|متغير]] لما يتغير.\nاستخدموا [[Chaining|تسلسل الأوامر]] في الأعمال الأكبر. أكملتم الدورة، وستواصل المصطلحات العودة في المراجعة.",
+      "gulf": "اختاروا شغلة تتكرر: هذا هو [[Workflow|سير العمل]].\nاحفظوا [[Template|تمبلت]] مع [[Variable|متغير]] للي يتغير.\nاستخدموا [[Chaining|تسلسل الأوامر]] في الشغل الأكبر. خلصتوا الدورة، والمصطلحات بتظل ترجع لكم في المراجعة." }
+  ]
+}
