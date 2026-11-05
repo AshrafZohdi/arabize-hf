@@ -23,7 +23,8 @@ MANIFEST = ROOT / "data" / "manifest.json"
 PROCESSED = ROOT / "data" / "processed"
 REVIEW = ROOT / "data" / "review"
 CURATED = ROOT / "data" / "curated"
-TERM_BANK_REPO = "nuvais/darby-term-bank"
+TERM_BANK_REPO = "nuvais/darby-term-bank"  # public release
+STAGING_REPO = "nuvais/darby-term-bank-staging"  # private: Job inputs and raw Job outputs
 OVERRIDE_FIELDS = {"ar_display", "ar_full", "en_expanded", "reviewed", "needs_review", "drop"}
 
 # Pinned source revisions: the pipeline always reads exactly these bytes.
@@ -197,7 +198,9 @@ def build_clean(df):
                 "ar_variant_sources": variant_sources,
                 "ar_key": ar_key(ar_display),
                 "ar_origin": ORIGIN[first.source],
-                "reviewed": first.source == "darby",
+                # Our 40 terms cite sources for the Arabic term choice, but their card text was drafted with AI in the
+                # earlier Arabize app and has not had a language review (../arabaize/CLAUDE.md). Only overrides count.
+                "reviewed": False,
                 "needs_review": False,
                 "domain": DOMAIN[first.set],
                 "sources": [f"{s}:{r}" for s, r in zip(d.source, d.row_id)],
@@ -373,7 +376,7 @@ def stage3(results_path: Path | None = None) -> dict:
     if results_path is None:
         from huggingface_hub import hf_hub_download
 
-        results_path = Path(hf_hub_download(TERM_BANK_REPO, "stage3/results.parquet", repo_type="dataset"))
+        results_path = Path(hf_hub_download(STAGING_REPO, "stage3/results.parquet", repo_type="dataset"))
     res = pd.read_parquet(results_path)
     overrides = pd.read_csv(CURATED / "overrides.csv", dtype=str).fillna("")
     final, published, held = merge_stage3(bank, res, overrides)

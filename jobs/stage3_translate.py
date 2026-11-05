@@ -20,7 +20,7 @@ For every queued row of the clean term bank:
 Results and the review queue are pushed to the dataset repo from inside the Job.
 
     hf jobs uv run --flavor a100-large --timeout 45m --secrets HF_TOKEN jobs/stage3_translate.py \
-        --repo nuvais/darby-term-bank --backend vllm
+        --repo nuvais/darby-term-bank-staging --backend vllm
 
 Local checks: --backend mock (no model) or --backend endpoint (our llama.cpp endpoint, a few rows).
 """

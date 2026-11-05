@@ -131,14 +131,14 @@ configs:
 مصطلحات الذكاء الاصطناعي والبرمجيات بالإنجليزي والعربي، لتطبيق «دربي» الذي يعلّم الموظفين في قطر لغة الذكاء الاصطناعي بعربي بسيط أو باللهجة الخليجية. كل مصطلح له ترجمة عربية تشرح معناه، والاختصارات لها اسمها الكامل، مثل: نموذج لغوي كبير (LLM: Large language model).
 
 - مصدر كل ترجمة مذكور: مراجعة فريق دربي، أو ترجمة بشرية من GIST، أو مسرد مايكروسوفت، أو ترجمة كتبها نموذج «فنار 2» القطري.
-- ما كتبه «فنار» معلَّم بـ `reviewed = false`، وما يحتاج مراجعة بشرية معلَّم بـ `needs_review = true`.
+- لم تُراجَع الترجمات لغويًا بعد إلا ما في `curated/overrides.csv`، وما يحتاج مراجعة بشرية معلَّم بـ `needs_review = true`.
 - صنعناه في هاكاثون Qai x Hugging Face في الدوحة، نوفمبر 2026.
 
 </div>
 
 ## What this is
 
-{published_own:,} English terms with Arabic, from Darby's own reviewed glossary and from GIST, plus our completions for Microsoft glossary terms. Every term has an Arabic meaning (not only a transliteration), acronyms have their full English form, and every row says where its Arabic came from.
+{published_own:,} English terms with Arabic, from Darby's own glossary and from GIST, plus our completions for Microsoft glossary terms. Every term has an Arabic meaning (not only a transliteration), acronyms have their full English form, and every row says where its Arabic came from.
 
 Built for Darby (دربي), an app that teaches Arabic-speaking professionals in Qatar the vocabulary of AI at work, at the Qai x Hugging Face Hackathon 01 in Doha (November 2026). The app runs on Hugging Face and uses Qatar's Fanar 2 model.
 
@@ -168,7 +168,7 @@ The Microsoft glossary is referenced, not re-uploaded: rebuild those rows from [
 | `ar_variants` | Other Arabic translations from Darby and GIST |
 | `ar_key` | Arabic matching key: no diacritics, unified alef, ى and ة |
 | `ar_origin` | `darby_editor`, `human_gist`, `human_ms` or `fanar_generated` |
-| `reviewed` | A person checked this Arabic (Darby's own terms and reviewer overrides) |
+| `reviewed` | A person checked this row after the pipeline (reviewer overrides only, so far) |
 | `needs_review` / `review_issues` | Automatic checks flagged the row, and why |
 | `domain` | `ai` or `software` |
 | `sources` / `source_names` | Every source row merged into this term |
@@ -177,7 +177,7 @@ The Microsoft glossary is referenced, not re-uploaded: rebuild those rows from [
 
 ## How it was made
 
-1. **Snapshot.** Each source downloaded at a pinned revision and checked by sha256: Darby's glossary ({rows_darby} terms), GIST `Jerry999/multilingual-terminology` Arabic.csv ({rows_gist:,} rows, Apache 2.0) and the Microsoft glossary ({rows_ms:,} rows).
+1. **Snapshot.** Each source downloaded at a pinned revision and checked by sha256: Darby's glossary ({rows_darby} terms; Arabic term choices cite UNESCO, MBZUAI, Microsoft Learn and Google's ML glossary, card text drafted with AI and not yet language-reviewed), GIST `Jerry999/multilingual-terminology` Arabic.csv ({rows_gist:,} rows, Apache 2.0) and the Microsoft glossary ({rows_ms:,} rows).
 2. **EDA.** Duplicates, untranslated rows, acronyms, script problems (tatweel, presentation forms, mixed scripts), packed translations, conflicts between sources and noise in real text. Key findings: GIST copies the English as the Arabic for {gist_same} terms (for example AI, API, CamemBERT); the sources disagree on core terms (prompt: Darby أمر, GIST موجه, Microsoft مطالبة); Microsoft single words would mark 31.5 words in every 100 of ordinary work text, so only the ones GIST also uses in at least 5 AI terms are highlighted.
 3. **Cleaning.** Unicode NFC, presentation forms to standard letters, tatweel removed, Western digits, Arabic punctuation, packed translations split, duplicates merged on `en_key` (Darby, then GIST, then Microsoft wins), {dropped} UI sentences dropped and logged. {rows_in:,} rows became {terms_out:,} terms.
 4. **Completion with Fanar 2** (`QCRI/Fanar-2-27B-Instruct`, bf16, vLLM, in an HF Job). {acronyms} acronyms got a full English form and {translated} terms without an Arabic meaning got one. Checks: every translation back-translated by Fanar and compared with `multilingual-e5-small` (threshold 0.85); every expansion checked against the term bank in the same domain and against the human Arabic where one exists. That second check caught GCC: Fanar said Gulf Cooperation Council, the Microsoft Arabic says Government Community Cloud. Flagged rows: {needs_review}. Rows still without an Arabic meaning are held back from this release ({held}).
@@ -185,9 +185,9 @@ The Microsoft glossary is referenced, not re-uploaded: rebuild those rows from [
 
 ## Known limits
 
-- Fanar-written Arabic and descriptions of model and dataset names are not reviewed unless `reviewed` is true. Expansions of rare research acronyms may be wrong; those that no source confirms are flagged.
+- No row has had a language review yet except the reviewer overrides. Fanar-written Arabic and descriptions of model and dataset names are flagged. Expansions of rare research acronyms may be wrong; those that no source confirms are flagged.
 - Microsoft entries are software localisation terms, some outside AI (currencies, medical tests).
-- GIST's Arabic for some AI terms differs from Darby's choices (for example موجه for prompt); Darby's reviewed choices win for its own terms, and prompt terms that do not use أمر are flagged.
+- GIST's Arabic for some AI terms differs from Darby's choices (for example موجه for prompt); Darby's term choices win for its own terms, and prompt terms that do not use أمر are flagged.
 - Search vectors come from a small model that leans on shared words more than meaning.
 
 ## Licence and credit

@@ -11,6 +11,7 @@ from server.config import Settings, load_settings
 from server.glossary import load_glossary
 from server.llm import LLM
 from server.routes import explain, glossary
+from server.lessons import load_lessons
 from server.termbank import TermBank, load_term_bank
 
 VERSION = "0.1.0"
@@ -25,6 +26,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     # Our glossary straight away; the full bank replaces it when the background load finishes.
     app.state.termbank = TermBank.from_rows(_glossary_rows(app.state.glossary), {"steps": {"sources": "loading"}})
     app.state.embedder = None
+    app.state.lessons, app.state.lessons_source = load_lessons(settings.content_dir, from_hub=False)
     if settings.termbank_source == "hub":
         threading.Thread(target=_load_bank, args=(app, settings), daemon=True, name="termbank").start()
     app.include_router(explain.router)
@@ -40,6 +42,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "voice_enabled": settings.voice_enabled,
             "termbank": {k: v for k, v in app.state.termbank.status.items()},
             "semantic_search": app.state.embedder is not None and app.state.termbank.vectors is not None,
+            "lessons": {"count": len(app.state.lessons), "source": app.state.lessons_source},
         }
 
     @app.get("/api/{rest:path}", include_in_schema=False)
@@ -68,7 +71,7 @@ def _glossary_rows(g) -> list[dict]:
         {
             "id": k, "en": e["term_en"], "en_key": e["term_en"].lower(), "en_expanded": None, "is_acronym": False,
             "ar_display": e["term_msa"], "ar_full": e["term_msa"], "ar_key": e["term_msa"], "ar_origin": "darby_editor",
-            "reviewed": True, "needs_review": False, "domain": "ai" if e.get("domain") == "ai" else "software",
+            "reviewed": False, "needs_review": False, "domain": "ai" if e.get("domain") == "ai" else "software",
             "source_names": ["darby"], "has_full_card": True, "highlight": True,
         }
         for k, e in g.entries.items()
@@ -76,6 +79,10 @@ def _glossary_rows(g) -> list[dict]:
 
 
 def _load_bank(app: FastAPI, settings: Settings) -> None:
+    try:
+        app.state.lessons, app.state.lessons_source = load_lessons(settings.content_dir, from_hub=True, token=settings.hf_token)
+    except Exception as e:
+        logging.getLogger("darby").error("lessons load failed: %s", type(e).__name__)
     try:
         tb = load_term_bank(settings.content_dir, settings.hf_token)
         app.state.termbank = tb

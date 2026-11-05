@@ -194,7 +194,7 @@ def _glossary_only(content_dir: Path, status: dict[str, Any]) -> TermBank:
     rows = [
         {
             "id": k, "en": e["term_en"], "en_key": e["term_en"].lower(), "en_expanded": None, "is_acronym": False, "ar_display": e["term_msa"],
-            "ar_full": e["term_msa"], "ar_key": e["term_msa"], "ar_origin": "darby_editor", "reviewed": True, "needs_review": False,
+            "ar_full": e["term_msa"], "ar_key": e["term_msa"], "ar_origin": "darby_editor", "reviewed": False, "needs_review": False,
             "domain": e.get("domain", "ai"), "source_names": ["darby"], "has_full_card": True, "highlight": True,
         }
         for k, e in g.entries.items()

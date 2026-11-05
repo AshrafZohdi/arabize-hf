@@ -11,7 +11,7 @@
 # ///
 """Search vectors for every term in the bank, with multilingual-e5-small (ONNX, CPU). Runs as an HF Job:
 
-    hf jobs uv run --flavor cpu-upgrade --timeout 20m --secrets HF_TOKEN jobs/embed_bank.py --repo nuvais/darby-term-bank
+    hf jobs uv run --flavor cpu-upgrade --timeout 20m --secrets HF_TOKEN jobs/embed_bank.py --repo nuvais/darby-term-bank-staging
 
 The embedding code is `server/embed.py`, fetched from the Space repo so the Space and this Job use the same code.
 Each term is embedded as "English; Arabic; full form", so a search in either language finds it.
