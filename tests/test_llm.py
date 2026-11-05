@@ -268,3 +268,74 @@ def test_stream_cold_without_fixture_raises(settings, fixtures):
     llm = LLM(settings, client=FakeClient(HTTPError(503)), fixtures=fixtures)
     with pytest.raises(LLMUnavailable):
         run(collect(llm.stream(feature="tutor", system="s", messages=[], max_tokens=50)))
+
+
+# --- streaming JSON ----------------------------------------------------------------------
+
+from server.llm import PartialStringField  # noqa: E402
+
+
+def feed_all(field, text, step):
+    return "".join(field.feed(text[:i]) for i in range(1, len(text) + 1, step)) + field.feed(text)
+
+
+@pytest.mark.parametrize("step", [1, 2, 3, 7])
+def test_partial_string_field_decodes_escapes_across_chunks(step):
+    obj = {"off_topic": False, "explanation": 'سطر "أول"\nback\\slash é end', "cards": []}
+    text = json.dumps(obj)  # ascii escapes, \u sequences for Arabic
+    assert feed_all(PartialStringField("explanation"), text, step) == obj["explanation"]
+
+
+def test_partial_string_field_ignores_other_fields():
+    f = PartialStringField("explanation")
+    assert f.feed('{"term": "x", ') == ""
+    assert f.feed('{"term": "x", "explanation": "ab') == "ab"
+    assert f.feed('{"term": "x", "explanation": "abc", "z": "q"}') == "c"
+    assert f.feed('{"term": "x", "explanation": "abc", "z": "qqq"}') == ""
+
+
+class Explain(BaseModel):
+    explanation: str
+    term_en: str
+
+
+EXPLAIN_JSON = json.dumps({"explanation": "يعني الـ AI يألّف", "term_en": "Hallucination"}, ensure_ascii=False)
+
+
+def test_json_stream_yields_partials_then_result(settings, fixtures):
+    pieces = [EXPLAIN_JSON[i : i + 5] for i in range(0, len(EXPLAIN_JSON), 5)]
+    client = FakeClient(pieces)
+    llm = LLM(settings, client=client, fixtures=fixtures)
+
+    async def go():
+        return [ev async for ev in llm.json_stream(feature="explain", system="s", user="u", schema=Explain, stream_field="explanation", max_tokens=50)]
+
+    events = run(go())
+    assert "".join(e.text for e in events if e.kind == "partial") == "يعني الـ AI يألّف"
+    assert events[-1].kind == "result" and events[-1].result.data.term_en == "Hallucination"
+    assert client.calls[0]["stream"] is True and client.calls[0]["response_format"]["type"] == "json_object"
+
+
+def test_json_stream_repairs_invalid_json_once(settings, fixtures):
+    client = FakeClient(['{"explanation": "x"'], EXPLAIN_JSON)
+    llm = LLM(settings, client=client, fixtures=fixtures)
+
+    async def go():
+        return [ev async for ev in llm.json_stream(feature="explain", system="s", user="u", schema=Explain, stream_field="explanation", max_tokens=50)]
+
+    events = run(go())
+    assert events[-1].result.attempts == 2 and client.calls[1].get("stream") is None
+
+
+def test_json_stream_cold_uses_fixture(settings, tmp_path):
+    d = tmp_path / "explain"
+    d.mkdir()
+    (d / "a.json").write_text(json.dumps({"input": {"text": "t"}, "output": {"explanation": "شرح مسجل", "term_en": "Token"}}), encoding="utf-8")
+    llm = LLM(settings, client=FakeClient(HTTPError(503)), fixtures=Fixtures(tmp_path))
+
+    async def go():
+        return [ev async for ev in llm.json_stream(feature="explain", system="s", user="u", schema=Explain, stream_field="explanation", max_tokens=50, fixture_input={"text": "t"})]
+
+    events = run(go())
+    assert "".join(e.text for e in events if e.kind == "partial") == "شرح مسجل"
+    assert events[-1].result.source == "fixture"

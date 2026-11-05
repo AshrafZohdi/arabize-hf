@@ -6,5 +6,6 @@ USD 100 shared credits. Every paid run is logged here (time in Qatar time, hardw
 |---|---|---|---|---|---|
 | 2026-11-05 21:19 | Space `FayezAlkh12/darby` running (Docker needs PRO on free cpu-basic, so upgraded CPU) | cpu-upgrade, 8 vCPU, 32 GB, USD 0.03/h, sleeps after 1 idle hour | ongoing | about 0.03 per awake hour | Update the total when it is switched off or at judging |
 | 2026-11-05 21:37 | Fanar endpoint `FayezAlkh12/darby-fanar` first boot: two failed starts (model path, then chat template), running from 21:50, verification calls, then idle until scale to zero | 1x L4 (AWS us-east-1), USD 0.80/h | about 35 (estimate until the billing page confirms) | about 0.47 | Measured 11.5 to 12.1 tokens/s generation, 150 tokens/s prompt |
+| 2026-11-05 21:59 | Fanar endpoint moved to A10G (team decision, about 2x faster for USD 0.20/h more), speed and streaming tests, then idle until scale to zero | 1x A10G (AWS us-east-1), USD 1.00/h | about 25 (estimate) | about 0.42 | Measured 22.5 tokens/s generation, 238 tokens/s prompt |
 
-Total spent: about USD 0.50 (endpoint estimate plus Space hours so far)
+Total spent: about USD 1.00 (endpoint estimates plus Space hours so far; check the billing page)

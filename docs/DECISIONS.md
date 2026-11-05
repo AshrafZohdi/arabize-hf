@@ -34,3 +34,9 @@ The USD 100 credits are on Fayez's personal account (`FayezAlkh12`, can pay); th
 - Fanar 2's chat template uses `{% raw %}`, which llama.cpp's Jinja engine rejects. The repo carries `chat_template.jinja` with that block written as a string literal; rendering is identical for plain chat, `no_thinking` and tools (checked with jinja2). The endpoint loads it with `LLAMA_ARG_CHAT_TEMPLATE_FILE`.
 - Endpoint `FayezAlkh12/darby-fanar`: llama.cpp server image, 1x L4, 2 slots of 4,096 tokens, q8_0 KV cache, flash attention, scale to zero after 15 minutes. `modelPath` is relative to `/repository`.
 - Measured on 1x L4: 11.5 to 12.1 tokens/s generation, about 150 tokens/s prompt processing, prompt prefix cache works (965 of 970 tokens cached on a repeat). A full Smart Explain answer (572 tokens, 3 cards) took 51 s. Valid JSON first try with the schema grammar, no think block, used أمر for prompt, but wrote MSA when asked for Gulf.
+
+## D10. 2026-11-05: A10G, streaming, and glossary cards before model cards
+- Team decision: the Fanar endpoint runs on 1x A10G (USD 1.00/h) instead of 1x L4 (0.80/h). Measured 22.5 vs 11.5 tokens/s generation and 238 vs 150 tokens/s prompt; same Q5_K_M model and settings.
+- Explain streams: `llm.json_stream` sends the `explanation` field as it is written (first text at 3.0 s on A10G), then validates the full object.
+- A full answer with 3 model-written cards was about 650 tokens (31.5 s). So terms that already have a Darby glossary card get that card directly, and Fanar writes cards only for important terms the glossary does not cover (at most 2). Fields are ordered explanation, question, cards so the question arrives early.
+- The Gulf request is spelled out with everyday Gulf words and an example sentence, placed last in the system prompt; one line saying "Gulf dialect" produced MSA. The word list needs a check by a Gulf Arabic speaker.

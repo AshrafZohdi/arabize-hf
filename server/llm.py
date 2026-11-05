@@ -274,6 +274,56 @@ class JsonResult(Generic[T]):
     attempts: int
 
 
+@dataclass
+class JsonEvent(Generic[T]):
+    kind: Literal["partial", "result"]
+    text: str = ""
+    result: JsonResult[T] | None = None
+
+
+class PartialStringField:
+    """Pull one top-level string field out of a JSON object that is still being written.
+
+    Feed the whole text so far; get back only the newly decoded characters of the field's value.
+    """
+
+    def __init__(self, name: str):
+        self._key = re.compile(r'"' + re.escape(name) + r'"\s*:\s*"')
+        self._start: int | None = None
+        self._sent = 0
+        self._done = False
+
+    def feed(self, text: str) -> str:
+        if self._done:
+            return ""
+        if self._start is None:
+            m = self._key.search(text)
+            if not m:
+                return ""
+            self._start = m.end()
+        body, i, end = text[self._start :], 0, None
+        while i < len(body):
+            if body[i] == "\\":
+                width = 6 if i + 1 < len(body) and body[i + 1] == "u" else 2
+                if i + width > len(body):
+                    end = i  # escape not complete yet: hold it back
+                    break
+                i += width
+                continue
+            if body[i] == '"':
+                self._done = True
+                break
+            i += 1
+        candidate = body[: i if end is None else end]
+        try:
+            value = json.loads(f'"{candidate}"')
+        except json.JSONDecodeError:
+            return ""
+        new = value[self._sent :]
+        self._sent = len(value)
+        return new
+
+
 _UNAVAILABLE_STATUS = {408, 425, 429, 500, 502, 503, 504}
 
 
@@ -419,6 +469,87 @@ class LLM:
                 continue
             return JsonResult(data, "fanar", int((self._clock() - started) * 1000), attempt)
         raise LLMBadOutput(error)
+
+    async def json_stream(
+        self,
+        *,
+        feature: str,
+        system: str,
+        user: str,
+        schema: type[T],
+        stream_field: str,
+        max_tokens: int,
+        fixture_input: dict[str, Any] | None = None,
+        temperature: float = JSON_TEMPERATURE,
+    ) -> AsyncIterator[JsonEvent[T]]:
+        """Structured answer, with one string field streamed as it is written.
+
+        Yields `partial` events with new text of `stream_field`, then one `result` event with the validated
+        object. On an invalid object it makes one non-streaming correction call, then raises LLMBadOutput.
+        """
+        started = self._clock()
+        fixture = self.fixtures.lookup(feature, fixture_input)
+
+        async def from_fixture(attempt: int) -> AsyncIterator[JsonEvent[T]]:
+            data = schema.model_validate(fixture)
+            async for piece in _replay(str(getattr(data, stream_field, "") or "")):
+                yield JsonEvent("partial", text=piece)
+            yield JsonEvent("result", result=JsonResult(data, "fixture", int((self._clock() - started) * 1000), attempt))
+
+        offline = self._offline()
+        if offline:
+            if fixture is None:
+                raise LLMUnavailable(offline)
+            async for ev in from_fixture(0):
+                yield ev
+            return
+
+        messages = [{"role": "system", "content": f"{system}\n\n{json_instruction(schema)}"}, {"role": "user", "content": user}]
+        kwargs: dict[str, Any] = dict(
+            messages=messages, model=self.settings.fanar_model, max_tokens=max_tokens, temperature=temperature, stream=True, extra_body=NO_THINKING
+        )
+        if self._schema_supported:
+            kwargs["response_format"] = {"type": "json_object", "schema": schema.model_json_schema()}
+        try:
+            chunks = await asyncio.wait_for(self._get_client().chat_completion(**kwargs), timeout=JSON_TIMEOUT_S)
+        except Exception as e:
+            if not _is_unavailable(e):
+                raise
+            self._mark_waking(e)
+            if fixture is None:
+                raise LLMUnavailable("waking") from e
+            async for ev in from_fixture(1):
+                yield ev
+            return
+
+        self._mark_ready()
+        raw = ""
+        field = PartialStringField(stream_field)
+        async for chunk in chunks:
+            if not chunk.choices:
+                continue
+            raw += chunk.choices[0].delta.content or ""
+            new = field.feed(strip_think(raw))
+            if new:
+                yield JsonEvent("partial", text=new)
+
+        try:
+            data = parse_json(raw, schema)
+            yield JsonEvent("result", result=JsonResult(data, "fanar", int((self._clock() - started) * 1000), 1))
+            return
+        except ValueError as e:
+            error = str(e)
+        log.info("%s: invalid streamed JSON: %s", feature, error[:300])
+        retry = messages + [
+            {"role": "assistant", "content": strip_think(raw)},
+            {"role": "user", "content": f"That was not valid. Problem: {error}. Reply again with the corrected JSON object only."},
+        ]
+        text = await self._chat(retry, max_tokens=max_tokens, temperature=temperature, schema=schema)
+        try:
+            data = parse_json(text, schema)
+        except ValueError as e:
+            raise LLMBadOutput(str(e)) from e
+        yield JsonEvent("result", result=JsonResult(data, "fanar", int((self._clock() - started) * 1000), 2))
 
     async def stream(
         self,

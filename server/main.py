@@ -2,11 +2,13 @@
 
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 
 from server.config import Settings, load_settings
+from server.glossary import load_glossary
 from server.llm import LLM
+from server.routes import explain
 
 VERSION = "0.1.0"
 
@@ -16,6 +18,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app = FastAPI(title="Darby", version=VERSION, docs_url="/api/docs", openapi_url="/api/openapi.json")
     app.state.settings = settings
     app.state.llm = LLM(settings)
+    app.state.glossary = load_glossary(settings.content_dir)
+    app.include_router(explain.router)
 
     @app.get("/api/health")
     def health() -> dict:
@@ -46,11 +50,6 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return FileResponse(index, headers={"Cache-Control": "no-cache"})
 
     return app
-
-
-def client_ip(request: Request) -> str:
-    """Caller IP for rate limits. uvicorn runs with --proxy-headers, so this is the visitor, not the HF proxy."""
-    return request.client.host if request.client else "unknown"
 
 
 def _cache_headers(path: Path, dist: Path) -> dict[str, str]:
