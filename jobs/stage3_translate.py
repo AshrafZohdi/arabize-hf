@@ -137,11 +137,18 @@ class VllmBackend(Backend):
     name = "vllm"
 
     def __init__(self) -> None:
+        # The uv Job image has no CUDA compiler, so nothing may be compiled at run time: PyTorch sampling instead
+        # of FlashInfer's JIT kernels, the prebuilt FlashAttention backend, and eager mode (no torch.compile).
+        # First run failed with "Could not find nvcc" (job 6aecdfb5c78863f9c6338f17).
+        os.environ.setdefault("VLLM_USE_FLASHINFER_SAMPLER", "0")
+        os.environ.setdefault("VLLM_ATTENTION_BACKEND", "FLASH_ATTN")
         import vllm
         from vllm import LLM
 
         self.version = vllm.__version__
-        self.llm = LLM(model=FANAR, revision=FANAR_REVISION, dtype="bfloat16", max_model_len=4096, gpu_memory_utilization=0.85, seed=0)
+        self.llm = LLM(
+            model=FANAR, revision=FANAR_REVISION, dtype="bfloat16", max_model_len=4096, gpu_memory_utilization=0.85, seed=0, enforce_eager=True
+        )
 
     def _params(self, schema: type[BaseModel], max_tokens: int):
         from vllm import SamplingParams
