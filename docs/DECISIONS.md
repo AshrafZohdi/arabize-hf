@@ -48,3 +48,11 @@ The USD 100 credits are on Fayez's personal account (`FayezAlkh12`, can pay); th
 - "Acronym" means the term itself is a short form (SAC, A2C, GPT-4, LLMs, F1, A/B testing, i.i.d.), not any term containing one ("USB port"): 265 acronyms need `en_expanded`; a separate `has_acronym` flag marks the rest.
 - Rows over 8 words are UI sentences, not terms: 52 dropped, each logged in `data/reports/dropped.csv`.
 - Arabic conflicts are compared with `ar_compare_key` (no diacritics, unified alef, ى, ة, no leading ال), so المصدر and مصدر agree.
+
+## D12. 2026-11-05: Publishing the term bank without re-uploading Microsoft rows
+- Public `nuvais/darby-term-bank`: our and GIST terms in full (`data/train.parquet`), our stage 3 output for Microsoft terms (`completions/ms.parquet`) and search vectors, both keyed by `sha256(en_key)[:16]`. Arabic variants that came from Microsoft are removed from our rows. `dropped.csv` and the review queue stay out (they name Microsoft rows).
+- Job inputs and raw Job outputs live in the private `nuvais/darby-term-bank-staging`. The first private `nuvais/darby-term-bank` had the cleaned Microsoft rows in its history, so (team decision) it was deleted after checking every file was in staging, and recreated public with a clean history.
+- The Space rebuilds all terms at startup from the pinned sources with `data/pipeline.py` and joins the public files on the hash (`data/publish.py`; a test checks the round trip equals the direct merge and that no Microsoft text is in the public files).
+
+## D13. 2026-11-05: Semantic search design
+Measured: multilingual-e5-small ranks shared words above meaning across the whole bank ("made-up facts": fact table 0.87, Hallucination 0.82). Search order is now: word matches (with curated Arabic aliases, for example الأوامر for Prompt from the brief), then up to 3 Darby cards close in meaning (cards re-embedded with their definitions in English and Arabic), then whole-bank meaning matches only at 0.88 or more. Query vectors come from the ONNX export with ONNX Runtime (identical to sentence-transformers, cosine 1.0 on test strings), so the Space has no PyTorch. A larger embedding model would do better; not switched without a team decision.
