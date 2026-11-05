@@ -37,11 +37,34 @@ class TermBank:
     finder: TermFinder
     vectors: np.ndarray | None = None
     status: dict[str, Any] = field(default_factory=dict)
+    _card_boost: np.ndarray | None = None
+
+    def enrich_cards(self, embedder: Any, cards: dict[str, str], boost: float = 0.02) -> int:
+        """Re-embed terms that have a full Darby card with their definition, so a description of the meaning
+        ("made-up facts") finds them, and give them a small ranking boost. Returns how many were updated."""
+        if self.vectors is None:
+            return 0
+        idx = [i for i, r in enumerate(self.rows) if r["id"] in cards]
+        if not idx:
+            return 0
+        self.vectors[idx] = embedder.encode([cards[self.rows[i]["id"]] for i in idx])
+        self._card_boost = np.zeros(len(self.rows), dtype=np.float32)
+        self._card_boost[idx] = boost
+        return len(idx)
 
     def __post_init__(self) -> None:
         self.by_id = {r["id"]: r for r in self.rows}
         self._en = [r["en"].lower() for r in self.rows]
         self._ar = [_ar_norm(r["ar_display"]) for r in self.rows]
+        self._aliases: dict[str, list[int]] = {}
+
+    def add_aliases(self, pairs: list[tuple[str, str]]) -> None:
+        """Extra exact-match forms, for example the plural الأوامر for Prompt (data/curated/aliases.csv)."""
+        by_key = {r["en_key"]: i for i, r in enumerate(self.rows)}
+        for key, alias in pairs:
+            if key in by_key:
+                self._aliases.setdefault(_ar_norm(alias), []).append(by_key[key])
+                self._aliases.setdefault(alias.lower(), []).append(by_key[key])
 
     @classmethod
     def from_rows(cls, rows: list[dict[str, Any]], status: dict[str, Any] | None = None, vectors: np.ndarray | None = None) -> TermBank:
@@ -54,7 +77,7 @@ class TermBank:
         ql, qa = q.strip().lower(), _ar_norm(q.strip())
         if not ql:
             return []
-        hits: list[tuple[float, int]] = []
+        hits: list[tuple[float, int]] = [(3.5, i) for i in self._aliases.get(qa, []) + self._aliases.get(ql, [])]
         for i, (en, ar) in enumerate(zip(self._en, self._ar)):
             score = 0.0
             if en == ql or (qa and ar == qa):
@@ -69,10 +92,23 @@ class TermBank:
         hits.sort(reverse=True)
         return hits[:limit]
 
+    def card_semantic(self, query_vec: np.ndarray, k: int = 3, minimum: float = 0.80) -> list[tuple[float, int]]:
+        """Meaning search among terms with a full Darby card only (re-embedded with their definitions).
+        e5-small leans on shared words across the whole bank ("made-up facts" scores "fact table" highest),
+        but among the cards it ranks by meaning well enough to show the closest few."""
+        if self.vectors is None or self._card_boost is None:
+            return []
+        idx = np.flatnonzero(self._card_boost)
+        sims = self.vectors[idx] @ query_vec
+        order = np.argsort(-sims)[:k]
+        return [(float(sims[j]), int(idx[j])) for j in order if sims[j] >= minimum]
+
     def semantic(self, query_vec: np.ndarray, limit: int = 30) -> list[tuple[float, int]]:
         if self.vectors is None:
             return []
         sims = self.vectors @ query_vec
+        if self._card_boost is not None:
+            sims = sims + self._card_boost
         top = np.argpartition(-sims, min(limit, len(sims) - 1))[:limit]
         return sorted(((float(sims[i]), int(i)) for i in top), reverse=True)
 
@@ -120,6 +156,12 @@ def load_term_bank(content_dir: Path, token: str | None = None) -> TermBank:
         frame = bank
 
     tb = TermBank.from_rows(_rows_from_frame(frame), status)
+    try:
+        aliases = pd.read_csv(content_dir.parent / "data" / "curated" / "aliases.csv", dtype=str)
+        tb.add_aliases(list(zip(aliases.en_key, aliases.alias)))
+        status["steps"]["aliases"] = f"ok ({len(aliases)})"
+    except Exception as e:
+        status["steps"]["aliases"] = f"skipped: {type(e).__name__}"
     try:
         from huggingface_hub import hf_hub_download
 

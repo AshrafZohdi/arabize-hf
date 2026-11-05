@@ -20,6 +20,7 @@ RUN pip install --no-cache-dir --user -r requirements.txt
 COPY --chown=user server/ server/
 COPY --chown=user data/__init__.py data/pipeline.py data/text.py data/
 COPY --chown=user content/ content/
+COPY --chown=user data/curated/ data/curated/
 COPY --chown=user --from=web /web/dist web/dist
 EXPOSE 7860
 CMD ["uvicorn", "server.main:app", "--host", "0.0.0.0", "--port", "7860", "--proxy-headers", "--forwarded-allow-ips", "*"]

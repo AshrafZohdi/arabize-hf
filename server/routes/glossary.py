@@ -14,6 +14,8 @@ from fastapi import APIRouter, HTTPException, Query, Request
 from server.termbank import TermBank
 
 router = APIRouter()
+# e5 similarities sit high (0.75 to 0.9 for unrelated short terms), so only strong meaning matches are shown.
+MEANING_MIN = 0.88
 Lang = Literal["en", "msa", "gulf"]
 SOURCE_LABEL = {"darby_editor": "darby", "human_gist": "gist", "human_ms": "microsoft", "fanar_generated": "fanar"}
 
@@ -48,19 +50,31 @@ def search(
     tb: TermBank = request.app.state.termbank
     lexical = tb.lexical(q, limit=limit * 3)
     semantic: list[tuple[float, int]] = []
+    cards_by_meaning: list[tuple[float, int]] = []
     embedder = getattr(request.app.state, "embedder", None)
     if q.strip() and tb.vectors is not None and embedder is not None:
-        semantic = tb.semantic(embedder.encode([q.strip()])[0], limit=limit * 3)
+        qv = embedder.encode([q.strip()])[0]
+        # With an exact word match the learner found the term; only clearly related cards are worth adding.
+        exact = any(s >= 2.5 for s, _ in lexical)  # exact match after the source penalty
+        cards_by_meaning = tb.card_semantic(qv, minimum=0.85 if exact else 0.80)
+        semantic = tb.semantic(qv, limit=limit * 3)
+    word_hits = {i for _, i in lexical}
     seen: set[int] = set()
     out: list[dict[str, Any]] = []
-    # Exact and prefix matches first, then meaning matches, then substring matches.
-    ordered = [i for s, i in lexical if s >= 1.5] + [i for s, i in semantic if s >= 0.80] + [i for s, i in lexical if s < 1.5]
+    # Exact and prefix word matches, then the closest Darby cards by meaning, then strong meaning matches from the
+    # whole bank, then substring matches.
+    ordered = (
+        [i for s, i in lexical if s >= 1.5]
+        + [i for _, i in cards_by_meaning]
+        + [i for s, i in semantic if s >= MEANING_MIN]
+        + [i for s, i in lexical if s < 1.5]
+    )
     for i in ordered:
         r = tb.rows[i]
         if i in seen or (domain != "all" and r["domain"] != domain):
             continue
         seen.add(i)
-        out.append(quick_card(r) | {"match": "word" if any(i == j for _, j in lexical) else "meaning"})
+        out.append(quick_card(r) | {"match": "word" if i in word_hits else "meaning"})
         if len(out) >= limit:
             break
     return {"results": out, "semantic": bool(semantic), "terms": len(tb.rows)}

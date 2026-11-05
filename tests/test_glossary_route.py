@@ -54,8 +54,9 @@ class FakeEmbedder:
 
 def test_semantic_matches_are_labelled(tmp_path):
     bank = TermBank.from_rows([row("hallucination", "Hallucination", "الهلوسة", "darby_editor", card=True), row("bias", "Bias", "التحيز", "darby_editor", card=True)])
-    # Vectors follow the bank's own row order; hallucination is the meaning match.
-    bank.vectors = np.array([[0.0, 1.0] if r["en"] == "Hallucination" else [1.0, 0.0] for r in bank.rows], dtype=np.float32)
+    # Vectors follow the bank's own row order; hallucination is the meaning match among the cards.
+    bank.vectors = np.zeros((len(bank.rows), 2), dtype=np.float32)
+    bank.enrich_cards(type("E", (), {"encode": lambda self, texts: np.array([[0.0, 1.0] if "Hallucination" in t else [1.0, 0.0] for t in texts], dtype=np.float32)})(), {"hallucination": "Hallucination", "bias": "Bias"})
     c = client(tmp_path, bank, FakeEmbedder())
     res = c.get("/api/glossary/search", params={"q": "made-up facts"}).json()
     assert res["semantic"] and res["results"][0]["en"] == "Hallucination" and res["results"][0]["match"] == "meaning"

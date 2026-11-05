@@ -83,7 +83,10 @@ def _load_bank(app: FastAPI, settings: Settings) -> None:
             from server.embed import E5
 
             e5 = E5(threads=4)
-            e5.encode(["warm up"])  # downloads and loads the model now, not on the first search
+            g = app.state.glossary
+            texts = {k: "; ".join([e["term_en"], e["term_msa"], e["def_en"], e["def_ar"]]) for k, e in g.entries.items()}
+            n = tb.enrich_cards(e5, texts)  # also downloads and loads the model now, not on the first search
+            tb.status["steps"]["card_vectors"] = f"ok ({n})"
             app.state.embedder = e5
     except Exception as e:
         logging.getLogger("darby").error("term bank load failed: %s", type(e).__name__)
