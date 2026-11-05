@@ -41,7 +41,8 @@ SYSTEM = (
 
 
 class Rating(BaseModel):
-    score: int = Field(ge=1, le=5)
+    at_work: int = Field(ge=1, le=5, description="How often an office worker meets it")
+    for_ai_use: int = Field(ge=1, le=5, description="How much it helps to know it when using AI tools at work")
 
 
 class CardOut(BaseModel):
@@ -62,8 +63,10 @@ class CardOut(BaseModel):
 def rating_prompt(term: str) -> str:
     return (
         f"Term: {term}\n"
-        "How likely is a non-technical office worker in Qatar (government, bank, school, company) to meet this English term "
-        "in a work email, report, meeting or AI tool at work? 1 = almost never (research only), 5 = very often. Reply with JSON only."
+        "Rate this English term for a non-technical office worker in Qatar (government, bank, school, company) who is learning to use AI tools. "
+        "at_work: how often they meet it in work emails, reports, meetings or AI tools (1 = almost never, research only; 5 = very often). "
+        "for_ai_use: how much knowing it helps them use AI tools well at work (1 = not at all; 5 = essential). "
+        "Generic everyday words (state, key, normal) score low on for_ai_use. Reply with JSON only."
     )
 
 
@@ -74,8 +77,10 @@ def card_prompt(term: str, ar: str) -> str:
             f"Standard Arabic term (human translation, use it exactly): {ar}",
             "Write a learning card. def_*: one or two short sentences. analogy: one sentence from everyday work or life in the Gulf. "
             "mistake: one common misunderstanding. example: one sentence from a Doha workplace that uses the term. "
-            "Write the *_ar fields in simple Modern Standard Arabic, the *_gulf fields in Gulf Arabic as spoken in Qatar "
-            "(words like شنو، يعني، عشان، وايد، زين، مو), and the *_en fields in plain English. "
+            "Write the *_ar fields in simple Modern Standard Arabic and the *_en fields in plain English. "
+            "Write def_gulf and example_gulf in Gulf Arabic as spoken in Qatar, not Modern Standard Arabic: use everyday Gulf words such as "
+            "شنو، يعني، عشان، وايد، زين، يبي، مو، هالشي، اللي، الحين. Example of the tone: \"يعني الـ AI يألّف معلومة مو موجودة ويقولها بثقة.\" "
+            "term_gulf is how Gulf colleagues actually say the term in speech (often the English word, for example برومبت). "
             "In Arabic text put the English term in brackets after the Arabic term the first time. "
             "The Arabic for prompt is أمر (plural أوامر). related: up to 3 related English terms. Reply with JSON only.",
         ]
@@ -126,7 +131,8 @@ class Mock:
             term = re.search(r"Term: (.+)|English term: (.+)", p)
             t = (term.group(1) or term.group(2)).strip() if term else "x"
             if schema is Rating:
-                out.append(Rating(score=5 if t in ("model card", "language model") else 3 if "network" in t else 1))
+                top = t in ("model card", "language model")
+                out.append(Rating(at_work=5 if top else 3 if "network" in t else 1, for_ai_use=4 if top else 3 if "network" in t else 1))
             else:
                 out.append(CardOut(term_gulf=t, def_en=f"{t} means", def_ar="تعريف", def_gulf="يعني", analogy_en="like", analogy_ar="مثل",
                                    mistake_en="m", mistake_ar="خطأ", example_en="e", example_ar="مثال", example_gulf="مثال", related=[]))
@@ -142,17 +148,21 @@ def candidates(bank: pd.DataFrame, lesson_text: str, vocab: set[str]) -> pd.Data
         return 1 <= len(ws) <= 3 and all(w in vocab for w in ws)
 
     c = gist[gist.en.map(ok)].copy()
-    c["in_lessons"] = c.en.str.lower().map(lambda t: re.search(rf"\b{re.escape(t)}\b", lesson_text) is not None)
+    # Only multi-word terms count as "in the lessons": single words like state or key match ordinary prose.
+    c["in_lessons"] = c.en.str.lower().map(lambda t: " " in t and re.search(rf"\b{re.escape(t)}\b", lesson_text) is not None)
     return c
 
 
 def run(bank: pd.DataFrame, lesson_text: str, vocab: set[str], backend, n: int) -> tuple[pd.DataFrame, pd.DataFrame, dict]:
     t0 = time.time()
     cand = candidates(bank, lesson_text, vocab)
-    ratings = backend.run([rating_prompt(t) for t in cand.en], Rating, 20)
-    cand["score"] = [r.score if r else 0 for r in ratings]
-    cand["rank_key"] = cand.in_lessons.astype(int) * 10 + cand.score
-    chosen = cand.sort_values(["rank_key", "en"], ascending=[False, True]).head(n)
+    ratings = backend.run([rating_prompt(t) for t in cand.en], Rating, 40)
+    cand["at_work"] = [r.at_work if r else 0 for r in ratings]
+    cand["for_ai_use"] = [r.for_ai_use if r else 0 for r in ratings]
+    cand["score"] = cand.at_work + cand.for_ai_use
+    # Ties: AI usefulness first, then shorter terms (easier to meet in office text). Never the alphabet.
+    cand["n_words"] = cand.en.str.split().map(len)
+    chosen = cand.sort_values(["in_lessons", "score", "for_ai_use", "n_words", "en"], ascending=[False, False, False, True, True]).head(n)
     outs = backend.run([card_prompt(t, a) for t, a in zip(chosen.en, chosen.ar_full.fillna(chosen.ar_display))], CardOut, 900, temperature=0.3)
     cards = []
     for (_, r), o in zip(chosen.iterrows(), outs):
@@ -162,12 +172,12 @@ def run(bank: pd.DataFrame, lesson_text: str, vocab: set[str], backend, n: int) 
             {
                 "id": r["id"], "term_en": r["en"], "term_msa": r["ar_full"] or r["ar_display"], **o.model_dump(), "domain": "ai",
                 "msa_source": "GIST human translation (Jerry999/multilingual-terminology)", "written_by": f"{FANAR} (bf16, vLLM)",
-                "reviewed": False, "office_relevance": int(r["score"]), "in_lessons": bool(r["in_lessons"]),
+                "reviewed": False, "at_work": int(r["at_work"]), "for_ai_use": int(r["for_ai_use"]), "in_lessons": bool(r["in_lessons"]),
             }
         )
     stats = {"candidates": len(cand), "chosen": len(chosen), "cards": len(cards), "failed": len(chosen) - len(cards),
              "score_counts": cand.score.value_counts().sort_index().to_dict(), "seconds": round(time.time() - t0, 1)}
-    return pd.DataFrame(cards), cand[["id", "en", "score", "in_lessons"]], stats
+    return pd.DataFrame(cards), cand[["id", "en", "at_work", "for_ai_use", "score", "in_lessons"]].sort_values("score", ascending=False), stats
 
 
 def main() -> None:

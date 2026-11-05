@@ -38,3 +38,8 @@ def test_run_ranks_lessons_first_and_keeps_gist_arabic():
     assert list(cards.term_en) == ["language model", "model card"]
     assert list(cards.term_msa) == ["نموذج لغوي", "بطاقة النموذج"]  # GIST human Arabic, never rewritten
     assert not cards.reviewed.any() and stats["cards"] == 2
+
+
+def test_single_words_do_not_get_the_lessons_bonus():
+    c = gen.candidates(bank(), "the model and the network", VOCAB | {"model"})
+    assert not c.in_lessons.any()
