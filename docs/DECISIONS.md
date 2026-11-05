@@ -16,3 +16,6 @@ Flat JSON files `web/src/i18n/ar.json` and `en.json` with the same keys, plural 
 
 ## D5. 2026-11-05: Pinned versions
 Python deps pinned in `requirements.txt` (runtime) and `requirements-dev.txt` (tests). npm deps installed with `--save-exact` and locked in `package-lock.json`; the Docker build uses `npm ci`. Python 3.11 in the container and locally (`uv venv --python 3.11`).
+
+## D6. 2026-11-05: Hub namespaces split by billing
+The USD 100 credits are on Fayez's personal account (`FayezAlkh12`, can pay); the team org `nuvais` ("Nuvai Hackaton 01") has no billing. Team decision: paid compute (the Space, the Fanar endpoint, Jobs, the Storage Bucket) lives under `FayezAlkh12` so it bills the credits; datasets (`nuvais/darby-term-bank`, `nuvais/darby-ai-glossary-ar-en`, `nuvais/darby-lessons`, `nuvais/darby-eval`) and the collection `nuvais/darby` live under the org, since they cost nothing. Rejected: everything under the org (blocked until it can pay), everything personal (no team presence on the Hub).
