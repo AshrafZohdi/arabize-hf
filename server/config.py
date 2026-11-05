@@ -32,6 +32,7 @@ class Settings:
     web_dist: Path
     content_dir: Path
     record_dir: Path | None = None  # local only: save real Fanar answers as fixtures
+    termbank_source: str = "hub"  # "hub" loads the full bank in the background; "off" keeps our glossary only
 
 
 def load_settings() -> Settings:
@@ -45,4 +46,5 @@ def load_settings() -> Settings:
         web_dist=Path(os.getenv("DARBY_WEB_DIST", ROOT / "web" / "dist")),
         content_dir=Path(os.getenv("DARBY_CONTENT_DIR", ROOT / "content")),
         record_dir=Path(os.environ["DARBY_RECORD_FIXTURES"]) if os.getenv("DARBY_RECORD_FIXTURES") else None,
+        termbank_source=os.getenv("DARBY_TERMBANK", "hub"),
     )

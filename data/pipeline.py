@@ -10,6 +10,7 @@ Raw files are never edited.
 from __future__ import annotations
 
 import hashlib
+import re
 import json
 import sys
 from pathlib import Path
@@ -126,8 +127,9 @@ def _rows():
     return pd.concat(frames, ignore_index=True).fillna("")
 
 
-def stage2() -> dict:
-    """Clean, normalise and deduplicate into data/interim/term_bank_clean.parquet. Logs every dropped row."""
+def build_clean(df):
+    """Stage 2 as a pure function: rows (source, set, row_id, en, ar) to (bank, dropped, report).
+    Used by `stage2()` and by the Space, which rebuilds the bank in memory from the pinned sources."""
     import re
     from collections import Counter
 
@@ -136,8 +138,7 @@ def stage2() -> dict:
     from data.text import ar_key, arabic_share, en_key, has_acronym, is_acronym_term, is_latin_only, keeps_acronym_only, normalise_ar, normalise_en, split_packed
     from server.glossary import slug
 
-    verify_raw()
-    df = _rows()
+    df = df.copy()
     report: dict = {"rows_in": int(len(df)), "rows_in_by_source": df.groupby("source").size().astype(int).to_dict()}
 
     df["en"] = df.en.map(normalise_en)
@@ -152,8 +153,6 @@ def stage2() -> dict:
     reasons[(reasons == "") & (df.n_words > MAX_TERM_WORDS)] = f"more than {MAX_TERM_WORDS} words (a UI sentence, not a term)"
     reasons[(reasons == "") & (df.ar == "")] = "empty Arabic"
     dropped = df[reasons != ""].assign(reason=reasons[reasons != ""])
-    REPORTS.mkdir(parents=True, exist_ok=True)
-    dropped[["source", "row_id", "en", "ar", "reason"]].to_csv(REPORTS / "dropped.csv", index=False)
     df = df[reasons == ""].copy()
     report["dropped"] = dropped.groupby("reason").size().astype(int).to_dict()
 
@@ -210,19 +209,27 @@ def stage2() -> dict:
 
     # Stable, readable ids. Darby terms keep their glossary slug; a case-only clash (IT vs it) gets a suffix.
     ids, seen = [], Counter()
-    for en, key in zip(bank.en, bank.en_key):
+    for en in bank.en:
         base = slug(en) or "term"
         seen[base] += 1
         ids.append(base if seen[base] == 1 else f"{base}-{seen[base]}")
     bank.insert(0, "id", ids)
+    report["rows_after_drop"] = int(len(df))
+    return bank, dropped, report
 
+
+def stage2() -> dict:
+    """Clean, normalise and deduplicate into data/interim/term_bank_clean.parquet. Logs every dropped row."""
+    verify_raw()
+    bank, dropped, report = build_clean(_rows())
+    REPORTS.mkdir(parents=True, exist_ok=True)
+    dropped[["source", "row_id", "en", "ar", "reason"]].to_csv(REPORTS / "dropped.csv", index=False)
     INTERIM.mkdir(parents=True, exist_ok=True)
     bank.to_parquet(INTERIM / "term_bank_clean.parquet", index=False)
     report.update(
         {
-            "rows_after_drop": int(len(df)),
             "terms_out": int(len(bank)),
-            "merged_rows": int(len(df) - len(bank)),
+            "merged_rows": int(report["rows_after_drop"] - len(bank)),
             "terms_by_first_source": bank.ar_origin.value_counts().astype(int).to_dict(),
             "multi_source_terms": int((bank.source_names.map(len) > 1).sum()),
             "highlight_terms": int(bank.highlight.sum()),
@@ -286,19 +293,25 @@ def apply_overrides(bank, overrides):
     return bank
 
 
-def stage3(results_path: Path | None = None) -> dict:
-    """Merge the stage 3 Job results (pushed to the Hub) into the clean bank, apply overrides, write the final
-    bank and the review queue. Rows still without an Arabic meaning are held back, not published."""
+# Darby's term for prompt (AI sense) is أمر (plural أوامر), docs/BRIEF.md. The command-line sense is left alone.
+PROMPT_AI_SENSE = re.compile(r"\b(?:prompt|prompts|prompting)\b", re.I)
+PROMPT_OTHER_SENSE = re.compile(r"\b(?:command|elevation|consent|credential|ms-dos|tele)", re.I)
+
+
+def terminology_issues(en: str, ar: str, domain: str) -> list[str]:
+    if PROMPT_AI_SENSE.search(en) and not PROMPT_OTHER_SENSE.search(en) and not re.search("أمر|أوامر", ar):
+        return ["terminology: Darby uses أمر for prompt"]
+    return []
+
+
+def merge_stage3(bank, res, overrides):
+    """Stage 3 merge as a pure function: (clean bank, Job results, overrides) to (final, published, held).
+    Rows still without an Arabic meaning, or acronyms without an expansion, are held back from `published`."""
     import pandas as pd
 
     from data.text import ar_key, is_latin_only
 
-    bank = pd.read_parquet(INTERIM / "term_bank_clean.parquet")
-    if results_path is None:
-        from huggingface_hub import hf_hub_download
-
-        results_path = Path(hf_hub_download(TERM_BANK_REPO, "stage3/results.parquet", repo_type="dataset"))
-    res = pd.read_parquet(results_path).set_index("id")
+    res = res.set_index("id") if "id" in res.columns else res
     rows = []
     for r in bank.to_dict("records"):
         x = res.loc[r["id"]] if r["id"] in res.index else None
@@ -315,25 +328,43 @@ def stage3(results_path: Path | None = None) -> dict:
                 r["ar_full"] = r["ar_display"]
                 r["ar_display"] = display_form(r["ar_display"], r["en"], expanded)
             r["needs_review"] = bool(x["needs_review"])
-            r["review_issues"] = list(x["issues"])
+            r["review_issues"] = [str(i) for i in x["issues"]]
         else:
             r["ar_full"] = r["ar_full"] or r["ar_display"]
             r["review_issues"] = []
+        if r["ar_origin"] != "darby_editor":
+            issues = terminology_issues(r["en"], r["ar_display"], r["domain"])
+            if issues:
+                r["review_issues"] = list(r["review_issues"]) + issues
+                r["needs_review"] = True
         rows.append(r)
-    final = pd.DataFrame(rows)
-    overrides = pd.read_csv(CURATED / "overrides.csv", dtype=str).fillna("")
-    final = apply_overrides(final, overrides)
+    final = apply_overrides(pd.DataFrame(rows), overrides)
     final["ar_key"] = final.ar_display.map(ar_key)
+    held_mask = final.ar_display.map(is_latin_only) | (final.is_acronym & final.en_expanded.isna())
+    published = final[~held_mask].drop(columns=["stage3_reason"])
+    return final, published, final[held_mask]
 
-    held = final[final.ar_display.map(is_latin_only) | (final.is_acronym & final.en_expanded.isna())]
-    published = final.drop(held.index).drop(columns=["stage3_reason"])
+
+def stage3(results_path: Path | None = None) -> dict:
+    """Merge the stage 3 Job results (pushed to the Hub) into the clean bank, apply overrides, write the final
+    bank and the review queue."""
+    import pandas as pd
+
+    bank = pd.read_parquet(INTERIM / "term_bank_clean.parquet")
+    if results_path is None:
+        from huggingface_hub import hf_hub_download
+
+        results_path = Path(hf_hub_download(TERM_BANK_REPO, "stage3/results.parquet", repo_type="dataset"))
+    res = pd.read_parquet(results_path)
+    overrides = pd.read_csv(CURATED / "overrides.csv", dtype=str).fillna("")
+    final, published, held = merge_stage3(bank, res, overrides)
     PROCESSED.mkdir(parents=True, exist_ok=True)
     REVIEW.mkdir(parents=True, exist_ok=True)
     published.to_parquet(PROCESSED / "term_bank.parquet", index=False)
 
     queue = final[final.needs_review | final.index.isin(held.index)].copy()
     queue["held_back"] = queue.index.isin(held.index)
-    queue["issues"] = queue.review_issues.map(lambda v: "; ".join(v) if isinstance(v, (list, tuple)) or hasattr(v, "__iter__") else "")
+    queue["issues"] = queue.review_issues.map("; ".join)
     review_cols = ["id", "en", "domain", "ar_origin", "en_expanded", "ar_display", "held_back", "issues"]
     queue.sort_values(["held_back", "domain", "en"], ascending=[False, True, True])[review_cols].to_csv(REVIEW / "needs_review.csv", index=False)
 
@@ -349,6 +380,28 @@ def stage3(results_path: Path | None = None) -> dict:
     }
     (REPORTS / "stage3.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     return report
+
+
+def hub_rows():
+    """The same rows as `_rows()`, read from the Hub at the pinned revisions (no local raw files): for the Space."""
+    import pandas as pd
+    from huggingface_hub import hf_hub_download
+
+    frames = []
+    for name in ("darby_glossary", "darby_computing"):
+        frames.append(read_source(name))
+    g = pd.read_csv(hf_hub_download(SOURCES["gist"]["repo_id"], SOURCES["gist"]["filename"], repo_type="dataset", revision=SOURCES["gist"]["revision"]), dtype=str, keep_default_na=False)
+    m = pd.read_parquet(hf_hub_download(SOURCES["ms"]["repo_id"], SOURCES["ms"]["filename"], repo_type="dataset", revision=SOURCES["ms"]["revision"]))
+    o1, o2 = frames
+    return pd.concat(
+        [
+            pd.DataFrame({"source": "darby", "set": "darby_glossary", "row_id": "glossary.json#" + o1.index.astype(str), "en": o1.term_en, "ar": o1.term_msa}),
+            pd.DataFrame({"source": "darby", "set": "darby_computing", "row_id": "terms-computing.json#" + o2.index.astype(str), "en": o2.term_en, "ar": o2.term_msa}),
+            pd.DataFrame({"source": "gist", "set": "gist", "row_id": SOURCES["gist"]["repo_id"] + "#" + g["Index"].astype(str), "en": g.English, "ar": g.Arabic}),
+            pd.DataFrame({"source": "ms", "set": "ms", "row_id": SOURCES["ms"]["repo_id"] + "#" + m.index.astype(str), "en": m.text_en, "ar": m.text_ar}),
+        ],
+        ignore_index=True,
+    ).fillna("")
 
 
 def verify_raw() -> None:

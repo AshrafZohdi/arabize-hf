@@ -22,6 +22,7 @@ from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, Field
 
 from server.glossary import Glossary
+from server.termbank import TermBank
 from server.net import client_ip
 from server.llm import LLM, MAX_INPUT_CHARS, LLMBadOutput, LLMUnavailable, RateLimited, ai_rate_limiter
 from server.prompts.explain import ExplainLang, ExplainResult, ExplainStyle, build_explain_prompt
@@ -42,16 +43,16 @@ class ExplainIn(BaseModel):
     style: ExplainStyle = "work"
 
 
-def _matches(glossary: Glossary, text: str) -> list[dict[str, Any]]:
+def _matches(termbank: TermBank, text: str) -> list[dict[str, Any]]:
     return [
         {"start": m.start, "end": m.end, "text": m.text, "id": m.term.id, "en": m.term.en, "ar": m.term.ar, "has_card": m.term.has_card}
-        for m in glossary.finder.find(text)
+        for m in termbank.finder.find(text)
     ]
 
 
 @router.post("/api/terms")
 def find_terms(body: TermsIn, request: Request) -> dict[str, Any]:
-    return {"matches": _matches(request.app.state.glossary, body.text)}
+    return {"matches": _matches(request.app.state.termbank, body.text)}
 
 
 QUESTION_TEMPLATE = {
@@ -93,7 +94,7 @@ async def explain(body: ExplainIn, request: Request) -> Any:
 
     glossary: Glossary = request.app.state.glossary
     llm: LLM = request.app.state.llm
-    matches = _matches(glossary, body.text)
+    matches = _matches(request.app.state.termbank, body.text)
     seen: list[str] = []
     for m in matches:
         if m["has_card"] and m["id"] not in seen:
@@ -110,7 +111,10 @@ async def explain(body: ExplainIn, request: Request) -> Any:
             question = glossary_question(glossary, cards[0], body.lang, body.text) if cards else None
             return {"explanation": None, "question": question, "cards": [], "source": "glossary", "fallback": reason}
 
-        system, user = build_explain_prompt(body.text, body.lang, body.style, [(c["term_en"], c["term_ar"]) for c in cards])
+        # Terms with a Darby card first (no cards wanted for them), then other bank terms for their standard Arabic.
+        hints = [(c["term_en"], c["term_ar"]) for c in cards]
+        hints += [(m["en"], m["ar"]) for m in matches if not m["has_card"] and (m["en"], m["ar"]) not in hints]
+        system, user = build_explain_prompt(body.text, body.lang, body.style, hints, carded=len(cards))
         try:
             async for ev in llm.json_stream(
                 feature="explain",

@@ -74,6 +74,7 @@ class TermFinder:
         if not words:
             return
         keys = [_key(w) for w in words]
+        added = False
         for last in suffix_forms(keys[-1]):
             node = self._root
             for k in [*keys[:-1], last]:
@@ -81,7 +82,8 @@ class TermFinder:
             # First writer wins, so the bank's priority order (ours, then GIST, then MS) decides conflicts.
             if node.term is None:
                 node.term = term
-                self.size += 1
+                added = True
+        self.size += added  # terms reachable by at least one form, not trie entries
 
     def find(self, text: str) -> list[Match]:
         tokens = [(m.group(), m.start(), m.end()) for m in _WORD.finditer(text)]

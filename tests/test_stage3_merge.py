@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from data.pipeline import apply_overrides, display_form
+from data.pipeline import apply_overrides, display_form, terminology_issues
 
 
 def test_display_form():
@@ -24,3 +24,11 @@ def test_overrides_reject_unknown_fields_and_ids():
         apply_overrides(bank, pd.DataFrame([{"id": "x", "field": "en", "value": "z", "reviewer": "", "note": ""}]))
     with pytest.raises(ValueError):
         apply_overrides(bank, pd.DataFrame([{"id": "nope", "field": "ar_display", "value": "z", "reviewer": "", "note": ""}]))
+
+
+def test_prompt_terminology_check():
+    assert terminology_issues("system prompt", "موجه النظام", "software")
+    assert terminology_issues("prompt tuning", "تعديل التلميحات", "ai")
+    assert not terminology_issues("prompt engineering", "هندسة الأوامر", "ai")
+    assert not terminology_issues("command prompt", "موجه الأوامر", "software")
+    assert not terminology_issues("Prompt", "أمر", "ai")

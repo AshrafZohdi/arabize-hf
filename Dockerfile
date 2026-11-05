@@ -18,6 +18,7 @@ WORKDIR /home/user/app
 COPY --chown=user requirements.txt ./
 RUN pip install --no-cache-dir --user -r requirements.txt
 COPY --chown=user server/ server/
+COPY --chown=user data/__init__.py data/pipeline.py data/text.py data/
 COPY --chown=user content/ content/
 COPY --chown=user --from=web /web/dist web/dist
 EXPOSE 7860

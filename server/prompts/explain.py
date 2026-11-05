@@ -96,10 +96,13 @@ REMINDER: dict[str, str] = {
 }
 
 
-def build_explain_prompt(text: str, lang: str, style: str, known_terms: list[tuple[str, str]]) -> tuple[str, str]:
-    """Return (system, user). known_terms are (english, arabic) pairs found in the text that already have a
-    Darby glossary card, so the model does not spend time writing cards for them."""
-    hints = "\n".join(f"- {en} = {ar}" for en, ar in known_terms[:12])
+def build_explain_prompt(text: str, lang: str, style: str, known_terms: list[tuple[str, str]], carded: int | None = None) -> tuple[str, str]:
+    """Return (system, user). known_terms are (english, arabic) pairs the term finder matched: the first `carded`
+    already have a Darby glossary card (no model cards for them); the rest only give the standard Arabic term."""
+    carded = len(known_terms) if carded is None else carded
+    with_cards, others = known_terms[:carded][:12], known_terms[carded:][:12]
+    hints = "\n".join(f"- {en} = {ar}" for en, ar in with_cards)
+    other_hints = "\n".join(f"- {en} = {ar}" for en, ar in others)
     system = "\n\n".join(
         p
         for p in [
@@ -108,6 +111,7 @@ def build_explain_prompt(text: str, lang: str, style: str, known_terms: list[tup
             "term_en is the English term as it appears in the text (singular). term_ar is its usual Modern Standard Arabic term. "
             "The Arabic for prompt is أمر, plural أوامر.",
             f"These terms from the text already have a card in Darby's glossary. Use these Arabic terms for them, and do not write cards for them:\n{hints}" if hints else "",
+            f"Standard Arabic for other terms in the text (from Darby's term bank); you may write cards for them:\n{other_hints}" if other_hints else "",
             "explanation: 2 or 3 short sentences on what the whole text means and what the reader should do.",
             "question: one multiple-choice question that checks the meaning of the most important technical term in the text, set in a Gulf workplace. "
             "options: 4 different English technical terms (for example Hallucination, Prompt, Token, Context), exactly one correct, never 'all of the above'. "
@@ -126,7 +130,7 @@ def build_explain_prompt(text: str, lang: str, style: str, known_terms: list[tup
     # Rules repeated next to where the model starts writing: in tests it drifted to MSA and wrote glossary cards
     # when they were only in the system prompt.
     reminder = [REMINDER[lang]]
-    if known_terms:
-        reminder.append("No cards for: " + ", ".join(en for en, _ in known_terms[:12]) + ".")
+    if with_cards:
+        reminder.append("No cards for: " + ", ".join(en for en, _ in with_cards) + ".")
     reminder.append("The question's correct option is the most technical AI or software term in the text.")
     return system, wrap_learner_text(text) + "\n\n" + " ".join(reminder)

@@ -1,5 +1,7 @@
 """Darby API and static web app, served together on port 7860 in the Space."""
 
+import logging
+import threading
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
@@ -8,7 +10,8 @@ from fastapi.responses import FileResponse
 from server.config import Settings, load_settings
 from server.glossary import load_glossary
 from server.llm import LLM
-from server.routes import explain
+from server.routes import explain, glossary
+from server.termbank import TermBank, load_term_bank
 
 VERSION = "0.1.0"
 
@@ -19,7 +22,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.settings = settings
     app.state.llm = LLM(settings)
     app.state.glossary = load_glossary(settings.content_dir)
+    # Our glossary straight away; the full bank replaces it when the background load finishes.
+    app.state.termbank = TermBank.from_rows(_glossary_rows(app.state.glossary), {"steps": {"sources": "loading"}})
+    app.state.embedder = None
+    if settings.termbank_source == "hub":
+        threading.Thread(target=_load_bank, args=(app, settings), daemon=True, name="termbank").start()
     app.include_router(explain.router)
+    app.include_router(glossary.router)
 
     @app.get("/api/health")
     def health() -> dict:
@@ -29,6 +38,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "demo_mode": settings.demo_mode,
             "llm": app.state.llm.status(),
             "voice_enabled": settings.voice_enabled,
+            "termbank": {k: v for k, v in app.state.termbank.status.items()},
+            "semantic_search": app.state.embedder is not None and app.state.termbank.vectors is not None,
         }
 
     @app.get("/api/{rest:path}", include_in_schema=False)
@@ -50,6 +61,32 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return FileResponse(index, headers={"Cache-Control": "no-cache"})
 
     return app
+
+
+def _glossary_rows(g) -> list[dict]:
+    return [
+        {
+            "id": k, "en": e["term_en"], "en_key": e["term_en"].lower(), "en_expanded": None, "is_acronym": False,
+            "ar_display": e["term_msa"], "ar_full": e["term_msa"], "ar_key": e["term_msa"], "ar_origin": "darby_editor",
+            "reviewed": True, "needs_review": False, "domain": "ai" if e.get("domain") == "ai" else "software",
+            "source_names": ["darby"], "has_full_card": True, "highlight": True,
+        }
+        for k, e in g.entries.items()
+    ]
+
+
+def _load_bank(app: FastAPI, settings: Settings) -> None:
+    try:
+        tb = load_term_bank(settings.content_dir, settings.hf_token)
+        app.state.termbank = tb
+        if tb.vectors is not None:
+            from server.embed import E5
+
+            e5 = E5(threads=4)
+            e5.encode(["warm up"])  # downloads and loads the model now, not on the first search
+            app.state.embedder = e5
+    except Exception as e:
+        logging.getLogger("darby").error("term bank load failed: %s", type(e).__name__)
 
 
 def _cache_headers(path: Path, dist: Path) -> dict[str, str]:
