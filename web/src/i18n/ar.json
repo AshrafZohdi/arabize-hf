@@ -132,5 +132,11 @@
   "glossary.gulfUsage": "بالخليجي يقولون: {t}",
   "glossary.expanded": "الاسم الكامل: {t}",
   "glossary.empty": "جرّب كلمة ثانية، بالعربي أو بالإنجليزي.",
-  "glossary.error": "ما قدرنا نبحث الحين. جرّب مرة ثانية."
+  "glossary.error": "ما قدرنا نبحث الحين. جرّب مرة ثانية.",
+  "glossary.allTerms": "كل المصطلحات",
+  "glossary.allTermsNote": "{n} مصطلح من قاموس دربي وGIST ومسرد مايكروسوفت، مرتبة أبجديًا بالإنجليزي.",
+  "glossary.letterLabel": "أول حرف",
+  "glossary.allLetters": "الكل",
+  "glossary.showMore": "اعرض أكثر",
+  "glossary.shown": "معروض {k} من {n}"
 }

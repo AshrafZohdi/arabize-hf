@@ -132,5 +132,11 @@
   "glossary.gulfUsage": "In Gulf Arabic people say: {t}",
   "glossary.expanded": "Full form: {t}",
   "glossary.empty": "Try another word, in Arabic or English.",
-  "glossary.error": "Search is not available right now. Please try again."
+  "glossary.error": "Search is not available right now. Please try again.",
+  "glossary.allTerms": "All terms",
+  "glossary.allTermsNote": "{n} terms from the Darby glossary, GIST and the Microsoft glossary, A to Z in English.",
+  "glossary.letterLabel": "First letter",
+  "glossary.allLetters": "All",
+  "glossary.showMore": "Show more",
+  "glossary.shown": "Showing {k} of {n}"
 }

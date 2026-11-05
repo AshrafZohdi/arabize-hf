@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { PageTitle } from '../components/PageTitle'
 import { Segmented } from '../components/Segmented'
 import { useI18n, type MessageKey } from '../i18n'
-import { glossaryCards, glossarySearch, type GlossaryCard, type QuickCard } from '../lib/api'
+import { glossaryBrowse, glossaryCards, glossarySearch, type GlossaryCard, type QuickCard } from '../lib/api'
 import { saveTerm, termKey, useDictionary } from '../lib/dictionary'
 import { useExplainLang } from '../lib/explainLang'
 import { Link } from '../lib/router'
@@ -127,8 +127,80 @@ export function GlossaryPage() {
           </ul>
         </section>
       )}
+      {!results && <BrowseAll domain={domain} cardById={cardById} onOpen={setOpen} />}
       <FullCardDialog card={open} onClose={() => setOpen(null)} />
     </>
+  )
+}
+
+const LETTERS = ['#', ...'abcdefghijklmnopqrstuvwxyz']
+
+/** Every term in the bank, A to Z, 50 at a time: nothing is only reachable by searching. */
+function BrowseAll({ domain, cardById, onOpen }: { domain: Domain; cardById: Map<string, GlossaryCard>; onOpen: (c: GlossaryCard) => void }) {
+  const { t } = useI18n()
+  const [letter, setLetter] = useState('')
+  const [items, setItems] = useState<QuickCard[]>([])
+  const [total, setTotal] = useState(0)
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    const ctrl = new AbortController()
+    setLoading(true)
+    glossaryBrowse(domain, letter, 0, ctrl.signal)
+      .then((r) => {
+        setItems(r.results)
+        setTotal(r.total)
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false))
+    return () => ctrl.abort()
+  }, [domain, letter])
+
+  const more = () => {
+    setLoading(true)
+    glossaryBrowse(domain, letter, items.length)
+      .then((r) => setItems((prev) => [...prev, ...r.results]))
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }
+
+  return (
+    <section aria-labelledby="all-h" className="mt-10">
+      <h2 id="all-h" className="m-0 font-display text-[22px] font-semibold text-maroon">
+        {t('glossary.allTerms')}
+      </h2>
+      <p className="mt-1 mb-4 text-muted">{t('glossary.allTermsNote', { n: total.toLocaleString('en-US') })}</p>
+      <div role="group" aria-label={t('glossary.letterLabel')} dir="ltr" className="mb-4 flex flex-wrap gap-1.5">
+        {['', ...LETTERS].map((l) => (
+          <button
+            key={l || 'all'}
+            type="button"
+            aria-pressed={letter === l}
+            onClick={() => setLetter(l)}
+            className={`min-h-11 min-w-11 cursor-pointer rounded-xl border px-2 font-en font-bold uppercase ${
+              letter === l ? 'border-maroon bg-maroon text-white' : 'border-line bg-white text-ink-2 hover:bg-surface-3'
+            }`}
+          >
+            {l || t('glossary.allLetters')}
+          </button>
+        ))}
+      </div>
+      <ul className="m-0 grid list-none grid-cols-1 gap-3 p-0 md:grid-cols-2">
+        {items.map((r) => (
+          <QuickCardItem key={r.id} r={r} full={cardById.get(r.id)} onOpen={onOpen} />
+        ))}
+      </ul>
+      <div className="mt-4 flex flex-wrap items-center gap-3">
+        <span className="text-sm text-muted" aria-live="polite">
+          {t('glossary.shown', { k: items.length.toLocaleString('en-US'), n: total.toLocaleString('en-US') })}
+        </span>
+        {items.length < total && (
+          <button type="button" onClick={more} disabled={loading} className="btn-primary min-h-12 px-6 text-base">
+            {t('glossary.showMore')}
+          </button>
+        )}
+      </div>
+    </section>
   )
 }
 

@@ -80,6 +80,19 @@ def search(
     return {"results": out, "semantic": bool(semantic), "terms": len(tb.rows)}
 
 
+@router.get("/api/glossary/browse")
+def browse(
+    request: Request,
+    domain: Literal["all", "ai", "software"] = "all",
+    letter: str = Query("", max_length=1, pattern="^[a-z#]?$"),
+    offset: int = Query(0, ge=0),
+    limit: int = Query(50, ge=1, le=100),
+) -> dict[str, Any]:
+    tb: TermBank = request.app.state.termbank
+    rows, total = tb.browse(domain, letter, offset, limit)
+    return {"results": [quick_card(r) for r in rows], "total": total, "offset": offset}
+
+
 @router.get("/api/glossary/term/{term_id}")
 def term(term_id: str, request: Request, lang: Lang = "gulf") -> dict[str, Any]:
     g = request.app.state.glossary

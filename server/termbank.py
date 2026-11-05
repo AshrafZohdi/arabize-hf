@@ -92,6 +92,16 @@ class TermBank:
         hits.sort(reverse=True)
         return hits[:limit]
 
+    def browse(self, domain: str = "all", letter: str = "", offset: int = 0, limit: int = 50) -> tuple[list[dict[str, Any]], int]:
+        """Every term A to Z, optionally one field and one first letter ("#" for terms that start with a digit)."""
+        if not hasattr(self, "_alpha"):
+            self._alpha = sorted(range(len(self.rows)), key=lambda i: (self._en[i].lstrip("-.'\" "), self._en[i]))
+        def first(i: int) -> str:
+            c = self._en[i].lstrip("-.'\" ")[:1]
+            return c if c.isalpha() else "#"
+        picked = [i for i in self._alpha if (domain == "all" or self.rows[i]["domain"] == domain) and (not letter or first(i) == letter)]
+        return [self.rows[i] for i in picked[offset : offset + limit]], len(picked)
+
     def card_semantic(self, query_vec: np.ndarray, k: int = 3, minimum: float = 0.80) -> list[tuple[float, int]]:
         """Meaning search among terms with a full Darby card only (re-embedded with their definitions).
         e5-small leans on shared words across the whole bank ("made-up facts" scores "fact table" highest),

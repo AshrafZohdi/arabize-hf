@@ -68,3 +68,14 @@ def test_term_lookup(tmp_path):
     c = client(tmp_path)
     assert c.get("/api/glossary/term/hallucination").json()["full"]["term_ar"] == "الهلوسة"
     assert c.get("/api/glossary/term/nope").status_code == 404
+
+
+def test_browse_pages_through_every_term(tmp_path):
+    bank = TermBank.from_rows([row("b", "beta", "ب"), row("a", "Alpha", "أ"), row("c", "3D model", "ثلاثي", domain="software"), row("d", "-delta", "د")])
+    c = client(tmp_path, bank)
+    page = c.get("/api/glossary/browse", params={"limit": 2}).json()
+    assert page["total"] == 4 and [r["en"] for r in page["results"]] == ["3D model", "Alpha"]
+    assert [r["en"] for r in c.get("/api/glossary/browse", params={"offset": 2, "limit": 2}).json()["results"]] == ["beta", "-delta"]
+    assert [r["en"] for r in c.get("/api/glossary/browse", params={"letter": "#"}).json()["results"]] == ["3D model"]
+    assert c.get("/api/glossary/browse", params={"domain": "software"}).json()["total"] == 1
+    assert c.get("/api/glossary/browse", params={"letter": "ab"}).status_code == 422

@@ -119,3 +119,9 @@ export async function glossarySearch(q: string, domain: string, signal?: AbortSi
   if (!r.ok) throw new ApiError(r.status)
   return r.json()
 }
+
+export async function glossaryBrowse(domain: string, letter: string, offset: number, signal?: AbortSignal): Promise<{ results: QuickCard[]; total: number }> {
+  const r = await fetch(`/api/glossary/browse?${new URLSearchParams({ domain, letter, offset: String(offset), limit: '50' })}`, { signal })
+  if (!r.ok) throw new ApiError(r.status)
+  return r.json()
+}
