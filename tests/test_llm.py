@@ -224,6 +224,17 @@ def test_client_errors_are_not_hidden(settings, fixtures):
     llm = LLM(settings, client=FakeClient(HTTPError(401, "bad token")), fixtures=fixtures)
     with pytest.raises(HTTPError):
         run(llm.json(feature="explain", system="s", user="u", schema=Card, max_tokens=100))
+    assert llm.state != "waking"
+
+
+def test_any_endpoint_failure_serves_a_recording_when_there_is_one(settings, fixtures):
+    llm = LLM(settings, client=FakeClient(HTTPError(401, "bad token")), fixtures=fixtures)
+    res = run(llm.json(feature="explain", system="s", user="u", schema=Card, max_tokens=100, fixture_input={"text": "check it for hallucinations", "lang": "gulf"}))
+    assert res.source == "fixture"
+
+
+def test_missing_token_counts_as_unconfigured(settings, fixtures):
+    assert LLM(replace(settings, hf_token=None), client=FakeClient(), fixtures=fixtures).state == "unconfigured"
 
 
 def test_demo_mode_never_calls_the_endpoint(settings, fixtures):

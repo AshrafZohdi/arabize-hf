@@ -380,7 +380,7 @@ class LLM:
     def state(self) -> State:
         if self.settings.demo_mode:
             return "demo"
-        if not self.settings.fanar_endpoint_url:
+        if not self.settings.fanar_endpoint_url or not self.settings.hf_token:
             return "unconfigured"
         return self._state
 
@@ -404,6 +404,16 @@ class LLM:
         data = {"input": fixture_input, "output": output, "recorded": {"model": self.settings.fanar_model, "latency_ms": latency_ms}}
         path.write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
         log.info("recorded fixture %s", path)
+
+    def _on_failure(self, exc: BaseException, fixture: Any) -> bool:
+        """Decide how a failed call is handled. True: serve the fixture, or report waking when there is none.
+        False: re-raise. Any failure falls back to a recording when one exists (docs/BRIEF.md), but only
+        a cold or unreachable endpoint is reported as waking."""
+        if _is_unavailable(exc):
+            self._mark_waking(exc)
+            return True
+        log.error("endpoint error %s (status %s)", type(exc).__name__, _status_of(exc))
+        return fixture is not None
 
     def _mark_ready(self) -> None:
         self._state, self._waking_since = "ready", None
@@ -463,9 +473,8 @@ class LLM:
             try:
                 text = await self._chat(messages, max_tokens=max_tokens, temperature=temperature, schema=schema)
             except Exception as e:
-                if not _is_unavailable(e):
+                if not self._on_failure(e, fixture):
                     raise
-                self._mark_waking(e)
                 if fixture is None:
                     raise LLMUnavailable("waking") from e
                 return JsonResult(schema.model_validate(fixture), "fixture", int((self._clock() - started) * 1000), attempt)
@@ -528,9 +537,8 @@ class LLM:
         try:
             chunks = await asyncio.wait_for(self._get_client().chat_completion(**kwargs), timeout=JSON_TIMEOUT_S)
         except Exception as e:
-            if not _is_unavailable(e):
+            if not self._on_failure(e, fixture):
                 raise
-            self._mark_waking(e)
             if fixture is None:
                 raise LLMUnavailable("waking") from e
             async for ev in from_fixture(1):
@@ -601,9 +609,8 @@ class LLM:
                 timeout=JSON_TIMEOUT_S,
             )
         except Exception as e:
-            if not _is_unavailable(e):
+            if not self._on_failure(e, fixture):
                 raise
-            self._mark_waking(e)
             if fixture is None:
                 raise LLMUnavailable("waking") from e
             async for piece in _replay(str(fixture)):
