@@ -1,5 +1,6 @@
 import { Footer } from './components/Footer'
 import { Header } from './components/Header'
+import { PageBackdrop } from './components/PageBackdrop'
 import { useI18n } from './i18n'
 import { useRouter } from './lib/router'
 import { Home } from './pages/Home'
@@ -21,12 +22,13 @@ export default function App() {
   const { t } = useI18n()
   const { path } = useRouter()
   return (
-    <div className="min-h-screen bg-bg text-ink">
+    <div className="relative min-h-screen text-ink">
+      <PageBackdrop />
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:start-4 focus:top-4 focus:z-10 focus:rounded-xl focus:bg-surface focus:p-3">
         {t('app.skipToContent')}
       </a>
       <Header />
-      <main id="main" className="mx-auto max-w-[1240px] px-4 pt-10 sm:px-10">
+      <main id="main" className="mx-auto max-w-[1240px] px-4 pt-8 sm:px-10 sm:pt-10">
         <Page path={path} />
       </main>
       <Footer />

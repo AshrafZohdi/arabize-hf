@@ -19,3 +19,6 @@ data/glossary_public/
 # Playwright
 web/test-results/
 web/playwright-report/
+
+# Design mockups (34 MB of PNGs, kept local)
+darby-frosted-dunes-mockups/

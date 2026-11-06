@@ -24,8 +24,8 @@ export function HighlightedText({
     parts.push(
       <mark
         key={i}
-        className={`inline-flex items-baseline gap-1 rounded-full px-2 py-0.5 ${
-          known ? 'bg-teal-soft font-semibold text-teal-text' : 'bg-maroon-soft font-bold text-maroon-text'
+        className={`inline-flex items-baseline gap-1 rounded-t-md border-b-2 px-1 ${
+          known ? 'border-teal bg-teal-soft font-semibold text-teal-text' : 'border-maroon bg-maroon-soft font-bold text-maroon-text'
         }`}
       >
         {known && <Check aria-hidden="true" size={12} strokeWidth={3} className="self-center" />}

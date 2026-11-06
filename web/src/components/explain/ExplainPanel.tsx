@@ -1,4 +1,4 @@
-import { AlertTriangle, Check, Hourglass, Info, Loader2, Pencil, RotateCcw, X } from 'lucide-react'
+import { AlertTriangle, ArrowRight, Check, Hourglass, Info, Loader2, Pencil, RotateCcw, X } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useI18n, type MessageKey } from '../../i18n'
 import { ApiError, findTerms, streamExplain, type Card, type ExplainResult, type ExplainStyle, type TermMatch } from '../../lib/api'
@@ -252,7 +252,10 @@ export function ExplainPanel({ lang }: { lang: ExplainLang }) {
                   {t('explain.working')}
                 </span>
               ) : (
-                t('explain.submit')
+                <span className="flex items-center gap-2">
+                  {t('explain.submit')}
+                  <ArrowRight aria-hidden="true" size={20} className="rtl:-scale-x-100" />
+                </span>
               )}
             </button>
           </div>

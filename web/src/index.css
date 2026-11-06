@@ -76,18 +76,62 @@ body { font-variant-numeric: lining-nums; }
 
 a { color: var(--maroon); }
 a:hover { color: var(--maroon-deep); }
+}
 
+/* Frosted Dunes page light (darby-frosted-dunes-mockups/00-design-spec.png): radial maroon 32% at the top start,
+   gold 44% on the left, teal 20% at the bottom, over --bg. Dune lines and grain are an SVG in PageBackdrop. */
+.page-light {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(60vw 50vh at 100% 0%, color-mix(in srgb, var(--maroon) 32%, transparent), transparent 70%),
+    radial-gradient(45vw 60vh at 0% 35%, color-mix(in srgb, var(--gold) 44%, transparent), transparent 70%),
+    radial-gradient(70vw 40vh at 50% 105%, color-mix(in srgb, var(--teal) 20%, transparent), transparent 70%),
+    var(--bg);
+}
+[dir="ltr"] .page-light {
+  background:
+    radial-gradient(60vw 50vh at 0% 0%, color-mix(in srgb, var(--maroon) 32%, transparent), transparent 70%),
+    radial-gradient(45vw 60vh at 100% 35%, color-mix(in srgb, var(--gold) 44%, transparent), transparent 70%),
+    radial-gradient(70vw 40vh at 50% 105%, color-mix(in srgb, var(--teal) 20%, transparent), transparent 70%),
+    var(--bg);
 }
 
 @layer components {
-.card {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 20px;
-  padding: 20px;
-  box-shadow: var(--shadow-card);
+/* The glass recipe from the spec; the chunky ledge stays. */
+.card, .glass, .tabbar {
+  background: color-mix(in srgb, var(--surface) 58%, transparent);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  backdrop-filter: blur(24px) saturate(150%);
+  border: 1px solid color-mix(in srgb, var(--white) 75%, transparent);
+  border-radius: 24px;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--white) 90%, transparent),
+    0 5px 0 color-mix(in srgb, var(--shadow) 70%, transparent),
+    0 24px 48px -36px color-mix(in srgb, var(--maroon-deep) 22%, transparent);
 }
+.card { padding: 20px; }
 @media (min-width: 640px) { .card { padding: 28px; } }
+
+/* The section nav: a glass tab bar on phones, a plain segmented control inside the header pill from 640px. */
+@media (min-width: 640px) {
+  .tabbar {
+    background: color-mix(in srgb, var(--surface-3) 70%, transparent);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    border: 0;
+    box-shadow: none;
+  }
+}
+
+/* Inner wells on glass: a little more opaque so text keeps 4.5:1. */
+.well {
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+  border: 1px solid color-mix(in srgb, var(--white) 70%, transparent);
+  border-radius: 18px;
+}
 
 .btn-primary {
   border: 0;
@@ -97,24 +141,54 @@ a:hover { color: var(--maroon-deep); }
   font-weight: 700;
   min-height: 56px;
   padding: 12px 32px;
-  border-radius: 16px;
-  box-shadow: var(--shadow-btn);
+  border-radius: 18px;
+  box-shadow: 0 5px 0 var(--maroon-deep), 0 14px 28px -14px color-mix(in srgb, var(--maroon) 60%, transparent);
   cursor: pointer;
-  transition: transform 80ms ease, box-shadow 80ms ease;
+  transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), box-shadow 160ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 .btn-primary:hover { background: var(--maroon-deep); }
-.btn-primary:active { transform: translateY(3px); box-shadow: var(--shadow-btn-pressed); }
+.btn-primary:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--maroon-deep); transition-duration: 100ms; }
 .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
-
 }
 
+/* Chips and cards lift on hover, pointer devices only. */
+@media (hover: hover) and (pointer: fine) {
+  .lift { transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), box-shadow 160ms cubic-bezier(0.23, 1, 0.32, 1); }
+  .lift:hover { transform: translateY(-2px); }
+}
+
+/* Cards entering a page: fade and rise 8px, 50ms apart (set --i on each). */
+@keyframes card-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+.card-enter { animation: card-enter 300ms cubic-bezier(0.23, 1, 0.32, 1) both; animation-delay: calc(var(--i, 0) * 50ms); }
+
+/* Daily code tiles flip on X one by one and take their colour. */
+@keyframes tile-flip {
+  0% { transform: rotateX(0); }
+  50% { transform: rotateX(90deg); }
+  100% { transform: rotateX(0); }
+}
+.tile-flip { animation: tile-flip 250ms ease-in-out both; animation-delay: calc(var(--i, 0) * 80ms); }
+
+/* Modals: scrim fades in, panel from scale(0.96). */
+@keyframes modal-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+dialog[open] { animation: modal-in 220ms cubic-bezier(0.23, 1, 0.32, 1); }
+dialog::backdrop { background: color-mix(in srgb, var(--ink) 35%, transparent); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+
 @media (prefers-reduced-motion: reduce) {
+  /* Colour and opacity changes only: no movement, no confetti. */
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+  .lift:hover { transform: none; }
 }
 
 /* A right answer: the points float up and fade. Reduced motion turns it into a short static badge. */
