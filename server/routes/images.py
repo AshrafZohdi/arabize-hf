@@ -36,11 +36,6 @@ RUBRIC = {
     "format": "Style and framing: photo or illustration, camera angle, light, colours, mood.",
     "constraints": "Details and limits: what must be in the image, what to leave out (text, logos, real people's faces).",
 }
-EXAMPLE = (
-    "A bright, modern office in Doha with a view of West Bay at golden hour. Two Qatari colleagues, a man in a white thobe "
-    "and a woman in an abaya, look at a laptop showing a simple chart. Natural light, warm colours, realistic photo, eye level, "
-    "no text, no logos."
-)
 
 
 class Safety(BaseModel):
@@ -75,7 +70,8 @@ async def image_lab(body: ImageLabIn, request: Request) -> Any:
         ai_rate_limiter.hit(client_ip(request))
     except RateLimited as e:
         return JSONResponse({"error": "rate_limited", "retry_after": e.retry_after}, status_code=429, headers={"Retry-After": str(e.retry_after)})
-    system, user = build_scoring_prompt(TASK["en"], body.prompt, body.lang, RUBRIC, EXAMPLE, improved_in="en")
+    # No good example here: in a live test Fanar copied it word for word as the improved prompt.
+    system, user = build_scoring_prompt(TASK["en"], body.prompt, body.lang, RUBRIC, None, improved_in="en")
     llm: LLM = request.app.state.llm
     try:
         res = await llm.json(

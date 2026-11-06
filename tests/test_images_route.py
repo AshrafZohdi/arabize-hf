@@ -63,3 +63,9 @@ def test_waking_endpoint_and_switch(tmp_path, monkeypatch):
     off = make(tmp_path, image_enabled=False)
     assert off.post("/api/generate-image", json={"prompt": "A bright office"}).status_code == 404
     assert off.get("/api/image-lab/task").status_code == 404
+
+
+def test_image_lab_gives_fanar_no_example_to_copy(tmp_path):
+    fake = FakeClient(json.dumps(SCORE))
+    make(tmp_path, fake).post("/api/image-lab", json={"prompt": "مكتب في الدوحة", "lang": "gulf"})
+    assert "<good_example>" not in fake.calls[0]["messages"][-1]["content"]

@@ -36,7 +36,7 @@ def read_wav(data: bytes) -> np.ndarray:
 
 
 class Whisper:
-    def __init__(self, threads: int = 4):
+    def __init__(self, threads: int = 8):  # the Space has 8 vCPUs; 4 threads took about 4.5 s for a short question
         self.threads = threads
         self._model: Any = None
         self._lock = threading.Lock()
