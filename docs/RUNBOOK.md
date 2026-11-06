@@ -6,6 +6,8 @@
 | Space repo | https://huggingface.co/spaces/FayezAlkh12/darby (deploys from `main` of the `space` remote) |
 | GitHub | https://github.com/AshrafZohdi/arabize-hf |
 | Fanar endpoint | `FayezAlkh12/darby-fanar`, https://endpoints.huggingface.co (1x A10G, USD 1.00/h, scale to zero after 15 min) |
+| Image endpoint | `FayezAlkh12/darby-oryx-ig` (FLUX.1-schnell with the Fanar-2-Oryx-IG LoRA, custom handler `nuvais/darbi-oryx-ig-endpoint`, 1x L40S, about USD 1.80/h, scale to zero after 15 min). Space variable `ORYX_IG_URL` shows the Draw tab |
+| Speech to text | Whisper small in the Space (CPU), Space variable `ASR_ENABLED=1` |
 | Photo explain endpoint | `FayezAlkh12/darby-oryx-ivu` (Fanar-2-Oryx-IVU Q8_0, llama.cpp, 1x L4, about USD 0.80/h, scale to zero after 15 min). Framework `custom` with a custom image: the `llamacpp` framework downloads only the model GGUF and skips the 1.4 GB vision projector. Space variables `IMAGE_ENABLED=1` and `ORYX_IVU_URL` switch it on |
 | Health | https://fayezalkh12-darby.hf.space/api/health |
 
@@ -39,7 +41,7 @@
 
 ## Owner actions still open
 
-- Image generation: on the FayezAlkh12 account, accept the terms of `black-forest-labs/FLUX.1-schnell` (gated) on its model page. Then create the Oryx-IG endpoint from `hub/oryx-ig-endpoint` (1x L40S, about USD 1.80/h, scale to zero) and set `ORYX_IG_URL`; the Draw tab appears by itself.
+
 - Create the collection `nuvais/darby` on the Hub (the API refused: new-account quota). Items: Space `FayezAlkh12/darby`; models `QCRI/Fanar-2-27B-Instruct`, `nuvais/Fanar-2-27B-Instruct-Q5_K_M-GGUF`, `intfloat/multilingual-e5-small`, `Xenova/mms-tts-ara`, `onnx-community/Kokoro-82M-v1.0-ONNX`; datasets `nuvais/darby-term-bank`, `nuvais/darby-ai-glossary-ar-en`, `nuvais/darby-lessons`, `Jerry999/multilingual-terminology`.
 - Gulf Arabic review: `data/review/needs_review.csv` (priorities 1 to 3 first), the 100 Fanar cards, the recorded demo answers, and a listen to the voices.
 - Raise the GitHub LFS budget if the screenshots should show on GitHub (`git lfs push origin --all`).

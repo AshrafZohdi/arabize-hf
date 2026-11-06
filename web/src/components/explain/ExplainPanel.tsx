@@ -5,6 +5,7 @@ import { ApiError, findTerms, streamExplain, type Card, type ExplainResult, type
 import { termKey, useDictionary } from '../../lib/dictionary'
 import type { ExplainLang } from '../../lib/explainLang'
 import { imageFeatures, readImage, shrinkImage } from '../../lib/image'
+import { MicButton } from '../MicButton'
 import { findPrivate, type PrivateKind } from '../../lib/privacy'
 import { HighlightedText } from './HighlightedText'
 import { QuickQuestion } from './QuickQuestion'
@@ -183,6 +184,8 @@ export function ExplainPanel({ lang, langControl }: { lang: ExplainLang; langCon
           <label htmlFor="explain-input" className="font-semibold text-ink-2">
             {t('explain.inputLabel')}
           </label>
+          <span className="flex flex-wrap items-center gap-2">
+          <MicButton onText={(said) => setText((v) => `${v} ${said}`.trim().slice(0, MAX))} />
           {photoOn && (
             <>
               <input ref={photoInput} type="file" accept="image/*" capture="environment" className="sr-only" tabIndex={-1} aria-hidden="true" onChange={(e) => onPhoto(e.target.files?.[0])} />
@@ -197,6 +200,7 @@ export function ExplainPanel({ lang, langControl }: { lang: ExplainLang; langCon
               </button>
             </>
           )}
+          </span>
         </div>
         {photoNote && (
           <p role="status" className="mt-0 mb-2 text-sm text-ink-2">

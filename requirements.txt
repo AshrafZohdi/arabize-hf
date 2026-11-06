@@ -8,3 +8,5 @@ numpy==2.4.6
 pyarrow==26.0.1
 pandas==3.1.1
 gradio[mcp]==6.31.0
+faster-whisper==1.2.1
+ctranslate2==4.8.5

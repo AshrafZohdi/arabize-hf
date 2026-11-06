@@ -69,11 +69,6 @@ def test_term_audio_redirects_to_the_bucket_or_speaks_arabic(tmp_path):
     assert c.get("/api/tts/term/prompt", params={"lang": "en"}).status_code == 404
 
 
-def test_asr_is_a_stub(tmp_path):
-    c, _ = client(tmp_path)
-    assert c.post("/api/asr").status_code == 501
-
-
 def test_recordings_list_for_preloading(tmp_path):
     c, app = client(tmp_path)
     app.state.audio_manifest = {"ar/prompt": "https://huggingface.co/buckets/x/y/resolve/audio/ar/prompt.wav"}
@@ -81,3 +76,51 @@ def test_recordings_list_for_preloading(tmp_path):
     assert r.status_code == 200 and r.json() == app.state.audio_manifest
     c2, _ = client(tmp_path, voice=False)
     assert c2.get("/api/tts/recordings").status_code == 404
+
+
+def wav(seconds=1.0, rate=16000, channels=1):
+    import io
+    import wave
+
+    import numpy as np
+
+    buf = io.BytesIO()
+    with wave.open(buf, "wb") as w:
+        w.setnchannels(channels)
+        w.setsampwidth(2)
+        w.setframerate(rate)
+        w.writeframes((np.sin(np.arange(int(seconds * rate)) / 20) * 8000).astype("<i2").tobytes() * channels)
+    return buf.getvalue()
+
+
+class FakeWhisper:
+    def __init__(self):
+        self.calls = []
+
+    def transcribe(self, audio, lang=None):
+        self.calls.append((len(audio), lang))
+        return "شنو يعني الهلوسة؟", "ar"
+
+
+def test_read_wav_accepts_only_16k_mono_pcm():
+    import pytest
+
+    from server.voice.asr import AudioError, read_wav
+
+    assert len(read_wav(wav(1.0))) == 16000
+    assert len(read_wav(wav(40.0))) == 30 * 16000  # cut at 30 s
+    for bad in (wav(1.0, rate=44100), wav(1.0, channels=2), b"not audio", wav(0.05)):
+        with pytest.raises(AudioError):
+            read_wav(bad)
+
+
+def test_asr_transcribes_and_is_off_by_default(tmp_path):
+    c, app = client(tmp_path)
+    assert c.post("/api/asr", content=wav()).status_code == 404  # ASR_ENABLED is off
+    assert c.get("/api/health").json()["asr"] is False
+    app.state.asr = FakeWhisper()
+    r = c.post("/api/asr", params={"lang": "ar"}, content=wav(2.0), headers={"content-type": "audio/wav"})
+    assert r.status_code == 200 and r.json() == {"text": "شنو يعني الهلوسة؟", "language": "ar"}
+    assert app.state.asr.calls == [(32000, "ar")]
+    assert c.post("/api/asr", content=b"nope").status_code == 422
+

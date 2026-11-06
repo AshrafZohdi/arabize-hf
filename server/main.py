@@ -28,6 +28,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.add_middleware(GZipMiddleware, minimum_size=1024)
     app.state.llm = LLM(settings)
     # Photo explain: the same client (waking state, rate limit, JSON checks) pointed at the Oryx-IVU endpoint.
+    # Speech to text: the model loads in the background so the first microphone tap does not wait for the download.
+    app.state.asr = None
+    if settings.asr_enabled:
+        from server.voice.asr import Whisper
+
+        app.state.asr = Whisper()
+        threading.Thread(target=_warm_asr, args=(app.state.asr,), daemon=True, name="asr").start()
     app.state.vision = (
         LLM(replace(settings, fanar_endpoint_url=settings.oryx_ivu_url, fanar_model="QCRI/Fanar-2-Oryx-IVU"))
         if settings.image_enabled and settings.oryx_ivu_url
@@ -65,6 +72,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "demo_mode": settings.demo_mode,
             "llm": app.state.llm.status(),
             "voice_enabled": settings.voice_enabled,
+            "asr": app.state.asr is not None,
             "image": {
                 "read": app.state.vision is not None,
                 "read_state": app.state.vision.status() if app.state.vision is not None else None,
@@ -146,6 +154,13 @@ def _glossary_rows(g) -> list[dict]:
         }
         for k, e in g.entries.items()
     ]
+
+
+def _warm_asr(whisper) -> None:
+    try:
+        whisper.load()
+    except Exception as e:
+        logging.getLogger("darby").error("speech to text failed to load: %s", type(e).__name__)
 
 
 def _load_bank(app: FastAPI, settings: Settings) -> None:

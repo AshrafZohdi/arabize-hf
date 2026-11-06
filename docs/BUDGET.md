@@ -20,5 +20,6 @@ USD 100 shared credits. Every paid run is logged here (time in Qatar time, hardw
 | 2026-11-06 12:30 | Fanar endpoint awake for live tutor and prompt lab tests and recordings, then idle until scale to zero | 1x A10G, USD 1.00/h | about 30 (estimate) | about 0.50 | |
 | 2026-11-06 20:55 | Copy Job: Q8_0 GGUF and vision projector of Fanar-2-Oryx-IVU into `nuvais/Fanar-2-Oryx-IVU-Q8_0-GGUF` (job 6aee1449c78863f9c634e6ed), sha256 checked | cpu-basic | about 6 | under 0.01 | |
 | 2026-11-06 21:05 | Endpoint `FayezAlkh12/darby-oryx-ivu` created for photo explain (Fanar-2-Oryx-IVU Q8_0, llama.cpp with `--mmproj`) | 1x L4, about USD 0.80/h, scale to zero after 15 min | first boot and tests | about 0.30 (estimate) | Approved by the team (plan point 2) |
+| 2026-11-06 21:30 | Endpoint `FayezAlkh12/darby-oryx-ig` created for image prompts (FLUX.1-schnell with the Fanar-2-Oryx-IG LoRA, custom handler `nuvais/darbi-oryx-ig-endpoint`) | 1x L40S, about USD 1.80/h, scale to zero after 15 min | first boot (about 35 GB download) and tests | about 0.80 (estimate) | Approved by the team (plan point 3) |
 
 Total spent: about USD 3.70 (endpoint estimates, four A100 Job runs, one CPU Job, Space hours; to be checked against the billing page)

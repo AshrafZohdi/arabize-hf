@@ -34,6 +34,7 @@ class Settings:
     record_dir: Path | None = None  # local only: save real Fanar answers as fixtures
     mcp_enabled: bool = True  # Gradio MCP tools at /mcp-tools
     termbank_source: str = "hub"  # "hub" loads the full bank in the background; "off" keeps our glossary only
+    asr_enabled: bool = False  # speech to text with Whisper small on the Space CPU
     image_enabled: bool = False  # photo explain (Oryx-IVU) and image prompts (Oryx-IG), behind a switch
     oryx_ivu_url: str | None = None  # llama.cpp endpoint serving Fanar-2-Oryx-IVU
     oryx_ig_url: str | None = None  # diffusers endpoint serving FLUX.1-schnell with the Fanar-2-Oryx-IG LoRA
@@ -52,6 +53,7 @@ def load_settings() -> Settings:
         record_dir=Path(os.environ["DARBY_RECORD_FIXTURES"]) if os.getenv("DARBY_RECORD_FIXTURES") else None,
         termbank_source=os.getenv("DARBY_TERMBANK", "hub"),
         mcp_enabled=_flag("MCP_ENABLED", default=True),
+        asr_enabled=_flag("ASR_ENABLED", default=False),
         image_enabled=_flag("IMAGE_ENABLED", default=False),
         oryx_ivu_url=os.getenv("ORYX_IVU_URL") or None,
         oryx_ig_url=os.getenv("ORYX_IG_URL") or None,

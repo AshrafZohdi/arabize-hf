@@ -321,5 +321,13 @@
   "image.criterion.goal": "Subject",
   "image.criterion.context": "Setting",
   "image.criterion.format": "Style",
-  "image.criterion.constraints": "Details"
+  "image.criterion.constraints": "Details",
+  "mic.start": "Speak",
+  "mic.stop": "Stop recording",
+  "mic.working": "Writing down what you said...",
+  "mic.nothing": "We did not hear any words. Try again.",
+  "mic.short": "Too short, speak for a second or more.",
+  "mic.failed": "Could not turn the audio into text right now.",
+  "mic.denied": "The browser did not allow the microphone. Turn it on in the site settings.",
+  "tutor.photoAsk": "What does this text mean?"
 }

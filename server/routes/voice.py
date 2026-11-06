@@ -4,7 +4,7 @@ GET  /api/tts?text=&lang=ar          live Arabic speech (mms-tts-ara on ONNX Run
 GET  /api/tts/recordings              every recording URL, for preloading in the browser
 GET  /api/tts/term/{id}?lang=ar|en   pre-generated term audio from the Storage Bucket (redirect); Arabic falls back
                                      to live speech; English is spoken in the browser with kokoro-js
-POST /api/asr                        501 for now (openai/whisper-large-v3-turbo planned)
+POST /api/asr?lang=ar|en|auto        speech to text, Whisper small on the CPU (behind ASR_ENABLED)
 """
 
 from __future__ import annotations
@@ -15,9 +15,11 @@ from typing import Any, Literal
 
 from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.responses import JSONResponse, RedirectResponse, Response
+from starlette.concurrency import run_in_threadpool
 
 from server.llm import RateLimited, RateLimiter
 from server.net import client_ip
+from server.voice.asr import MAX_SECONDS, AudioError, read_wav
 from server.voice.base import to_wav
 
 router = APIRouter()
@@ -92,7 +94,26 @@ def tts_term(term_id: str, request: Request, lang: Literal["ar", "en"] = "ar") -
     return _audio(_speak(request, text))
 
 
+asr_limiter = RateLimiter(limit=30, window_s=600)
+
+
 @router.post("/api/asr")
-def asr(request: Request) -> Any:
-    _enabled(request)
-    return JSONResponse({"error": "not_implemented", "planned": "openai/whisper-large-v3-turbo"}, status_code=501)
+async def asr(request: Request, lang: Literal["ar", "en", "auto"] = "auto") -> Any:
+    """Speech to text: the body is 16 kHz mono 16-bit WAV (up to 30 s) recorded in the browser. Nothing is stored."""
+    whisper = getattr(request.app.state, "asr", None)
+    if whisper is None:
+        raise HTTPException(status_code=404, detail="speech to text is switched off")
+    try:
+        asr_limiter.hit(client_ip(request))
+    except RateLimited as e:
+        return JSONResponse({"error": "rate_limited", "retry_after": e.retry_after}, status_code=429)
+    body = await request.body()
+    if len(body) > (MAX_SECONDS + 1) * 32000 + 1024:
+        raise HTTPException(status_code=413, detail="up to 30 seconds")
+    try:
+        audio = read_wav(body)
+    except AudioError as e:
+        raise HTTPException(status_code=422, detail=str(e)) from None
+    # Whisper runs on the CPU; a worker thread keeps the server answering other requests meanwhile.
+    text, language = await run_in_threadpool(whisper.transcribe, audio, None if lang == "auto" else lang)
+    return {"text": text, "language": language}

@@ -4,6 +4,8 @@ import { PageTitle } from '../components/PageTitle'
 import { Segmented } from '../components/Segmented'
 import { useI18n, type MessageKey } from '../i18n'
 import { LogoMark } from '../components/Logo'
+import { MicButton } from '../components/MicButton'
+import { PhotoButton } from '../components/PhotoButton'
 import { Translatable } from '../components/Translate'
 import { HighlightedText } from '../components/explain/HighlightedText'
 import { ApiError, findTerms, glossaryCards, listLessons, promptLabTask, scorePrompt, streamTutor, type ChatTurn, type LessonSummary, type PromptScores, type TermMatch } from '../lib/api'
@@ -233,6 +235,10 @@ function Chat({ lang, lesson }: { lang: ExplainLang; lesson: string | null }) {
             {busy ? <Loader2 aria-hidden="true" size={22} className="animate-spin" /> : <Send aria-hidden="true" size={22} className="rtl:-scale-x-100" />}
           </button>
         </form>
+        <div className="flex flex-wrap items-center gap-2">
+          <MicButton onText={(said) => setInput((v) => `${v} ${said}`.trim())} />
+          <PhotoButton lang={lang} onText={(text) => setInput(`${t('tutor.photoAsk')}\n"${text}"`.slice(0, 2000))} />
+        </div>
         <p className="m-0 flex flex-wrap justify-between gap-2 text-[13px] text-ink-2">
           <span>{t('tutor.privacy')}</span>
           {left !== null && <span>{t('tutor.messagesLeft', { n: left })}</span>}
@@ -362,9 +368,12 @@ export function PromptLab({ lang, lesson }: { lang: ExplainLang; lesson: string 
           </p>
         )}
       </div>
-      <label htmlFor="lab-input" className="font-semibold text-ink-2">
-        {t('lab.yourPrompt')}
-      </label>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <label htmlFor="lab-input" className="font-semibold text-ink-2">
+          {t('lab.yourPrompt')}
+        </label>
+        <MicButton onText={(said) => setPrompt((v) => `${v} ${said}`.trim())} />
+      </div>
       <textarea
         id="lab-input"
         dir="auto"
@@ -563,9 +572,12 @@ function ImageLab({ lang }: { lang: ExplainLang }) {
           )}
         </div>
       )}
-      <label htmlFor="image-input" className="font-semibold text-ink-2">
-        {t('image.yourPrompt')}
-      </label>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <label htmlFor="image-input" className="font-semibold text-ink-2">
+          {t('image.yourPrompt')}
+        </label>
+        <MicButton onText={(said) => setPrompt((v) => `${v} ${said}`.trim())} />
+      </div>
       <textarea
         id="image-input"
         dir="auto"

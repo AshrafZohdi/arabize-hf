@@ -321,5 +321,13 @@
   "image.criterion.goal": "الموضوع",
   "image.criterion.context": "المكان",
   "image.criterion.format": "الأسلوب",
-  "image.criterion.constraints": "التفاصيل"
+  "image.criterion.constraints": "التفاصيل",
+  "mic.start": "تكلّم",
+  "mic.stop": "وقّف التسجيل",
+  "mic.working": "نكتب كلامك...",
+  "mic.nothing": "ما سمعنا كلام. جرّب مرة ثانية.",
+  "mic.short": "التسجيل قصير، تكلّم ثانية أو أكثر.",
+  "mic.failed": "ما قدرنا نحوّل الصوت لنص الحين.",
+  "mic.denied": "المتصفح ما سمح بالمايك. فعّله من إعدادات الموقع.",
+  "tutor.photoAsk": "شنو يعني هالنص؟"
 }
