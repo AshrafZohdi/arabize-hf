@@ -79,4 +79,5 @@ The team supplied page mockups (`darby-frosted-dunes-mockups/`, kept out of git 
 - One section nav landmark: inside the header pill from 640 px, a fixed glass tab bar at the bottom on phones. The header glass sits on a background layer, because `backdrop-filter` on an ancestor would pin a fixed child to the header.
 - Home: review and daily goal pills next to the greeting, the explanation language toggle inside the Smart Explain card, all 7 lessons on a numbered rail, "attempt k of 6" on the daily code, tiles flip only on the row just played.
 - Daily goal: 30 points a day, counted per Qatar date in local storage. The old Arabize app had a per-day XP goal; 30 matches the mockup and is about two quick questions.
-- Motion respects `prefers-reduced-motion`.
+- Daily code win opens a modal over Home (trophy, the word, its meaning, points, streak, a share grid without the word, a countdown to the next Qatar midnight). The 404 page got the illustrated layout with links back.
+- Motion respects `prefers-reduced-motion`. axe covers the 404 and the open win dialog.

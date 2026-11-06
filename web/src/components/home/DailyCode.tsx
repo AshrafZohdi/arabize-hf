@@ -5,6 +5,7 @@ import { guessCode, startCode, type CodeStart, type Mark } from '../../lib/api'
 import { award } from '../../lib/progress'
 import { Link } from '../../lib/router'
 import { shareText } from '../../lib/share'
+import { CodeWinDialog } from './CodeWinDialog'
 
 type Row = { guess: string; marks: Mark[] }
 type Saved = { token: string; rows: Row[]; finished: boolean; won: boolean; answer: { id: string; word: string } | null }
@@ -42,6 +43,7 @@ export function DailyCode() {
   const [error, setError] = useState(false)
   // Only the row just played flips; rows restored from storage show their colours at once.
   const [flipRow, setFlipRow] = useState(-1)
+  const [won, setWon] = useState<{ xp: number } | null>(null)
 
   useEffect(() => {
     setStart(null)
@@ -79,7 +81,11 @@ export function DailyCode() {
       setFlipRow(next.rows.length - 1)
       store(`darby.code.${start.date}.${lang}`, next)
       setInput('')
-      if (r.answer) award(`code:${start.date}:${lang}`, r.answer.xp)
+      if (r.answer) {
+        const paid = award(`code:${start.date}:${lang}`, r.answer.xp)
+        // Let the last row flip before the win dialog opens.
+        if (r.won) setTimeout(() => setWon({ xp: paid || r.answer!.xp }), 250 + start.length * 80)
+      }
     } catch {
       setMessage(t('code.error'))
     } finally {
@@ -234,6 +240,20 @@ export function DailyCode() {
                 )}
               </div>
             </div>
+          )}
+          {state.answer && (
+            <CodeWinDialog
+              open={won !== null}
+              onClose={() => setWon(null)}
+              onShare={share}
+              copied={copied}
+              word={state.answer.word}
+              lang={lang}
+              clue={start.clue}
+              rows={state.rows.map((r) => r.marks)}
+              maxTries={start.max_tries}
+              xp={won?.xp ?? 0}
+            />
           )}
           <p role="status" aria-live="polite" className="mt-2 mb-0 min-h-5 text-center text-[13px] text-muted">
             {message ?? (state.finished ? '' : t('code.triesLeft', { n: tries - state.rows.length }))}

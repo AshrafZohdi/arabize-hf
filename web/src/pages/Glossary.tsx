@@ -114,7 +114,7 @@ export function GlossaryPage() {
                 <button
                   type="button"
                   onClick={() => setOpen(c)}
-                  className="flex min-h-[88px] w-full cursor-pointer items-center gap-3 rounded-2xl border border-line bg-surface p-4 text-start shadow-answer hover:border-maroon"
+                  className="glass lift flex min-h-[88px] w-full cursor-pointer items-center gap-3 rounded-[20px]! p-4 text-start text-ink"
                 >
                   <span className="flex size-11 shrink-0 items-center justify-center rounded-[14px] bg-maroon-soft text-maroon">
                     {c.source === 'fanar' ? <Sparkles aria-hidden="true" size={22} /> : <BookOpen aria-hidden="true" size={22} />}
@@ -201,7 +201,7 @@ function BrowseAll({ domain, cardById, onOpen }: { domain: Domain; cardById: Map
   }
 
   return (
-    <section aria-labelledby="all-h" className="mt-10">
+    <section aria-labelledby="all-h" className="card mt-10">
       <h2 id="all-h" className="m-0 font-display text-[22px] font-semibold text-maroon">
         {t('glossary.allTerms')}
       </h2>
@@ -213,8 +213,8 @@ function BrowseAll({ domain, cardById, onOpen }: { domain: Domain; cardById: Map
             type="button"
             aria-pressed={letter === l}
             onClick={() => setLetter(l)}
-            className={`min-h-11 min-w-11 cursor-pointer rounded-xl border px-2 font-en font-bold uppercase ${
-              letter === l ? 'border-maroon bg-maroon text-white' : 'border-line bg-white text-ink-2 hover:bg-surface-3'
+            className={`min-h-11 min-w-11 cursor-pointer rounded-full border-0 px-2 font-en font-bold uppercase ${
+              letter === l ? 'bg-ink text-white' : 'bg-transparent text-ink-2 hover:bg-white/70'
             }`}
           >
             {l || t('glossary.allLetters')}
@@ -243,7 +243,7 @@ function BrowseAll({ domain, cardById, onOpen }: { domain: Domain; cardById: Map
 function QuickCardItem({ r, full, onOpen }: { r: QuickCard; full?: GlossaryCard; onOpen: (c: GlossaryCard) => void }) {
   const { t } = useI18n()
   return (
-    <li className="flex flex-col gap-2 rounded-2xl border border-line bg-surface p-4 shadow-answer">
+    <li className="well flex flex-col gap-2 p-4">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
           <span className="block font-display text-lg font-semibold text-maroon" lang="ar">
@@ -315,7 +315,7 @@ function FullCardDialog({ card, onClose }: { card: GlossaryCard | null; onClose:
       onClose={close}
       onClick={(e) => e.target === ref.current && close()}
       aria-labelledby="card-title"
-      className="m-auto w-[min(640px,calc(100vw-32px))] max-h-[calc(100dvh-32px)] rounded-3xl border border-line bg-surface p-0 text-ink shadow-card backdrop:bg-ink/40"
+      className="glass m-auto w-[min(640px,calc(100vw-32px))] max-h-[calc(100dvh-32px)] rounded-[28px]! bg-surface/90! p-0 text-ink"
     >
       {card && (
         <div className="flex flex-col gap-4 p-5 sm:p-7">

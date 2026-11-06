@@ -263,5 +263,14 @@
   "home.goalTitle": "هدف اليوم",
   "home.goalProgress": "{k} من {n} نقطة",
   "review.sub": "دقيقتين وتثبت في راسك",
-  "code.attempt": "محاولة {k} من {n}"
+  "code.attempt": "محاولة {k} من {n}",
+  "code.winTitle": "كفو! حليتها",
+  "code.winSub": "حليت شيفرة اليوم في المحاولة {k} من {n}",
+  "code.winPoints": "+{n} نقطة",
+  "code.shareSub": "المربعات بس، بدون الكلمة",
+  "code.shareShort": "شارك",
+  "code.nextIn": "شيفرة جديدة بعد",
+  "code.nextZone": "، بتوقيت قطر",
+  "notFound.tag": "ضعت عن الدرب",
+  "notFound.body": "يمكن الرابط قديم أو فيه غلطة. ارجع للرئيسية وكمّل من حيث وقفت."
 }

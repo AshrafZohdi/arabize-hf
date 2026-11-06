@@ -263,5 +263,14 @@
   "home.goalTitle": "Today's goal",
   "home.goalProgress": "{k} of {n} points",
   "review.sub": "Two minutes to make them stick",
-  "code.attempt": "Try {k} of {n}"
+  "code.attempt": "Try {k} of {n}",
+  "code.winTitle": "Nice! You got it",
+  "code.winSub": "You solved today's code on try {k} of {n}",
+  "code.winPoints": "+{n} points",
+  "code.shareSub": "Just the squares, never the word",
+  "code.shareShort": "Share",
+  "code.nextIn": "New code in",
+  "code.nextZone": ", Qatar time",
+  "notFound.tag": "Off the path",
+  "notFound.body": "The link may be old or have a typo. Go back home and carry on where you left off."
 }
