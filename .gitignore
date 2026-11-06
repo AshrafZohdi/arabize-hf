@@ -15,3 +15,7 @@ data/processed/
 data/public/
 data/lessons_public/
 data/glossary_public/
+
+# Playwright
+web/test-results/
+web/playwright-report/
