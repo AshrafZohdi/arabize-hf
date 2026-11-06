@@ -66,6 +66,20 @@ class TermBank:
                 self._aliases.setdefault(_ar_norm(alias), []).append(by_key[key])
                 self._aliases.setdefault(alias.lower(), []).append(by_key[key])
 
+    def add_abbreviations(self, pairs: list[tuple[str, str]]) -> int:
+        """Highlight abbreviations as their full term, for example RAG as retrieval-augmented generation
+        (data/curated/abbreviations.csv). Pairs whose full term is not in the bank are skipped. Returns how many were added."""
+        by_en = {r["en"].lower(): r for r in self.rows if r["highlight"]}
+        added = 0
+        for abbr, en in pairs:
+            r = by_en.get(en.lower())
+            if r is None:
+                continue
+            term = Term(id=r["id"], en=r["en"], ar=r["ar_display"], source=r["ar_origin"], has_card=bool(r["has_full_card"]))
+            self.finder.add(term, surface=abbr)
+            added += 1
+        return added
+
     @classmethod
     def from_rows(cls, rows: list[dict[str, Any]], status: dict[str, Any] | None = None, vectors: np.ndarray | None = None) -> TermBank:
         rows = sorted(rows, key=lambda r: (SOURCE_RANK.get(r["ar_origin"], 9), r["en"].lower()))
@@ -136,6 +150,17 @@ def _rows_from_frame(df) -> list[dict[str, Any]]:
     return out
 
 
+def apply_abbreviations(tb: TermBank, content_dir: Path, status: dict[str, Any]) -> None:
+    import csv
+
+    try:
+        with open(content_dir.parent / "data" / "curated" / "abbreviations.csv", encoding="utf-8") as f:
+            pairs = [(r["abbreviation"], r["en"]) for r in csv.DictReader(f)]
+        status["steps"]["abbreviations"] = f"ok ({tb.add_abbreviations(pairs)} of {len(pairs)})"
+    except Exception as e:
+        status["steps"]["abbreviations"] = f"skipped: {type(e).__name__}"
+
+
 def load_term_bank(content_dir: Path, token: str | None = None, full_card_ids: set[str] | None = None) -> TermBank:
     """Build the bank from the Hub. Steps that fail are skipped and reported in `status`."""
     import pandas as pd
@@ -181,6 +206,7 @@ def load_term_bank(content_dir: Path, token: str | None = None, full_card_ids: s
         status["steps"]["aliases"] = f"ok ({len(aliases)})"
     except Exception as e:
         status["steps"]["aliases"] = f"skipped: {type(e).__name__}"
+    apply_abbreviations(tb, content_dir, status)
     try:
         from huggingface_hub import hf_hub_download
 
@@ -214,5 +240,6 @@ def _glossary_only(content_dir: Path, status: dict[str, Any]) -> TermBank:
         for k, e in g.entries.items()
     ]
     tb = TermBank.from_rows(rows, status)
+    apply_abbreviations(tb, content_dir, status)
     status.update({"terms": len(rows), "highlight_terms": tb.finder.size})
     return tb

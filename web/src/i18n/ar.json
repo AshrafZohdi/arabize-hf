@@ -288,5 +288,7 @@
   "lesson.statTerms": "مصطلحات الدرس",
   "lesson.nextLesson": "الدرس الجاي",
   "lab.scoreTitle": "التقييم",
-  "lab.outOf": "من 20"
+  "lab.outOf": "من 20",
+  "explain.bankNote": "هذا المصطلح في بنك المصطلحات بدون شرح كامل بعد. اسأل المعلّم عنه.",
+  "explain.fromBank": "من بنك مصطلحات دربي"
 }

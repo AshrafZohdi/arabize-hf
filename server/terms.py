@@ -69,8 +69,9 @@ class TermFinder:
         for t in terms:
             self.add(t)
 
-    def add(self, term: Term) -> None:
-        words = _WORD.findall(term.en)
+    def add(self, term: Term, surface: str | None = None) -> None:
+        """Index `term` under its English, or under `surface` (an abbreviation such as RAG for its full term)."""
+        words = _WORD.findall(surface or term.en)
         if not words:
             return
         keys = [_key(w) for w in words]

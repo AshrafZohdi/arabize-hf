@@ -83,3 +83,9 @@ The team supplied page mockups (`darby-frosted-dunes-mockups/`, kept out of git 
 - Tutor: a side column with three question templates filled with the lesson's key terms (not model generated) and the terms linked to the glossary. Only the recorded demo question has a fixture, so suggestions need the endpoint awake.
 - Lesson: a lesson bar (lesson k of n, progress, minutes), a step rail on wide screens, and the finish screen with points, streak and lesson terms plus a next lesson button. The one step per screen flow is unchanged.
 - Motion respects `prefers-reduced-motion`. axe covers the 404 and the open win dialog.
+
+## D18. 2026-11-06: Highlights and term cards always match
+Found in testing: the highlighter only knew the exact bank form, so RAG, PPO and even LLM were not highlighted, while Fanar wrote cards for them anyway. Highlights and the cards under "what the text means" came from different places and disagreed both ways.
+- `data/curated/abbreviations.csv`: 39 common abbreviations, each mapped to a full term that exists in the bank (checked against the live bank). AR, CV and DL are left out because in work texts they usually mean Arabic, a resume and a download. Abbreviations keep their case like other acronyms.
+- Fanar may only write cards for highlighted terms without a Darby card; the server drops any other model card.
+- Every highlighted term gets a card: a Darby card, a Fanar card, or its term bank entry (English, Arabic, source, a note to ask the tutor). Tapping a highlighted word opens its card.

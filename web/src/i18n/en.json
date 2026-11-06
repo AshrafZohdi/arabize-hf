@@ -288,5 +288,7 @@
   "lesson.statTerms": "lesson terms",
   "lesson.nextLesson": "Next lesson",
   "lab.scoreTitle": "Your score",
-  "lab.outOf": "of 20"
+  "lab.outOf": "of 20",
+  "explain.bankNote": "This term is in the term bank without a full explanation yet. Ask the tutor about it.",
+  "explain.fromBank": "From the Darby term bank"
 }

@@ -58,12 +58,21 @@ export function ExplainPanel({ lang, langControl }: { lang: ExplainLang; langCon
 
   const allCards = useMemo(() => {
     const out = [...cards, ...(result?.cards ?? [])]
+    // Every highlighted term gets a chip: terms with neither a Darby nor a Fanar card show their term bank entry.
+    if (result) {
+      const covered = new Set(out.map((c) => c.term_en.toLowerCase()))
+      for (const m of matches) {
+        if (covered.has(m.en.toLowerCase()) || covered.has(m.text.toLowerCase())) continue
+        covered.add(m.en.toLowerCase())
+        out.push({ id: m.id, term_en: m.en, term_ar: m.ar, explanation: '', analogy: '', related: [], source: 'bank' })
+      }
+    }
     // Put the term the question is about first, as in the design.
     const answer = result?.question?.options[result.question.correct_index]?.toLowerCase()
     const i = answer ? out.findIndex((c) => c.term_en.toLowerCase() === answer) : -1
     if (i > 0) out.unshift(...out.splice(i, 1))
     return out
-  }, [cards, result])
+  }, [cards, result, matches])
 
   useEffect(() => {
     setSelected(0)
@@ -127,6 +136,14 @@ export function ExplainPanel({ lang, langControl }: { lang: ExplainLang; langCon
           : null
 
   const card = allCards[selected]
+
+  // Tapping a highlighted word opens its card below.
+  const pickTerm = (m: TermMatch) => {
+    const i = allCards.findIndex((c) => [m.en.toLowerCase(), m.text.toLowerCase()].includes(c.term_en.toLowerCase()))
+    if (i < 0) return
+    setSelected(i)
+    requestAnimationFrame(() => document.getElementById('term-panel')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }))
+  }
   const showResult = phase !== 'idle'
 
   return (
@@ -170,7 +187,14 @@ export function ExplainPanel({ lang, langControl }: { lang: ExplainLang; langCon
         ) : (
           <>
             <div dir="ltr" lang="en" className="rounded-[14px] border border-line bg-surface-2 p-5 text-left font-en text-[17px] leading-[1.9] whitespace-pre-wrap">
-              <HighlightedText text={text} matches={matches} isKnown={isKnown} knownLabel={t('explain.legendKnown')} newLabel={t('explain.legendNew')} />
+              <HighlightedText
+                text={text}
+                matches={matches}
+                isKnown={isKnown}
+                knownLabel={t('explain.legendKnown')}
+                newLabel={t('explain.legendNew')}
+                onPick={result ? pickTerm : undefined}
+              />
             </div>
             <div className="mt-1 flex justify-end">
               <button
@@ -317,7 +341,7 @@ export function ExplainPanel({ lang, langControl }: { lang: ExplainLang; langCon
           )}
 
           {(card || result?.question) && (
-            <div className="flex flex-wrap gap-7">
+            <div id="term-panel" className="flex flex-wrap gap-7">
               {card && <TermCard card={card} showMsa={lang === 'gulf' && Boolean(card.term_gulf)} textDir={lang === 'en' ? 'ltr' : 'rtl'} />}
               {result?.question && <QuickQuestion key={result.question.question} question={result.question} textDir={lang === 'en' ? 'ltr' : 'rtl'} />}
             </div>

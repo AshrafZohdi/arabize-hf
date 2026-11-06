@@ -64,3 +64,10 @@ def test_is_acronym(w, expected):
 def test_suffix_forms():
     assert {"queries", "querys"} & suffix_forms("query") == {"queries", "querys"}
     assert "promptes" in suffix_forms("prompt")  # harmless over-generation, never matches real text wrongly
+
+
+def test_abbreviation_matches_its_full_term(finder):
+    rag = t("Retrieval-augmented generation")
+    finder.add(rag, surface="RAG")
+    assert found(finder, "We use RAG and two RAGs.") == [("RAG", "Retrieval-augmented generation"), ("RAGs", "Retrieval-augmented generation")]
+    assert found(finder, "a rag on the desk") == []  # abbreviations keep their case, like other acronyms

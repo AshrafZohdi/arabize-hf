@@ -25,6 +25,18 @@ test('home: Smart Explain end to end in Gulf Arabic', async ({ page }) => {
   await noHorizontalScroll(page)
 })
 
+test('home: every highlighted term has a chip, and tapping one opens it', async ({ page }) => {
+  await page.goto('/')
+  await page.getByLabel('النص اللي وصلك').fill(EMAIL)
+  await page.getByRole('button', { name: 'فهّمني' }).click()
+  await expect(page.getByRole('heading', { name: 'سؤال سريع' })).toBeVisible({ timeout: 20_000 })
+  const chips = page.getByRole('group', { name: 'المصطلحات' }).getByRole('button')
+  await expect(chips).toHaveText(['Hallucination', 'Prompt', 'Context', 'Summary', 'Source'], { useInnerText: true })
+  await page.getByRole('button', { name: /^context/ }).click()
+  await expect(chips.filter({ hasText: 'Context' })).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.getByRole('heading', { name: 'السياق' })).toBeVisible()
+})
+
 test('glossary: Arabic search and the full card', async ({ page }) => {
   await page.goto('/glossary')
   await page.getByLabel('دوّر على مصطلح').fill('الهلوسة')

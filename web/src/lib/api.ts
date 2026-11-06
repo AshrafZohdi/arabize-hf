@@ -10,7 +10,7 @@ export type Card = {
   analogy: string
   mistake?: string
   related: string[]
-  source: 'glossary' | 'fanar'
+  source: 'glossary' | 'fanar' | 'bank'
 }
 export type Question = { question: string; options: string[]; correct_index: number; why: string }
 export type Fallback = 'waking' | 'demo' | 'unconfigured' | 'bad_output' | 'error' | null

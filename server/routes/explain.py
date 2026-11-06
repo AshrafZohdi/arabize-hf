@@ -129,9 +129,10 @@ async def explain(body: ExplainIn, request: Request) -> Any:
                     yield _sse("explanation", {"text": ev.text})
                 elif ev.result is not None:
                     r: ExplainResult = ev.result.data
-                    known = {c["term_en"].lower() for c in cards}
+                    # Fanar cards only for highlighted terms without a Darby card, so every card has a highlight in the text.
+                    open_terms = {k for m in matches if not m["has_card"] for k in (m["en"].lower(), m["text"].lower())}
                     model_cards = [
-                        {**c.model_dump(), "id": None, "source": "fanar"} for c in r.cards if c.term_en.lower() not in known
+                        {**c.model_dump(), "id": None, "source": "fanar"} for c in r.cards if c.term_en.lower() in open_terms
                     ]
                     yield _sse(
                         "result",

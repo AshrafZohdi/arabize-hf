@@ -67,8 +67,8 @@ def test_explain_streams_terms_then_explanation_then_result(tmp_path):
     assert "".join(d["text"] for e, d in events if e == "explanation") == GOOD["explanation"]
     result = events[-1][1]
     assert events[-1][0] == "result" and result["source"] == "fanar" and result["fallback"] is None
-    # A model card for a term that already has a glossary card is dropped.
-    assert [card["term_en"] for card in result["cards"]] == ["Source paragraph"]
+    # Model cards are dropped for terms with a glossary card and for terms that are not highlighted in the text.
+    assert result["cards"] == []
     # Gulf glossary text is used for the Gulf explanation language.
     hallucination = next(card for card in events[0][1]["cards"] if card["term_en"] == "Hallucination")
     assert hallucination["explanation"]
@@ -111,3 +111,36 @@ def test_rate_limit_returns_429(tmp_path, monkeypatch):
     assert c.post("/api/explain", json={"text": "prompt"}).status_code == 200
     r = c.post("/api/explain", json={"text": "prompt"})
     assert r.status_code == 429 and int(r.headers["retry-after"]) > 0
+
+
+def test_model_cards_only_for_highlighted_terms_without_a_darby_card(tmp_path):
+    from server.terms import Term
+
+    out = {**GOOD, "cards": [{**GOOD["cards"][0], "term_en": "Vector database"}, {**GOOD["cards"][0], "term_en": "Source paragraph"}]}
+    c = make_client(tmp_path, FakeClient([json.dumps(out, ensure_ascii=False)]))
+    vdb = Term(id="vector-database", en="Vector database", ar="قاعدة بيانات متجهات", source="gist", has_card=False)
+    c.app.state.termbank.finder.add(vdb)
+    c.app.state.termbank.finder.add(vdb, surface="VDB")
+    events = sse(c.post("/api/explain", json={"text": "Store the VDB embeddings and cite the source paragraph."}).text)
+    assert [m["text"] for m in events[0][1]["matches"]] == ["VDB", "source"]
+    assert [card["term_en"] for card in events[-1][1]["cards"]] == ["Vector database"]
+
+
+def test_abbreviations_are_highlighted_as_their_full_term(tmp_path):
+    c = make_client(tmp_path)
+    matches = c.post("/api/terms", json={"text": "Our LLMs answer from the docs."}).json()["matches"]
+    assert [(m["text"], m["en"], m["has_card"]) for m in matches] == [("LLMs", "Large language model", True)]
+
+
+def test_abbreviation_table_is_clean():
+    import csv
+    from pathlib import Path
+
+    from server.terms import is_acronym
+
+    rows = list(csv.DictReader(open(Path(__file__).parents[1] / "data/curated/abbreviations.csv", encoding="utf-8")))
+    abbrs = [r["abbreviation"] for r in rows]
+    assert len(abbrs) == len(set(abbrs)) and all(r["en"] for r in rows)
+    # Ambiguous in work texts (Arabic, a CV, a download), so they stay out.
+    assert not {"AR", "CV", "DL"} & set(abbrs)
+    assert all(is_acronym(a) or a in {"IoT", "PoC"} for a in abbrs)

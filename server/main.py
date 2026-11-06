@@ -14,7 +14,7 @@ from server.llm import LLM
 from server.game import Game
 from server.routes import explain, game, glossary, lessons, tutor, voice
 from server.lessons import load_lessons
-from server.termbank import TermBank, load_term_bank
+from server.termbank import TermBank, apply_abbreviations, load_term_bank
 
 VERSION = "0.1.0"
 
@@ -29,6 +29,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.glossary = load_glossary(settings.content_dir)
     # Our glossary straight away; the full bank replaces it when the background load finishes.
     app.state.termbank = TermBank.from_rows(_glossary_rows(app.state.glossary), {"steps": {"sources": "loading"}})
+    apply_abbreviations(app.state.termbank, settings.content_dir, app.state.termbank.status)
     app.state.embedder = None
     app.state.audio_manifest = {}
     if settings.voice_enabled:

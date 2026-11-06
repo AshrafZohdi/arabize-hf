@@ -116,9 +116,9 @@ def build_explain_prompt(text: str, lang: str, style: str, known_terms: list[tup
             "question: one multiple-choice question that checks the meaning of the most important technical term that appears in the text (it must be a word from the text), set in a Gulf workplace. "
             "options: 4 different English technical terms (for example Hallucination, Prompt, Token, Context), exactly one correct, never 'all of the above'. "
             "correct_index is its position from 0 to 3. why: one kind sentence saying why it is right.",
-            "cards: 0 to 2 cards, only for important technical terms in the text that are NOT in the glossary list above, most important first. "
+            "cards: 0 to 2 cards, only for terms from the list of other terms above (use the English exactly as listed there), most important first. "
             "explanation: 1 or 2 short sentences. analogy: one short sentence comparing it to everyday work or life in the Gulf. related: up to 3 related English terms. "
-            "If every important term is in the glossary list, cards is an empty list.",
+            "If that list is empty, cards is an empty list.",
             "Be accurate. Never invent facts, sources, statistics or people about the text.",
             STYLE_ASK.get(style, ""),
             "If the text is not about technology, AI or a work task, set off_topic to true, question to null, cards to an empty list and explanation to one polite sentence saying Darby explains work and AI texts.",
