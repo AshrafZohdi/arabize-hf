@@ -85,7 +85,7 @@ test('lesson: steps, a tappable term, the progress bar', async ({ page }) => {
   await noHorizontalScroll(page)
 })
 
-test('lesson: picks up where you left off, and the step list jumps back', async ({ page }, info) => {
+test('lesson: picks up where you left off, and the step list jumps back', async ({ page }) => {
   await page.goto('/lesson/day-2')
   await page.getByRole('button', { name: 'التالي' }).click()
   await page.getByRole('button', { name: 'التالي' }).click()
@@ -98,7 +98,9 @@ test('lesson: picks up where you left off, and the step list jumps back', async 
     dispatchEvent(new PopStateEvent('popstate'))
   })
   await expect(page.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '3')
-  if (info.project.name === 'phone-360') await page.locator('summary', { hasText: 'خطوات الدرس' }).click()
+  // Narrow screens keep the step list in a collapsed section.
+  const steps = page.locator('summary', { hasText: 'خطوات الدرس' })
+  if (await steps.isVisible()) await steps.click()
   await page.getByRole('button', { name: /^1البداية|البداية/ }).filter({ visible: true }).first().click()
   await expect(page.getByRole('heading', { level: 1, name: 'البداية' })).toBeVisible()
   await expect(page.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '1')

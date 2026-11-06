@@ -13,6 +13,13 @@ export default defineConfig({
   projects: [
     { name: 'phone-360', use: { ...devices['Pixel 7'], viewport: { width: 360, height: 780 } } },
     { name: 'desktop-1280', use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 900 } } },
+    // CROSS=1 adds Safari's engine on an iPhone and desktop Firefox (slower, so not in every gate run).
+    ...(process.env.CROSS
+      ? [
+          { name: 'iphone-webkit', use: { ...devices['iPhone 13'], viewport: { width: 390, height: 844 } } },
+          { name: 'firefox-1280', use: { ...devices['Desktop Firefox'], viewport: { width: 1280, height: 900 } } },
+        ]
+      : []),
   ],
   webServer: process.env.BASE_URL
     ? undefined

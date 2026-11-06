@@ -106,3 +106,5 @@ Found in testing: the highlighter only knew the exact bank form, so RAG, PPO and
 - Logo: the Arabic wordmark has its own line height so its dots no longer sit on "Darby".
 - Not done: speech to text (needs Whisper on Hugging Face; the browser's built-in recognition sends audio to Google or Apple).
 - Translate: `/api/translate` (Fanar, rate limited, learner text wrapped as data) behind a button on tutor replies, term cards (explanation and analogy) and the improved prompt in the prompt lab. Arabic goes to English; English goes to Gulf or Standard Arabic following the explanation language. Fetched once per text and cached in the page. No fixtures: with the endpoint asleep the button says Fanar is waking.
+- Prompt lab: Fanar rewrote English prompts in Arabic; the prompt's language is now detected and stated next to the learner text (verified live: English prompt, English improved prompt, Gulf feedback).
+- QA: `CROSS=1 npx playwright test` adds iPhone WebKit and desktop Firefox; the demo and axe suites pass on all four (Chromium phone and desktop, WebKit iPhone, Firefox desktop).
