@@ -103,8 +103,8 @@ export function DailyCode() {
 
   return (
     <section aria-labelledby="code-h" className="card">
-      <div className="mb-2 flex items-center justify-between gap-3">
-        <h2 id="code-h" className="m-0 font-display text-[22px] font-semibold text-maroon">
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
+        <h2 id="code-h" className="m-0 font-display text-[22px] font-semibold whitespace-nowrap text-maroon">
           {t('home.codeTitle')}
         </h2>
         <div className="flex items-center gap-2">
@@ -147,13 +147,24 @@ export function DailyCode() {
                 ))}
               </div>
             ))}
-            {Array.from({ length: emptyRows }, (_, i) => (
-              <div key={`e${i}`} aria-hidden="true" className="grid gap-1.5" style={cols}>
-                {Array.from({ length: len }, (_, j) => (
-                  <div key={j} className={`h-11 rounded-[10px] border-2 bg-white ${i === 0 ? 'border-maroon' : 'border-line'}`} />
-                ))}
-              </div>
-            ))}
+            {Array.from({ length: emptyRows }, (_, i) => {
+              // The current row shows what is being typed; the next empty tile is outlined in maroon.
+              const typed = i === 0 ? [...input.trim()].slice(0, len) : []
+              return (
+                <div key={`e${i}`} aria-hidden="true" className="grid gap-1.5" style={cols}>
+                  {Array.from({ length: len }, (_, j) => (
+                    <div
+                      key={j}
+                      className={`flex h-11 items-center justify-center rounded-[10px] border-2 bg-white uppercase text-ink ${
+                        i === 0 && (j < typed.length || j === typed.length) ? 'border-maroon' : 'border-line'
+                      }`}
+                    >
+                      {typed[j] ?? ''}
+                    </div>
+                  ))}
+                </div>
+              )
+            })}
           </div>
           <div className="mt-3 flex flex-wrap justify-center gap-3 text-[13px] text-ink-2">
             {(['hit', 'near', 'miss'] as Mark[]).map((m) => (
