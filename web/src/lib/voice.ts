@@ -1,5 +1,5 @@
-// Listen buttons. English: the pre-generated Kokoro recording when the term has one, otherwise Kokoro-82M running
-// in this browser (kokoro-js, loaded only on first use). Arabic: the recording, otherwise the Space speaks it
+// Listen buttons. English: the pre-generated Kokoro recording when the term has one, otherwise the device's on-device
+// voice, otherwise Kokoro-82M running in this browser (kokoro-js, loaded only on first use). Arabic: the recording, otherwise the Space speaks it
 // (mms-tts-ara). Voice is on only when the server says so.
 
 let enabled: Promise<boolean> | null = null
@@ -61,6 +61,34 @@ function playUrl(url: string): Promise<void> {
   })
 }
 
+/** Speak with an English voice that runs on the device (localService), never a network voice. */
+async function speakOnDevice(text: string): Promise<boolean> {
+  const synth = typeof window !== 'undefined' ? window.speechSynthesis : undefined
+  if (!synth) return false
+  let voices = synth.getVoices()
+  if (!voices.length) {
+    // Some browsers fill the list a moment after load.
+    await new Promise<void>((resolve) => {
+      const done = () => resolve()
+      synth.addEventListener?.('voiceschanged', done, { once: true })
+      setTimeout(done, 400)
+    })
+    voices = synth.getVoices()
+  }
+  const voice = voices.find((v) => v.localService && v.lang.startsWith('en-US')) ?? voices.find((v) => v.localService && v.lang.startsWith('en'))
+  if (!voice) return false
+  current?.pause()
+  synth.cancel()
+  const u = new SpeechSynthesisUtterance(text)
+  u.voice = voice
+  u.lang = voice.lang
+  return new Promise((resolve) => {
+    u.onend = () => resolve(true)
+    u.onerror = () => resolve(false)
+    synth.speak(u)
+  })
+}
+
 type Kokoro = { generate: (text: string, opts: { voice: string }) => Promise<{ toBlob: () => Blob }> }
 let kokoro: Promise<Kokoro> | null = null
 function loadKokoro(): Promise<Kokoro> {
@@ -77,6 +105,9 @@ export async function speak(lang: 'en' | 'ar', text: string, termId?: string | n
     if (url) return playUrl(url)
   }
   if (lang === 'ar') return playUrl(`/api/tts?lang=ar&text=${encodeURIComponent(text)}`)
+  // No recording: the device's own on-device English voice answers at once; Kokoro (tens of MB on first use) is the
+  // fallback for devices without one.
+  if (await speakOnDevice(text)) return
   const tts = await loadKokoro()
   const audio = await tts.generate(text, { voice: 'af_heart' })
   const url = URL.createObjectURL(audio.toBlob())

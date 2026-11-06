@@ -66,19 +66,38 @@ class TermBank:
                 self._aliases.setdefault(_ar_norm(alias), []).append(by_key[key])
                 self._aliases.setdefault(alias.lower(), []).append(by_key[key])
 
-    def add_abbreviations(self, pairs: list[tuple[str, str]]) -> int:
+    def add_rows(self, new: list[dict[str, Any]]) -> int:
+        """Append curated rows after the bank is built. They get zero vectors (never a meaning match) so the
+        published embeddings stay aligned with the rows they belong to."""
+        for r in new:
+            self.rows.append(r)
+            self.by_id[r["id"]] = r
+            self._en.append(r["en"].lower())
+            self._ar.append(_ar_norm(r["ar_display"]))
+            if r["highlight"]:
+                self.finder.add(Term(id=r["id"], en=r["en"], ar=r["ar_display"], source=r["ar_origin"], has_card=bool(r["has_full_card"])))
+        if self.vectors is not None and new:
+            self.vectors = np.vstack([self.vectors, np.zeros((len(new), self.vectors.shape[1]), dtype=self.vectors.dtype)])
+        if self._card_boost is not None and new:
+            self._card_boost = np.concatenate([self._card_boost, np.zeros(len(new), dtype=np.float32)])
+        return len(new)
+
+    def add_abbreviations(self, pairs: list[tuple[str, str]] | list[tuple[str, str, bool | None]]) -> int:
         """Highlight abbreviations as their full term, for example RAG as retrieval-augmented generation
         (data/curated/abbreviations.csv). Pairs whose full term is not in the bank are skipped. Returns how many were added."""
-        by_en = {r["en"].lower(): (i, r) for i, r in enumerate(self.rows) if r["highlight"]}
+        by_en: dict[str, tuple[int, dict[str, Any]]] = {}
+        for i, r in enumerate(self.rows):  # the first row for a name wins, like the finder
+            by_en.setdefault(r["en"].lower(), (i, r))
         added = 0
-        for abbr, en in pairs:
+        for abbr, en, *flag in pairs:
             hit = by_en.get(en.lower())
             if hit is None:
                 continue
             i, r = hit
             self._aliases.setdefault(abbr.lower(), []).append(i)  # search finds rag, Rag and RAG
             term = Term(id=r["id"], en=r["en"], ar=r["ar_display"], source=r["ar_origin"], has_card=bool(r["has_full_card"]))
-            self.finder.add(term, surface=abbr, any_case=sum(c.isalpha() for c in abbr) >= 3)
+            any_case = flag[0] if flag and flag[0] is not None else sum(c.isalpha() for c in abbr) >= 3
+            self.finder.add(term, surface=abbr, any_case=any_case)
             added += 1
         return added
 
@@ -179,12 +198,41 @@ def non_technical(content_dir: Path) -> set[str]:
         return set()
 
 
-def apply_abbreviations(tb: TermBank, content_dir: Path, status: dict[str, Any]) -> None:
+def _highlightable(en: str) -> bool:
+    """The finder works on letters and digits, so a name like C++ or C# would shrink to one letter."""
+    return re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9 .'-]*", en) is not None
+
+
+def apply_curated(tb: TermBank, content_dir: Path, status: dict[str, Any]) -> None:
+    """Our additions (data/curated/additions.csv), then abbreviations (data/curated/abbreviations.csv)."""
     import csv
 
+    curated = content_dir.parent / "data" / "curated"
     try:
-        with open(content_dir.parent / "data" / "curated" / "abbreviations.csv", encoding="utf-8") as f:
-            pairs = [(r["abbreviation"], r["en"]) for r in csv.DictReader(f)]
+        with open(curated / "additions.csv", encoding="utf-8") as f:
+            wanted = list(csv.DictReader(f))
+        new, switched = [], 0
+        for w in wanted:
+            existing = next((r for r in tb.rows if r["en"].lower() == w["en"].lower()), None)
+            if existing is not None:
+                if not existing["highlight"] and _highlightable(w["en"]):
+                    existing["highlight"] = True
+                    tb.finder.add(Term(id=existing["id"], en=existing["en"], ar=existing["ar_display"], source=existing["ar_origin"], has_card=bool(existing["has_full_card"])))
+                    switched += 1
+                continue
+            slug = re.sub(r"[^a-z0-9]+", "-", w["en"].lower().replace("++", "pp").replace("#", "sharp")).strip("-")
+            new.append({
+                "id": slug, "en": w["en"], "en_key": w["en"].lower(), "en_expanded": None, "is_acronym": False,
+                "ar_display": w["ar"], "ar_full": w["ar"], "ar_key": w["ar"], "ar_origin": "darby_editor",
+                "reviewed": False, "needs_review": True, "domain": w["domain"], "source_names": ["darby"],
+                "has_full_card": False, "highlight": _highlightable(w["en"]),
+            })
+        status["steps"]["additions"] = f"ok ({tb.add_rows(new)} added, {switched} switched on)"
+    except Exception as e:
+        status["steps"]["additions"] = f"skipped: {type(e).__name__}"
+    try:
+        with open(curated / "abbreviations.csv", encoding="utf-8") as f:
+            pairs = [(r["abbreviation"], r["en"], {"yes": True, "no": False}.get(r.get("any_case") or "")) for r in csv.DictReader(f)]
         status["steps"]["abbreviations"] = f"ok ({tb.add_abbreviations(pairs)} of {len(pairs)})"
     except Exception as e:
         status["steps"]["abbreviations"] = f"skipped: {type(e).__name__}"
@@ -238,7 +286,6 @@ def load_term_bank(content_dir: Path, token: str | None = None, full_card_ids: s
         status["steps"]["aliases"] = f"ok ({len(aliases)})"
     except Exception as e:
         status["steps"]["aliases"] = f"skipped: {type(e).__name__}"
-    apply_abbreviations(tb, content_dir, status)
     try:
         from huggingface_hub import hf_hub_download
 
@@ -254,6 +301,7 @@ def load_term_bank(content_dir: Path, token: str | None = None, full_card_ids: s
     except Exception as e:
         status["steps"]["vectors"] = f"skipped: {type(e).__name__}"
 
+    apply_curated(tb, content_dir, status)  # after the vectors, which are matched to the published rows
     status.update({"terms": len(tb.rows), "highlight_terms": tb.finder.size, "seconds": round(time.time() - t0, 1)})
     log.info("term bank ready: %s", status)
     return tb
@@ -272,6 +320,6 @@ def _glossary_only(content_dir: Path, status: dict[str, Any]) -> TermBank:
         for k, e in g.entries.items()
     ]
     tb = TermBank.from_rows(rows, status)
-    apply_abbreviations(tb, content_dir, status)
+    apply_curated(tb, content_dir, status)
     status.update({"terms": len(rows), "highlight_terms": tb.finder.size})
     return tb

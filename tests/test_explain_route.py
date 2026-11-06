@@ -143,4 +143,21 @@ def test_abbreviation_table_is_clean():
     assert len(abbrs) == len(set(abbrs)) and all(r["en"] for r in rows)
     # Ambiguous in work texts (Arabic, a CV, a download), so they stay out.
     assert not {"AR", "CV", "DL"} & set(abbrs)
-    assert all(is_acronym(a) or a in {"IoT", "PoC"} for a in abbrs)
+    assert all(is_acronym(a) or a in {"IoT", "PoC", "cpp", "py", "js", "ts", "rs"} for a in abbrs)
+
+
+def test_lowercase_ai_and_added_terms_are_highlighted(tmp_path):
+    c = make_client(tmp_path)
+    text = "the ai wrote a script in Python and Rust; open main.cpp and app.py, then try multi-core parallel processing."
+    got = [(m["text"], m["en"]) for m in c.post("/api/terms", json={"text": text}).json()["matches"]]
+    assert ("ai", "AI") in got and ("Python", "Python") in got and ("Rust", "Rust") in got
+    assert ("cpp", "C++") in got and ("py", "Python") in got and ("script", "script") in got
+    assert ("multi-core parallel processing", "multi-core parallel processing") in got
+    # Two letter abbreviations other than AI keep their case.
+    assert [m["text"] for m in c.post("/api/terms", json={"text": "Ask it to email us."}).json()["matches"]] == []
+
+
+def test_added_terms_are_searchable_and_marked_unreviewed(tmp_path):
+    c = make_client(tmp_path)
+    r = c.get("/api/glossary/search", params={"q": "C++"}).json()["results"][0]
+    assert r["en"] == "C++" and r["ar"] == "سي بلس بلس" and r["needs_review"] and not r["reviewed"]

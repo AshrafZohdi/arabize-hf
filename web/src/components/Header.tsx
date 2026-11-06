@@ -31,11 +31,12 @@ export function Header() {
         <div aria-hidden="true" className="glass absolute inset-0 -z-10 rounded-full!" />
         <Link href="/" className="flex items-center gap-2.5 no-underline" aria-label={`${t('app.name')} ${t('app.nameLatin')}`}>
           <LogoMark />
-          <span className="hidden flex-col leading-none min-[400px]:flex">
-            <span lang="ar" className="font-display text-[22px] font-semibold text-maroon">
+          <span className="hidden flex-col gap-1 min-[400px]:flex">
+            {/* Arabic needs its own line height: at 1 the dots under ي and ب sat on top of the Latin name. */}
+            <span lang="ar" className="font-display text-[22px] leading-[1.25] font-semibold text-maroon">
               دربي
             </span>
-            <span lang="en" className="font-en text-xs font-semibold text-muted">
+            <span lang="en" className="font-en text-xs leading-none font-semibold text-muted">
               Darby
             </span>
           </span>

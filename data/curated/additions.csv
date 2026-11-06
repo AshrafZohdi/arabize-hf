@@ -1,0 +1,17 @@
+en,ar,domain,note
+Python,بايثون,software,programming language
+JavaScript,جافاسكربت,software,programming language
+TypeScript,تايب سكربت,software,programming language
+Rust,رست,software,programming language
+Java,جافا,software,programming language
+Kotlin,كوتلن,software,programming language
+Ruby,روبي,software,programming language
+PHP,بي إتش بي,software,programming language
+C++,سي بلس بلس,software,programming language (search only: the highlighter cannot see +)
+C#,سي شارب,software,programming language (search only: the highlighter cannot see #)
+programming language,لغة برمجة,software,
+multi-core processing,المعالجة متعددة النوى,software,
+multi-core processor,معالج متعدد النوى,software,
+multi-core parallel processing,المعالجة المتوازية متعددة النوى,software,
+file extension,امتداد الملف,software,
+script,سكربت (برنامج نصي),software,already in the Microsoft terminology; switched on for highlighting

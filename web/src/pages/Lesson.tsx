@@ -5,7 +5,7 @@ import { Segmented } from '../components/Segmented'
 import { useI18n, type MessageKey } from '../i18n'
 import { ApiError, listLessons, type Card, type LessonSummary } from '../lib/api'
 import { useExplainLang, type ExplainLang } from '../lib/explainLang'
-import { completeLesson, LESSON_XP } from '../lib/lessonProgress'
+import { completeLesson, getPlace, LESSON_XP, savePlace } from '../lib/lessonProgress'
 import { buildSteps, pick, seededShuffle, segments, termSlug, withRetries, type Step, type Texts } from '../lib/lessonSteps'
 import { award, useProgress } from '../lib/progress'
 import { Link, useRouter } from '../lib/router'
@@ -60,11 +60,22 @@ export function LessonPage({ slug }: { slug: string }) {
     fetch(`/api/lessons/${slug}`)
       .then((r) => (r.ok ? r.json() : Promise.reject(new ApiError(r.status))))
       .then((d: Lesson) => {
+        const built = buildSteps(d.blocks)
         setLesson(d)
-        setSteps(buildSteps(d.blocks))
+        setSteps(built)
+        // Pick up where the learner left off.
+        const place = getPlace(d.slug)
+        if (place) {
+          setAt(Math.min(place.at, built.length - 1))
+          setReached(Math.min(place.reached, built.length - 1))
+        }
       })
       .catch(() => setMissing(true))
   }, [slug])
+
+  useEffect(() => {
+    if (lesson && finished === null) savePlace(lesson.slug, { at, reached })
+  }, [lesson, at, reached, finished])
 
   useEffect(() => {
     // Move focus to the step heading so keyboard and screen reader users start at the top of each screen.
@@ -103,6 +114,12 @@ export function LessonPage({ slug }: { slug: string }) {
     setAnswered(false)
   }
 
+  const jumpTo = (target: number) => {
+    if (target > reached || target === at) return
+    setAt(target)
+    setAnswered(false)
+  }
+
   const back = () => {
     if (at === 0) return
     setAt(at - 1)
@@ -128,8 +145,43 @@ export function LessonPage({ slug }: { slug: string }) {
   const blockType = isExercise ? 'exercise' : lesson.blocks[step.block].type
   const Icon = BLOCK_ICON[blockType] ?? Lightbulb
   // The rail lists the lesson's blocks; all exercises in a block are one row.
-  const rail = lesson.blocks.map((b, i) => ({ i, type: b.type }))
+  const rail = lesson.blocks.map((b, i) => ({ i, type: b.type, first: steps.findIndex((s) => s.block === i) }))
   const currentBlock = finished !== null ? lesson.blocks.length : step.block
+  const railList = (
+    <ol className="m-0 flex list-none flex-col gap-1.5 p-0">
+      {rail.map(({ i, type, first }, n) => {
+        const state = i === currentBlock ? 'current' : first <= reached || finished !== null ? 'done' : 'next'
+        const name = t(type === 'exercise' ? 'lesson.exercises' : (BLOCK_TITLE[type] ?? 'lesson.concept'))
+        const look = `flex min-h-11 w-full items-center gap-3 rounded-2xl border-0 px-2.5 text-start font-[inherit] text-[length:inherit] ${
+          state === 'current' ? 'bg-maroon-soft font-bold text-maroon-text' : 'bg-transparent text-ink-2'
+        }`
+        const body = (
+          <>
+            <span
+              className={`flex size-8 shrink-0 items-center justify-center rounded-lg font-en text-sm font-bold ${
+                state === 'done' ? 'bg-success text-white' : state === 'current' ? 'bg-maroon text-white' : 'bg-surface-3 text-ink-2'
+              }`}
+            >
+              {state === 'done' ? <Check aria-hidden="true" size={16} strokeWidth={3} /> : n + 1}
+            </span>
+            {name}
+            {state === 'done' && <span className="sr-only">({t('path.done')})</span>}
+          </>
+        )
+        return (
+          <li key={i} aria-current={state === 'current' ? 'step' : undefined}>
+            {state === 'done' && finished === null ? (
+              <button type="button" onClick={() => jumpTo(first)} className={`${look} cursor-pointer hover:bg-white/60`}>
+                {body}
+              </button>
+            ) : (
+              <span className={look}>{body}</span>
+            )}
+          </li>
+        )
+      })}
+    </ol>
+  )
 
   return (
     <div className="mx-auto flex max-w-[1100px] flex-col gap-5">
@@ -175,31 +227,17 @@ export function LessonPage({ slug }: { slug: string }) {
             <Layers aria-hidden="true" size={19} className="text-maroon" />
             {t('lesson.stepsTitle')}
           </h2>
-          <ol className="m-0 flex list-none flex-col gap-1.5 p-0">
-            {rail.map(({ i, type }, n) => {
-              const state = i < currentBlock ? 'done' : i === currentBlock ? 'current' : 'next'
-              return (
-                <li
-                  key={i}
-                  aria-current={state === 'current' ? 'step' : undefined}
-                  className={`flex min-h-11 items-center gap-3 rounded-2xl px-2.5 ${state === 'current' ? 'bg-maroon-soft font-bold text-maroon-text' : 'text-ink-2'}`}
-                >
-                  <span
-                    className={`flex size-8 shrink-0 items-center justify-center rounded-lg font-en text-sm font-bold ${
-                      state === 'done' ? 'bg-success text-white' : state === 'current' ? 'bg-maroon text-white' : 'bg-surface-3 text-ink-2'
-                    }`}
-                  >
-                    {state === 'done' ? <Check aria-hidden="true" size={16} strokeWidth={3} /> : n + 1}
-                  </span>
-                  {t(type === 'exercise' ? 'lesson.exercises' : (BLOCK_TITLE[type] ?? 'lesson.concept'))}
-                  {state === 'done' && <span className="sr-only">({t('path.done')})</span>}
-                </li>
-              )
-            })}
-          </ol>
+          {railList}
         </nav>
 
         <div className="flex min-w-0 flex-[999_1_480px] flex-col gap-5">
+          <details className="glass px-4 py-2 lg:hidden">
+            <summary className="flex min-h-11 cursor-pointer items-center gap-2 font-bold">
+              <Layers aria-hidden="true" size={18} className="text-maroon" />
+              {t('lesson.stepsTitle')}
+            </summary>
+            <div className="pb-2">{railList}</div>
+          </details>
           {finished !== null ? (
             <section className="card card-enter flex flex-col items-center gap-5 text-center">
               <span className="flex size-24 items-center justify-center rounded-[28px] bg-gold text-white shadow-[0_6px_0_var(--gold-text)]">
@@ -331,7 +369,7 @@ function BlockView({ block, lang, slug, onTerm }: { block: Block; lang: ExplainL
   return <RichText texts={block} lang={lang} onTerm={onTerm} />
 }
 
-function ExerciseView({ ex, lang, seed, onResult }: { ex: Exercise; lang: ExplainLang; seed: string; onResult: (firstTry: boolean, correct: boolean) => void }) {
+export function ExerciseView({ ex, lang, seed, onResult }: { ex: Exercise; lang: ExplainLang; seed: string; onResult: (firstTry: boolean, correct: boolean) => void }) {
   const { t } = useI18n()
   const [tries, setTries] = useState(0)
   const [state, setState] = useState<'open' | 'right' | 'wrong'>('open')
@@ -515,7 +553,9 @@ function MatchView({ ex, lang, seed, done, onDone }: { ex: Exercise; lang: Expla
 function OrderView({ ex, lang, seed, done, onCheck }: { ex: Exercise; lang: ExplainLang; seed: string; done: boolean; onCheck: (ok: boolean) => void }) {
   const { t } = useI18n()
   const prompt = pick(ex.prompt as Texts, lang)
-  const items = ex.items as Texts[]
+  // Word order items are plain words in the exercise's language; sentence order items are {en, ar, gulf}.
+  const items = ex.items as (string | Texts)[]
+  const label = (it: string | Texts) => (typeof it === 'string' ? { text: it, lang: (ex.lang as 'en' | 'ar') ?? 'en' } : pick(it, lang))
   const [order, setOrder] = useState(() => {
     const s = seededShuffle(items.map((_, i) => i), seed)
     return s.every((v, i) => v === i) ? [...s].reverse() : s
@@ -532,7 +572,7 @@ function OrderView({ ex, lang, seed, done, onCheck }: { ex: Exercise; lang: Expl
       </p>
       <ol className="m-0 flex list-none flex-col gap-2 p-0">
         {order.map((i, pos) => {
-          const text = pick(items[i], lang)
+          const text = label(items[i])
           return (
             <li key={i} className="flex items-center gap-2 rounded-xl border-2 border-line bg-white p-2">
               <span className="w-6 text-center font-bold text-muted">{pos + 1}</span>

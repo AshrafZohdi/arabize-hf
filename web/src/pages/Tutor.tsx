@@ -4,7 +4,8 @@ import { PageTitle } from '../components/PageTitle'
 import { Segmented } from '../components/Segmented'
 import { useI18n, type MessageKey } from '../i18n'
 import { LogoMark } from '../components/Logo'
-import { ApiError, glossaryCards, listLessons, promptLabTask, scorePrompt, streamTutor, type ChatTurn, type LessonSummary, type PromptScores } from '../lib/api'
+import { HighlightedText } from '../components/explain/HighlightedText'
+import { ApiError, findTerms, glossaryCards, listLessons, promptLabTask, scorePrompt, streamTutor, type ChatTurn, type LessonSummary, type PromptScores, type TermMatch } from '../lib/api'
 import { useExplainLang, type ExplainLang } from '../lib/explainLang'
 import { Link } from '../lib/router'
 import { tutorSession } from '../lib/session'
@@ -276,18 +277,37 @@ const CRITERIA = ['goal', 'context', 'format', 'constraints'] as const
 export function PromptLab({ lang, lesson }: { lang: ExplainLang; lesson: string }) {
   const { t } = useI18n()
   const [task, setTask] = useState('')
+  const [taskEn, setTaskEn] = useState('')
+  const [taskTerms, setTaskTerms] = useState<TermMatch[]>([])
   const [prompt, setPrompt] = useState('')
   const [busy, setBusy] = useState(false)
   const [result, setResult] = useState<PromptScores | null>(null)
   const [error, setError] = useState<MessageKey | null>(null)
   const [copied, setCopied] = useState(false)
 
+  // A new lesson is a new task, so the old score goes; switching the language only re-labels the task.
   useEffect(() => {
     setResult(null)
+  }, [lesson])
+
+  useEffect(() => {
     promptLabTask(lesson, lang)
       .then((r) => setTask(r.task))
       .catch(() => setTask(''))
   }, [lesson, lang])
+
+  // The English task sits under the Arabic one, with its key terms highlighted, so the learner can link the two.
+  useEffect(() => {
+    const ctrl = new AbortController()
+    promptLabTask(lesson, 'en')
+      .then((r) => {
+        setTaskEn(r.task)
+        return findTerms(r.task, ctrl.signal)
+      })
+      .then(setTaskTerms)
+      .catch(() => {})
+    return () => ctrl.abort()
+  }, [lesson])
 
   const score = async () => {
     if (!prompt.trim()) return
@@ -328,6 +348,11 @@ export function PromptLab({ lang, lesson }: { lang: ExplainLang; lesson: string 
         <p className="m-0 text-[17px]" dir="auto">
           {task}
         </p>
+        {taskEn && (
+          <p dir="ltr" lang="en" className={`m-0 font-en text-[15px] leading-[1.9] text-ink-2 ${lang === 'en' ? 'hidden' : 'mt-2 border-t border-line pt-2'}`}>
+            <HighlightedText text={taskEn} matches={taskTerms} isKnown={() => false} knownLabel="" newLabel={t('explain.legendNew')} />
+          </p>
+        )}
       </div>
       <label htmlFor="lab-input" className="font-semibold text-ink-2">
         {t('lab.yourPrompt')}

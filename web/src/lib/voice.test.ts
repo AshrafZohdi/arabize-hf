@@ -70,4 +70,35 @@ describe('speak', () => {
     expect(created).toEqual(['/api/tts/term/hallucination?lang=ar', BUCKET])
     expect(played).toEqual([BUCKET])
   })
+
+  it('English without a recording uses an on-device voice before downloading Kokoro', async () => {
+    stubFetch()
+    stubAudio([], [])
+    const spoken: string[] = []
+    class Utterance {
+      text: string
+      voice: unknown = null
+      lang = ''
+      onend: (() => void) | null = null
+      onerror: (() => void) | null = null
+      constructor(text: string) {
+        this.text = text
+      }
+    }
+    vi.stubGlobal('SpeechSynthesisUtterance', Utterance)
+    vi.stubGlobal('speechSynthesis', {
+      getVoices: () => [
+        { lang: 'en-US', localService: false, name: 'network' },
+        { lang: 'en-US', localService: true, name: 'device' },
+      ],
+      cancel: () => {},
+      speak: (u: Utterance) => {
+        spoken.push(`${u.text}|${(u.voice as { name: string }).name}`)
+        setTimeout(() => u.onend?.(), 0)
+      },
+    })
+    const { speak } = await import('./voice')
+    await speak('en', 'Proximal Policy Optimization', 'proximal-policy-optimization')
+    expect(spoken).toEqual(['Proximal Policy Optimization|device'])
+  })
 })

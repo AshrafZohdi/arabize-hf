@@ -85,6 +85,25 @@ test('lesson: steps, a tappable term, the progress bar', async ({ page }) => {
   await noHorizontalScroll(page)
 })
 
+test('lesson: picks up where you left off, and the step list jumps back', async ({ page }, info) => {
+  await page.goto('/lesson/day-2')
+  await page.getByRole('button', { name: 'التالي' }).click()
+  await page.getByRole('button', { name: 'التالي' }).click()
+  await expect(page.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '3')
+  // Leave and come back inside the app (a full reload would run the storage reset in beforeEach).
+  await page.getByRole('link', { name: 'اطلع من الدرس' }).click()
+  await expect(page.locator('#explain-h')).toBeVisible()
+  await page.evaluate(() => {
+    history.pushState(null, '', '/lesson/day-2')
+    dispatchEvent(new PopStateEvent('popstate'))
+  })
+  await expect(page.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '3')
+  if (info.project.name === 'phone-360') await page.locator('summary', { hasText: 'خطوات الدرس' }).click()
+  await page.getByRole('button', { name: /^1البداية|البداية/ }).filter({ visible: true }).first().click()
+  await expect(page.getByRole('heading', { level: 1, name: 'البداية' })).toBeVisible()
+  await expect(page.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '1')
+})
+
 test('English interface switches to LTR', async ({ page }) => {
   await page.goto('/')
   await page.getByRole('button', { name: /English/ }).click()
