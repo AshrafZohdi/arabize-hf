@@ -193,7 +193,8 @@ export function LessonPage({ slug }: { slug: string }) {
             {title.text}
           </p>
         </div>
-        <div className="flex min-w-0 flex-[2_1_220px] items-center gap-3">
+        {/* Progress gets its own row so the lesson title is never squeezed into two short lines. */}
+        <div className="order-last flex w-full basis-full items-center gap-3">
           <div
             role="progressbar"
             aria-valuemin={1}

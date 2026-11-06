@@ -127,3 +127,11 @@ Approved by the team (plan points 2 and 3); speech to text waits for a decision 
 - Speech to text: Whisper small (OpenAI's open weights, MIT; CTranslate2 build `Systran/faster-whisper-small` pinned to 536b0662) with `faster-whisper` on the Space CPU, behind `ASR_ENABLED`. Measured on CPU with an Arabic question: small about 1.5 s, medium about 7.6 s, large-v3-turbo about 7 s with the same words, so small. Hugging Face's own Distil-Whisper is English only. The browser records 16 kHz mono WAV with Web Audio (no new browser dependency), up to 30 s; nothing is stored. Mic buttons on Smart Explain, tutor, prompt lab and the Draw tab.
 - Tutor: a photo button reads the photo with Oryx-IVU and puts "what does this text mean?" with the text into the message box.
 - Image generation: endpoint `darby-oryx-ig` (1x L40S, custom handler in `nuvais/darbi-oryx-ig-endpoint`) runs after the FLUX.1-schnell terms were accepted. Tested live: 768 px images in about 3 s, culturally right; it does not always follow every detail (asked for a man and a woman, drew two men).
+
+## D24. 2026-11-06: Layout and usability pass (design critique)
+Screens captured at 360 and 1280 px in Arabic in real states, critiqued, fixed and recaptured. Colours and tokens unchanged.
+- Smart Explain: the highlighted copy of the text moved from the input card to the top of the answer card (it showed the text twice), and on screens under 1,024 px the page scrolls to the answer when it starts. The seven style chips have a visible label and scroll sideways in one row on phones (they took three rows).
+- Home: the path moved under Smart Explain in the main column and the daily code is the side column, sticky on wide screens; the columns were badly unbalanced.
+- Glossary: 12 Darby cards first with "show all"; A to Z entries are compact (source and actions on one line); the letter strip scrolls sideways on phones; a shorter search placeholder that fits 360 px. The phone page is 34% shorter.
+- Tutor: avatars only from 640 px, so replies use the bubble width on phones.
+- Lesson bar: the progress bar has its own row, so the lesson title is not squeezed into two short lines.

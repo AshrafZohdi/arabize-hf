@@ -168,7 +168,7 @@ function Chat({ lang, lesson }: { lang: ExplainLang; lesson: string | null }) {
           {turns.map((m, i) =>
             m.role === 'user' ? (
               <div key={i} className="flex max-w-[88%] items-start gap-2.5 self-start">
-                <span aria-hidden="true" className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-ink text-sm font-bold text-white">
+                <span aria-hidden="true" className="hidden size-10 shrink-0 items-center justify-center rounded-xl bg-ink text-sm font-bold text-white sm:flex">
                   {t('tutor.you')}
                 </span>
                 <div className="rounded-2xl rounded-ss-md bg-maroon px-4 py-3 text-white shadow-[0_4px_0_var(--maroon-deep)]">
@@ -191,7 +191,8 @@ function Chat({ lang, lesson }: { lang: ExplainLang; lesson: string | null }) {
                     <Translatable text={m.content} lang={lang} className="text-[17px]" />
                   )}
                 </div>
-                <span aria-hidden="true" className="order-2 shrink-0">
+                {/* Avatars only from 640 px: on a phone they took a third of the bubble width. */}
+                <span aria-hidden="true" className="order-2 hidden shrink-0 sm:block">
                   <LogoMark />
                 </span>
               </div>

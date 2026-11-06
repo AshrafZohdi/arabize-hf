@@ -35,6 +35,7 @@ export function ExplainPanel({ lang, langControl }: { lang: ExplainLang; langCon
   // The chosen card by term, not by position, so it stays put as more chips arrive.
   const [picked, setPicked] = useState<string | null>(null)
   const abort = useRef<AbortController | null>(null)
+  const resultRef = useRef<HTMLElement>(null)
   // Photo explain (Fanar-2-Oryx-IVU): shown only when the server has it switched on.
   const [photoOn, setPhotoOn] = useState(false)
   const [reading, setReading] = useState(false)
@@ -112,6 +113,12 @@ export function ExplainPanel({ lang, langControl }: { lang: ExplainLang; langCon
     const ctrl = new AbortController()
     abort.current = ctrl
     setPhase('streaming')
+    // On a phone the answer starts below the input card: bring it into view as soon as it starts.
+    if (window.matchMedia?.('(max-width: 1023px)').matches) {
+      requestAnimationFrame(() => {
+        resultRef.current?.scrollIntoView?.({ behavior: 'smooth', block: 'start' })
+      })
+    }
     setExplanation('')
     setCards([])
     setPicked(null)
@@ -207,8 +214,8 @@ export function ExplainPanel({ lang, langControl }: { lang: ExplainLang; langCon
             {photoNote}
           </p>
         )}
-        {/* The box stays open: a new text can be pasted any time. After explaining, the text shows again below with its
-            terms highlighted and tappable. */}
+        {/* The box stays open: a new text can be pasted any time. After explaining, the answer card repeats the text with
+            its terms highlighted and tappable. */}
         <textarea
           id="explain-input"
           ref={textarea}
@@ -222,27 +229,18 @@ export function ExplainPanel({ lang, langControl }: { lang: ExplainLang; langCon
           className="block min-h-36 w-full resize-y rounded-[14px] border border-line bg-surface-2 p-5 font-en text-[17px] leading-[1.9] text-ink placeholder:text-muted focus:border-maroon"
         />
         <div className="mt-1 text-end text-[13px] text-muted">{t('explain.counter', { n: text.length, max: MAX })}</div>
-        {phase !== 'idle' && matches.length > 0 && (
-          <div dir="ltr" lang="en" className="mt-3 rounded-[14px] border border-line bg-surface-2 p-5 text-left font-en text-[17px] leading-[1.9] whitespace-pre-wrap">
-            <HighlightedText
-              text={text}
-              matches={matches}
-              isKnown={isKnown}
-              knownLabel={t('explain.legendKnown')}
-              newLabel={t('explain.legendNew')}
-              onPick={result ? pickTerm : undefined}
-            />
-          </div>
-        )}
-
-        <div role="group" aria-label={t('explain.styleLabel')} className="mt-4 flex flex-wrap gap-2">
+        <p id="style-label" className="mt-4 mb-2 text-sm font-semibold text-ink-2">
+          {t('explain.styleLabel')}
+        </p>
+        {/* One row that scrolls sideways on phones (seven chips took three rows), wrapping from 640 px. */}
+        <div role="group" aria-labelledby="style-label" className="-mx-5 flex snap-x gap-2 overflow-x-auto px-5 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
           {STYLES.map((s) => (
             <button
               key={s}
               type="button"
               aria-pressed={style === s}
               onClick={() => setStyle(s)}
-              className={`min-h-11 cursor-pointer rounded-full border px-4 text-sm font-semibold ${
+              className={`min-h-11 shrink-0 cursor-pointer snap-start rounded-full border px-4 text-sm font-semibold whitespace-nowrap ${
                 style === s ? 'border-maroon bg-maroon-soft text-maroon-text' : 'border-line bg-white text-ink-2 hover:bg-surface-3'
               }`}
             >
@@ -316,7 +314,22 @@ export function ExplainPanel({ lang, langControl }: { lang: ExplainLang; langCon
       </section>
 
       {showResult && (
-        <section aria-label={t('explain.resultLabel')} aria-busy={phase === 'streaming'} className="card flex flex-col gap-6">
+        <section ref={resultRef} aria-label={t('explain.resultLabel')} aria-busy={phase === 'streaming'} className="card flex scroll-mt-4 flex-col gap-6">
+          {matches.length > 0 && (
+            <div>
+              <h3 className="m-0 mb-2 text-base font-bold text-maroon">{t('explain.yourText')}</h3>
+              <div dir="ltr" lang="en" className="well p-4 text-left font-en text-[17px] leading-[1.9] whitespace-pre-wrap sm:p-5">
+                <HighlightedText
+                  text={text}
+                  matches={matches}
+                  isKnown={isKnown}
+                  knownLabel={t('explain.legendKnown')}
+                  newLabel={t('explain.legendNew')}
+                  onPick={result ? pickTerm : undefined}
+                />
+              </div>
+            </div>
+          )}
           {error && (
             <p role="alert" className="m-0 flex items-center gap-2 rounded-2xl bg-maroon-soft p-4 font-semibold text-maroon-text">
               <AlertTriangle aria-hidden="true" size={20} />

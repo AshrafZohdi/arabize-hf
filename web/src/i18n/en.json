@@ -100,7 +100,7 @@
   "quiz.earned": "+{n} points",
   "glossary.subtitle": "AI and software terms, in Arabic and English.",
   "glossary.searchLabel": "Search for a term",
-  "glossary.searchPlaceholder": "For example: hallucination, الأوامر, log off",
+  "glossary.searchPlaceholder": "For example: hallucination or الأمر",
   "glossary.filterLabel": "Field",
   "glossary.domain.all": "All",
   "glossary.domain.ai": "AI",
@@ -329,5 +329,8 @@
   "mic.short": "Too short, speak for a second or more.",
   "mic.failed": "Could not turn the audio into text right now.",
   "mic.denied": "The browser did not allow the microphone. Turn it on in the site settings.",
-  "tutor.photoAsk": "What does this text mean?"
+  "tutor.photoAsk": "What does this text mean?",
+  "explain.yourText": "Your text and its terms",
+  "glossary.allCards": "Show all cards ({n})",
+  "glossary.fewerCards": "Show fewer"
 }

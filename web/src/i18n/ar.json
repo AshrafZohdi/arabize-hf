@@ -100,7 +100,7 @@
   "quiz.earned": "+{n} نقطة",
   "glossary.subtitle": "مصطلحات الذكاء الاصطناعي والبرامج، بالعربي والإنجليزي.",
   "glossary.searchLabel": "دوّر على مصطلح",
-  "glossary.searchPlaceholder": "مثلًا: الهلوسة، prompt، تسجيل الخروج",
+  "glossary.searchPlaceholder": "مثلًا: الهلوسة أو prompt",
   "glossary.filterLabel": "المجال",
   "glossary.domain.all": "الكل",
   "glossary.domain.ai": "ذكاء اصطناعي",
@@ -329,5 +329,8 @@
   "mic.short": "التسجيل قصير، تكلّم ثانية أو أكثر.",
   "mic.failed": "ما قدرنا نحوّل الصوت لنص الحين.",
   "mic.denied": "المتصفح ما سمح بالمايك. فعّله من إعدادات الموقع.",
-  "tutor.photoAsk": "شنو يعني هالنص؟"
+  "tutor.photoAsk": "شنو يعني هالنص؟",
+  "explain.yourText": "النص ومصطلحاته",
+  "glossary.allCards": "اعرض كل البطاقات ({n})",
+  "glossary.fewerCards": "اعرض أقل"
 }

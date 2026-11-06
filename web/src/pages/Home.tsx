@@ -39,13 +39,14 @@ export function Home() {
             lang={explainLang}
             langControl={<Segmented label={t('home.explainLanguage')} options={options} value={explainLang} onChange={setExplainLang} />}
           />
-        </div>
-        <aside className="flex min-w-0 flex-[1_1_340px] flex-col gap-5 sm:gap-7">
-          <div className="card-enter" style={{ '--i': 1 } as CSSProperties}>
-            <DailyCode />
-          </div>
+          {/* The path sits under Smart Explain so both columns end near the same height on wide screens. */}
           <div className="card-enter" style={{ '--i': 2 } as CSSProperties}>
             <PathCard />
+          </div>
+        </div>
+        <aside className="flex min-w-0 flex-[1_1_340px] flex-col gap-5 sm:gap-7 lg:sticky lg:top-6">
+          <div className="card-enter" style={{ '--i': 1 } as CSSProperties}>
+            <DailyCode />
           </div>
         </aside>
       </div>
