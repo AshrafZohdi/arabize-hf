@@ -57,8 +57,9 @@ def test_explain_streams_terms_then_explanation_then_result(tmp_path):
     raw = json.dumps(GOOD, ensure_ascii=False)
     fake = FakeClient([raw[i : i + 9] for i in range(0, len(raw), 9)])
     c = make_client(tmp_path, fake)
-    r = c.post("/api/explain", json={"text": EMAIL, "lang": "gulf", "style": "work"})
+    r = c.post("/api/explain", json={"text": EMAIL, "lang": "gulf", "style": "work"}, headers={"accept-encoding": "gzip"})
     assert r.headers["content-type"].startswith("text/event-stream")
+    assert "content-encoding" not in r.headers  # streamed answers are never buffered for compression
     events = sse(r.text)
     assert events[0][0] == "terms"
     assert {card["term_en"] for card in events[0][1]["cards"]} == {"Summary", "Hallucination", "Context", "Prompt", "Source"}

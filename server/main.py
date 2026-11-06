@@ -5,6 +5,7 @@ import threading
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
+from starlette.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse
 
 from server.config import Settings, load_settings
@@ -22,6 +23,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or load_settings()
     app = FastAPI(title="Darby", version=VERSION, docs_url="/api/docs", openapi_url="/api/openapi.json")
     app.state.settings = settings
+    # Compress text (JS, CSS, JSON); Starlette leaves text/event-stream alone, so streamed answers stay live.
+    app.add_middleware(GZipMiddleware, minimum_size=1024)
     app.state.llm = LLM(settings)
     app.state.glossary = load_glossary(settings.content_dir)
     # Our glossary straight away; the full bank replaces it when the background load finishes.

@@ -57,3 +57,10 @@ def test_path_traversal_does_not_leak_files(client):
 def test_missing_build_is_503(tmp_path):
     settings = replace(load_settings(), web_dist=tmp_path / "missing")
     assert TestClient(create_app(settings)).get("/").status_code == 503
+
+
+def test_assets_are_gzipped(dist):
+    (dist / "assets" / "big.js").write_text("const x = 1;\n" * 500)
+    c = TestClient(create_app(replace(load_settings(), web_dist=dist)))
+    r = c.get("/assets/big.js", headers={"accept-encoding": "gzip"})
+    assert r.headers.get("content-encoding") == "gzip"
