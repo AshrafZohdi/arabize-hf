@@ -8,7 +8,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 
 from server.config import Settings, load_settings
-from server.glossary import load_glossary
+from server.glossary import load_glossary, load_glossary_from_hub
 from server.llm import LLM
 from server.routes import explain, glossary
 from server.lessons import load_lessons
@@ -43,6 +43,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "termbank": {k: v for k, v in app.state.termbank.status.items()},
             "semantic_search": app.state.embedder is not None and app.state.termbank.vectors is not None,
             "lessons": {"count": len(app.state.lessons), "source": app.state.lessons_source},
+            "glossary_cards": len(app.state.glossary.entries),
         }
 
     @app.get("/api/{rest:path}", include_in_schema=False)
@@ -84,7 +85,11 @@ def _load_bank(app: FastAPI, settings: Settings) -> None:
     except Exception as e:
         logging.getLogger("darby").error("lessons load failed: %s", type(e).__name__)
     try:
-        tb = load_term_bank(settings.content_dir, settings.hf_token)
+        app.state.glossary = load_glossary_from_hub(settings.hf_token)
+    except Exception as e:
+        logging.getLogger("darby").warning("glossary from the Hub failed (%s), keeping content/", type(e).__name__)
+    try:
+        tb = load_term_bank(settings.content_dir, settings.hf_token, full_card_ids=set(app.state.glossary.entries))
         app.state.termbank = tb
         if tb.vectors is not None:
             from server.embed import E5

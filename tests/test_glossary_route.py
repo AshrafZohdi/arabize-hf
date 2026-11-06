@@ -79,3 +79,20 @@ def test_browse_pages_through_every_term(tmp_path):
     assert [r["en"] for r in c.get("/api/glossary/browse", params={"letter": "#"}).json()["results"]] == ["3D model"]
     assert c.get("/api/glossary/browse", params={"domain": "software"}).json()["total"] == 1
     assert c.get("/api/glossary/browse", params={"letter": "ab"}).status_code == 422
+
+
+def test_hub_glossary_shape_works_with_cards(tmp_path, monkeypatch):
+    import json
+
+    from server import glossary as g
+
+    rec = {"id": "chatbot", "origin": "fanar_generated", "domain": "ai", "term_en": "chatbot", "term_msa": "بوت محادثة", "term_gulf": "بوت",
+           "def_en": "A program that chats.", "def_ar": "برنامج يحاور.", "def_gulf": "برنامج يسولف وياك.", "analogy_en": "a", "analogy_ar": "مثل",
+           "mistake_en": "m", "mistake_ar": "خطأ", "example_en": "e", "example_ar": "مثال", "example_gulf": "مثال", "related": [], "reviewed": False}
+    path = tmp_path / "glossary.json"
+    path.write_text(json.dumps([rec], ensure_ascii=False), encoding="utf-8")
+    monkeypatch.setattr("huggingface_hub.hf_hub_download", lambda *a, **k: str(path))
+    gl = g.load_glossary_from_hub()
+    card = gl.card("chatbot", "gulf")
+    assert card["explanation"] == "برنامج يسولف وياك." and card["source"] == "fanar"
+    assert gl.finder.find("Ask the chatbots")[0].term.id == "chatbot"

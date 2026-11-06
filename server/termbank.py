@@ -136,7 +136,7 @@ def _rows_from_frame(df) -> list[dict[str, Any]]:
     return out
 
 
-def load_term_bank(content_dir: Path, token: str | None = None) -> TermBank:
+def load_term_bank(content_dir: Path, token: str | None = None, full_card_ids: set[str] | None = None) -> TermBank:
     """Build the bank from the Hub. Steps that fail are skipped and reported in `status`."""
     import pandas as pd
 
@@ -170,7 +170,11 @@ def load_term_bank(content_dir: Path, token: str | None = None) -> TermBank:
         status["steps"]["published"] = f"skipped: {type(e).__name__}"
         frame = bank
 
-    tb = TermBank.from_rows(_rows_from_frame(frame), status)
+    rows = _rows_from_frame(frame)
+    for r in rows:  # cards published in the glossary dataset (ours and Fanar's) count as full cards
+        if full_card_ids and r["id"] in full_card_ids:
+            r["has_full_card"] = True
+    tb = TermBank.from_rows(rows, status)
     try:
         aliases = pd.read_csv(content_dir.parent / "data" / "curated" / "aliases.csv", dtype=str)
         tb.add_aliases(list(zip(aliases.en_key, aliases.alias)))

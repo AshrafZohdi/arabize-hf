@@ -113,7 +113,8 @@ export function GlossaryPage() {
                   className="flex min-h-[88px] w-full cursor-pointer items-center gap-3 rounded-2xl border border-line bg-surface p-4 text-start shadow-answer hover:border-maroon"
                 >
                   <span className="flex size-11 shrink-0 items-center justify-center rounded-[14px] bg-maroon-soft text-maroon">
-                    <BookOpen aria-hidden="true" size={22} />
+                    {c.source === 'fanar' ? <Sparkles aria-hidden="true" size={22} /> : <BookOpen aria-hidden="true" size={22} />}
+                    <span className="sr-only">{c.source === 'fanar' ? t('explain.fromFanar') : t('explain.fromGlossary')}</span>
                   </span>
                   <span className="min-w-0">
                     <span className="block font-display text-lg font-semibold text-maroon">{c.term_ar}</span>
@@ -294,6 +295,10 @@ function FullCardDialog({ card, onClose }: { card: GlossaryCard | null; onClose:
               <X aria-hidden="true" size={20} />
             </button>
           </div>
+          <p className="m-0 flex items-center gap-1.5 text-[13px] text-muted">
+            {card.source === 'fanar' ? <Sparkles aria-hidden="true" size={14} /> : <BookOpen aria-hidden="true" size={14} />}
+            {card.source === 'fanar' ? t('explain.fromFanar') : t('explain.fromGlossary')}
+          </p>
           {card.term_gulf && <p className="m-0 text-ink-2">{t('glossary.gulfUsage', { t: card.term_gulf })}</p>}
           <Field label={t('glossary.definition')}>{card.explanation}</Field>
           {card.analogy && <div className="rounded-[14px] bg-surface-3 px-4 py-3 text-ink-2">{card.analogy}</div>}
