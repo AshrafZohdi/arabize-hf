@@ -360,3 +360,9 @@ def test_record_mode_saves_real_answers_as_fixtures(settings, tmp_path):
     assert saved["input"] == {"text": "Hi", "lang": "gulf"} and saved["output"]["term_ar"] == "الهلوسة"
     # A recorded file is a valid fixture.
     assert Fixtures(tmp_path / "rec").lookup("explain", {"text": "hi", "lang": "gulf"})["term_en"] == "Hallucination"
+
+
+def test_record_mode_saves_streamed_answers(settings, tmp_path):
+    llm = LLM(replace(settings, record_dir=tmp_path / "rec"), client=FakeClient(["الجواب ", "هنا"]), fixtures=Fixtures(tmp_path / "none"))
+    run(collect(llm.stream(feature="tutor", system="s", messages=[], max_tokens=20, fixture_input={"text": "Q", "lang": "gulf"})))
+    assert Fixtures(tmp_path / "rec").lookup("tutor", {"text": "q", "lang": "gulf"}) == "الجواب هنا"

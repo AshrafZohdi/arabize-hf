@@ -14,7 +14,13 @@ DEFAULT_RUBRIC = {
     "format": "Specifies the shape of the answer: length, structure, tone, language.",
     "constraints": "Sets limits: what to avoid, facts to keep, deadlines, privacy rules.",
 }
-LANGUAGE = {"en": "English", "msa": "simple Modern Standard Arabic", "gulf": "Gulf Arabic dialect as spoken in Qatar"}
+LANGUAGE = {"en": "English", "msa": "simple Modern Standard Arabic", "gulf": "Gulf Arabic dialect as spoken in Qatar (not Modern Standard Arabic)"}
+# Repeated next to the learner's prompt: with the language only in the system prompt, Gulf feedback came back in MSA.
+REMINDER = {
+    "en": "Write the feedback and summary in plain English.",
+    "msa": "اكتب الملاحظات والخلاصة بالعربية الفصحى المبسطة.",
+    "gulf": "اكتب الملاحظات والخلاصة باللهجة الخليجية القطرية، مو بالفصحى (مثل: يعني، لازم، عشان، وايد، زين).",
+}
 
 
 class CriterionScore(BaseModel):
@@ -56,6 +62,7 @@ def build_scoring_prompt(task: str, learner_prompt: str, lang: str, rubric: dict
             f"<task>{escape_learner_text(task)}</task>",
             f"<good_example>{escape_learner_text(example_good)}</good_example>" if example_good else "",
             f"<learner_prompt>{escape_learner_text(learner_prompt)}</learner_prompt>",
+            REMINDER[lang],
         ]
         if p
     )

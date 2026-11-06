@@ -618,17 +618,22 @@ class LLM:
             return
 
         self._mark_ready()
+        started = self._clock()
         stripper = ThinkStripper()
+        full: list[str] = []
         async for chunk in chunks:
             if not chunk.choices:
                 continue
             delta = chunk.choices[0].delta.content or ""
             visible = stripper.feed(delta)
             if visible:
+                full.append(visible)
                 yield visible
         tail = stripper.flush()
         if tail:
+            full.append(tail)
             yield tail
+        self._record(feature, fixture_input, "".join(full), int((self._clock() - started) * 1000))
 
 
 async def _replay(text: str, size: int = 12) -> AsyncIterator[str]:
