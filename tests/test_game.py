@@ -114,3 +114,16 @@ def test_arabic_game(game):
     spelled = {"مسوده": "مُسوَّدة", "امر": "أمر"}[p.word]  # written with diacritics and hamza, still matches
     r = game.guess("ar", DAY, s["token"], spelled)
     assert r["won"] and r["marks"] == ["hit"] * len(p.word)
+
+
+def test_real_word_lists_load_as_words_not_characters():
+    """content/words-*.json store one space-separated string: a set of characters would refuse every guess."""
+    from server.config import load_settings
+    from server.glossary import load_glossary
+
+    settings = load_settings()
+    g = Game(load_glossary(settings.content_dir), settings.content_dir, b"s")
+    en, ar = g.words("en"), g.words("ar")
+    assert len(en) > 100_000 and {"people", "colors", "prompt", "draft"} <= en
+    assert len(ar) > 100_000 and "كتاب" in ar
+    assert g.is_real_word("en", "people", "column") and not g.is_real_word("en", "qzxqzx", "column")

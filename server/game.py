@@ -98,7 +98,10 @@ class Game:
     def words(self, lang: GameLang) -> set[str]:
         if lang not in self._words:
             raw = json.loads((self._words_dir / f"words-{lang}.json").read_text(encoding="utf-8"))
-            self._words[lang] = {normalize(w) for w in (raw["words"] if isinstance(raw, dict) else raw)}
+            words = raw["words"] if isinstance(raw, dict) else raw
+            # content/words-*.json hold one space-separated string; a list also works.
+            items = words.split() if isinstance(words, str) else words
+            self._words[lang] = {normalize(w) for w in items}
         return self._words[lang]
 
     def puzzle(self, lang: GameLang, day: date) -> Puzzle:
