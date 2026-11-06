@@ -64,7 +64,9 @@ export function ExplainPanel({ lang }: { lang: ExplainLang }) {
     return out
   }, [cards, result])
 
-  useEffect(() => setSelected(0), [allCards.length])
+  useEffect(() => {
+    setSelected(0)
+  }, [allCards.length])
 
   const send = async (skipPrivacy = false) => {
     if (!text.trim()) return

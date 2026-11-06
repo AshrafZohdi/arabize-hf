@@ -71,7 +71,10 @@ function Chat({ lang, lesson }: { lang: ExplainLang; lesson: string | null }) {
   const [left, setLeft] = useState<number | null>(null)
   const endRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => endRef.current?.scrollIntoView?.({ block: 'nearest' }), [turns])
+  useEffect(() => {
+    // Braces matter: Chrome 155 returns a Promise from scrollIntoView, and React would call it as a cleanup.
+    endRef.current?.scrollIntoView?.({ block: 'nearest' })
+  }, [turns])
 
   const send = async () => {
     const text = input.trim()
