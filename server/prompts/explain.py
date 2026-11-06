@@ -113,7 +113,7 @@ def build_explain_prompt(text: str, lang: str, style: str, known_terms: list[tup
             f"These terms from the text already have a card in Darby's glossary. Use these Arabic terms for them, and do not write cards for them:\n{hints}" if hints else "",
             f"Standard Arabic for other terms in the text (from Darby's term bank); you may write cards for them:\n{other_hints}" if other_hints else "",
             "explanation: 2 or 3 short sentences on what the whole text means and what the reader should do.",
-            "question: one multiple-choice question that checks the meaning of the most important technical term in the text, set in a Gulf workplace. "
+            "question: one multiple-choice question that checks the meaning of the most important technical term that appears in the text (it must be a word from the text), set in a Gulf workplace. "
             "options: 4 different English technical terms (for example Hallucination, Prompt, Token, Context), exactly one correct, never 'all of the above'. "
             "correct_index is its position from 0 to 3. why: one kind sentence saying why it is right.",
             "cards: 0 to 2 cards, only for important technical terms in the text that are NOT in the glossary list above, most important first. "
@@ -132,5 +132,5 @@ def build_explain_prompt(text: str, lang: str, style: str, known_terms: list[tup
     reminder = [REMINDER[lang]]
     if with_cards:
         reminder.append("No cards for: " + ", ".join(en for en, _ in with_cards) + ".")
-    reminder.append("The question's correct option is the most technical AI or software term in the text.")
+    reminder.append("The question's correct option is the most technical AI or software term that appears in the text itself, never a term the text does not use.")
     return system, wrap_learner_text(text) + "\n\n" + " ".join(reminder)

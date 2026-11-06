@@ -14,5 +14,6 @@ USD 100 shared credits. Every paid run is logged here (time in Qatar time, hardw
 | 2026-11-05 23:10 | Search vectors Job `darby-embed` (job 6aece2d1c78863f9c633914d): 24,000 terms, e5-small ONNX | cpu-upgrade, USD 0.03/h | about 2 | under 0.01 | 71 s |
 | 2026-11-06 01:54 | Cards Job `darby-cards` (job 6aed0936c78863f9c633aef4): rate 1,528 GIST candidates, write 100 cards | 1x A100 80 GB, USD 2.50/h, timeout 30 min | 5.7 | about 0.24 | Worked, but the selection tie-broke alphabetically; not used |
 | 2026-11-06 02:01 | Cards Job rerun (job 6aed0ac9c78863f9c633afe7): two scores, Gulf instruction | 1x A100 80 GB, USD 2.50/h, timeout 30 min | 7.1 | about 0.30 | 100 cards, 0 failures, in private staging for a look before publishing |
+| 2026-11-06 02:10 | Fanar endpoint woken by the first live Space call (cold start about 4 min), one explain verified end to end, then idle until scale to zero | 1x A10G, USD 1.00/h | about 20 (estimate) | about 0.33 | First text 2.8 s, full answer 12.3 s through the Space |
 
-Total spent: about USD 2.75 (endpoint estimates, four A100 Job runs, one CPU Job, Space hours; to be checked against the billing page)
+Total spent: about USD 3.10 (endpoint estimates, four A100 Job runs, one CPU Job, Space hours; to be checked against the billing page)
