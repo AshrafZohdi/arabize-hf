@@ -16,3 +16,11 @@ def test_lessons_from_content(tmp_path):
 def test_health_reports_lessons(tmp_path):
     c = TestClient(create_app(replace(load_settings(), web_dist=tmp_path, termbank_source="off")))
     assert c.get("/api/health").json()["lessons"] == {"count": 7, "source": "content"}
+
+
+def test_lessons_api(tmp_path):
+    c = TestClient(create_app(replace(load_settings(), web_dist=tmp_path, termbank_source="off")))
+    listed = c.get("/api/lessons").json()["lessons"]
+    assert [x["slug"] for x in listed] == [f"day-{i}" for i in range(1, 8)]
+    assert c.get("/api/lessons/day-3").json()["blocks"][0]["type"] == "hook"
+    assert c.get("/api/lessons/day-9").status_code == 404

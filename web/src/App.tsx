@@ -4,7 +4,8 @@ import { useI18n } from './i18n'
 import { useRouter } from './lib/router'
 import { Home } from './pages/Home'
 import { GlossaryPage } from './pages/Glossary'
-import { NotFound, TutorPage } from './pages/Simple'
+import { NotFound } from './pages/Simple'
+import { TutorPage } from './pages/Tutor'
 
 function Page({ path }: { path: string }) {
   if (path === '/') return <Home />

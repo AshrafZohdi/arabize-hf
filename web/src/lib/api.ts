@@ -125,3 +125,62 @@ export async function glossaryBrowse(domain: string, letter: string, offset: num
   if (!r.ok) throw new ApiError(r.status)
   return r.json()
 }
+
+export type LessonSummary = { slug: string; order: number; title: { en: string; ar: string; gulf?: string }; est_minutes?: number }
+
+export async function listLessons(): Promise<LessonSummary[]> {
+  const r = await fetch('/api/lessons')
+  if (!r.ok) throw new ApiError(r.status)
+  return (await r.json()).lessons
+}
+
+export type ChatTurn = { role: 'user' | 'assistant'; content: string }
+
+export async function streamTutor(
+  body: { messages: ChatTurn[]; lang: ExplainLang; lesson: string | null; session: string },
+  onToken: (t: string) => void,
+  signal?: AbortSignal,
+): Promise<{ done: boolean; state?: string; messagesLeft?: number }> {
+  const r = await fetch('/api/tutor', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), signal })
+  if (!r.ok || !r.body) throw new ApiError(r.status, Number(r.headers.get('retry-after')) || undefined)
+  const reader = r.body.getReader()
+  const decoder = new TextDecoder()
+  let buffer = ''
+  let end: { done: boolean; state?: string; messagesLeft?: number } = { done: false }
+  for (;;) {
+    const { done, value } = await reader.read()
+    if (done) break
+    buffer += decoder.decode(value, { stream: true })
+    let cut: number
+    while ((cut = buffer.indexOf('\n\n')) !== -1) {
+      const parsed = parseSseBlock(buffer.slice(0, cut))
+      buffer = buffer.slice(cut + 2)
+      if (!parsed) continue
+      const d = parsed.data as Record<string, unknown>
+      if (parsed.event === 'token') onToken(d.text as string)
+      else if (parsed.event === 'done') end = { done: true, messagesLeft: d.messages_left as number }
+      else if (parsed.event === 'unavailable') end = { done: false, state: d.state as string, messagesLeft: d.messages_left as number }
+    }
+  }
+  return end
+}
+
+export type PromptScores = {
+  scores: Record<'goal' | 'context' | 'format' | 'constraints', { score: number; feedback: string }>
+  total: number
+  summary: string
+  improved_prompt: string
+  source: string
+}
+
+export async function promptLabTask(slug: string, lang: ExplainLang): Promise<{ task: string }> {
+  const r = await fetch(`/api/prompt-lab/${slug}?lang=${lang}`)
+  if (!r.ok) throw new ApiError(r.status)
+  return r.json()
+}
+
+export async function scorePrompt(lesson: string, prompt: string, lang: ExplainLang): Promise<PromptScores> {
+  const r = await fetch('/api/prompt-lab', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ lesson, prompt, lang }) })
+  if (!r.ok) throw new ApiError(r.status, Number(r.headers.get('retry-after')) || undefined)
+  return r.json()
+}

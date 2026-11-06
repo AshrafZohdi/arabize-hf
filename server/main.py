@@ -10,7 +10,7 @@ from fastapi.responses import FileResponse
 from server.config import Settings, load_settings
 from server.glossary import load_glossary, load_glossary_from_hub
 from server.llm import LLM
-from server.routes import explain, glossary
+from server.routes import explain, glossary, lessons, tutor
 from server.lessons import load_lessons
 from server.termbank import TermBank, load_term_bank
 
@@ -31,6 +31,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         threading.Thread(target=_load_bank, args=(app, settings), daemon=True, name="termbank").start()
     app.include_router(explain.router)
     app.include_router(glossary.router)
+    app.include_router(tutor.router)
+    app.include_router(lessons.router)
 
     @app.get("/api/health")
     def health() -> dict:
