@@ -42,6 +42,13 @@ class PromptScore(BaseModel):
         return sum(getattr(self, c).score for c in CRITERIA)
 
 
+def prompt_language(text: str) -> str:
+    """'en' when the prompt has more Latin letters than Arabic ones, else 'ar'."""
+    arabic = sum("\u0600" <= ch <= "\u06ff" for ch in text)
+    latin = sum(ch.isascii() and ch.isalpha() for ch in text)
+    return "en" if latin > arabic else "ar"
+
+
 def build_scoring_prompt(task: str, learner_prompt: str, lang: str, rubric: dict[str, str] | None = None, example_good: str | None = None) -> tuple[str, str]:
     rubric_text = "\n".join(f"- {c}: {(rubric or {}).get(c, DEFAULT_RUBRIC[c])}" for c in CRITERIA)
     system = "\n\n".join(
@@ -65,6 +72,10 @@ def build_scoring_prompt(task: str, learner_prompt: str, lang: str, rubric: dict
             f"<good_example>{escape_learner_text(example_good)}</good_example>" if example_good else "",
             f"<learner_prompt>{escape_learner_text(learner_prompt)}</learner_prompt>",
             REMINDER[lang],
+            # Next to the learner text, where Fanar follows it: in tests it rewrote English prompts in Arabic.
+            "The learner wrote the prompt in English, so write improved_prompt in English (feedback and summary stay as above)."
+            if prompt_language(learner_prompt) == "en"
+            else "The learner wrote the prompt in Arabic, so write improved_prompt in Arabic.",
         ]
         if p
     )

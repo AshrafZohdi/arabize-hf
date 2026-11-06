@@ -104,3 +104,14 @@ def test_prompt_lab_scores(tmp_path):
 def test_prompt_lab_unavailable_and_bad_output(tmp_path):
     assert make(tmp_path, FakeClient(HTTPError(503))).post("/api/prompt-lab", json={"lesson": "day-2", "prompt": "x"}).status_code == 503
     assert make(tmp_path, FakeClient("no", "still no")).post("/api/prompt-lab", json={"lesson": "day-2", "prompt": "x"}).status_code == 502
+
+
+def test_improved_prompt_language_follows_the_learner():
+    from server.prompts.prompt_lab import build_scoring_prompt, prompt_language
+
+    assert prompt_language("write an email about the new leave policy") == "en"
+    assert prompt_language("اكتب إيميل عن سياسة الإجازات (policy)") == "ar"
+    _, user = build_scoring_prompt("task", "write an email about the leave policy", "gulf")
+    assert user.rstrip().endswith("write improved_prompt in English (feedback and summary stay as above).")
+    _, user = build_scoring_prompt("task", "اكتب إيميل", "gulf")
+    assert "write improved_prompt in Arabic" in user
