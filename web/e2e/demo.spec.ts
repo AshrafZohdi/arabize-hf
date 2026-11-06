@@ -47,7 +47,7 @@ test('tutor answers in Gulf Arabic and the prompt lab scores a prompt', async ({
   await page.goto('/tutor?tab=lab&lesson=day-2')
   await page.getByLabel('أمرك (برومبت)').fill('اكتب إيميل عن سياسة الإجازات الجديدة')
   await page.getByRole('button', { name: 'قيّم أمري' }).click()
-  await expect(page.getByText(/المجموع: \d+ من 20/)).toBeVisible({ timeout: 30_000 })
+  await expect(page.getByRole('img', { name: /المجموع: \d+ من 20/ })).toBeVisible({ timeout: 30_000 })
   await noHorizontalScroll(page)
 })
 

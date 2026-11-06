@@ -286,5 +286,7 @@
   "lesson.statPoints": "نقطة",
   "lesson.statStreak": "أيام ورا بعض",
   "lesson.statTerms": "مصطلحات الدرس",
-  "lesson.nextLesson": "الدرس الجاي"
+  "lesson.nextLesson": "الدرس الجاي",
+  "lab.scoreTitle": "التقييم",
+  "lab.outOf": "من 20"
 }

@@ -286,5 +286,7 @@
   "lesson.statPoints": "points",
   "lesson.statStreak": "days in a row",
   "lesson.statTerms": "lesson terms",
-  "lesson.nextLesson": "Next lesson"
+  "lesson.nextLesson": "Next lesson",
+  "lab.scoreTitle": "Your score",
+  "lab.outOf": "of 20"
 }

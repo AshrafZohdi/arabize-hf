@@ -1,4 +1,4 @@
-import { AlertTriangle, BookOpen, Check, Copy, Hourglass, Lightbulb, Loader2, MessageCircle, Send } from 'lucide-react'
+import { AlertTriangle, ArrowRight, BookOpen, Check, Copy, Hourglass, Layers, Lightbulb, Loader2, MessageCircle, Pencil, Send, Target, Trophy } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { PageTitle } from '../components/PageTitle'
 import { Segmented } from '../components/Segmented'
@@ -315,11 +315,15 @@ export function PromptLab({ lang, lesson }: { lang: ExplainLang; lesson: string 
 
   return (
     <section aria-labelledby="lab-h" className="card flex flex-col gap-4">
-      <h2 id="lab-h" className="m-0 font-display text-[22px] font-semibold text-maroon">
+      <h2 id="lab-h" className="m-0 flex items-center gap-2 font-display text-[22px] font-semibold text-maroon">
+        <Pencil aria-hidden="true" size={20} />
         {t('lab.title')}
       </h2>
-      <div className="rounded-2xl bg-surface-3 p-4">
-        <h3 className="m-0 mb-1 text-sm font-bold text-maroon">{t('lab.task')}</h3>
+      <div className="well p-4">
+        <h3 className="m-0 mb-1 flex items-center gap-1.5 text-sm font-bold text-maroon">
+          <Target aria-hidden="true" size={16} />
+          {t('lab.task')}
+        </h3>
         <p className="m-0 text-[17px]" dir="auto">
           {task}
         </p>
@@ -335,7 +339,7 @@ export function PromptLab({ lang, lesson }: { lang: ExplainLang; lesson: string 
         value={prompt}
         onChange={(e) => setPrompt(e.target.value)}
         placeholder={t('lab.placeholder')}
-        className="min-h-32 w-full resize-y rounded-2xl border border-line bg-surface-2 p-4 text-[17px] text-ink placeholder:text-muted focus:border-maroon"
+        className="min-h-32 w-full resize-y rounded-[20px] border-2 border-line bg-white/80 p-4 text-[17px] text-ink placeholder:text-muted focus:border-maroon"
       />
       <div>
         <button type="button" className="btn-primary" onClick={score} disabled={busy || !prompt.trim()}>
@@ -345,7 +349,10 @@ export function PromptLab({ lang, lesson }: { lang: ExplainLang; lesson: string 
               {t('lab.working')}
             </span>
           ) : (
-            t('lab.submit')
+            <span className="flex items-center gap-2">
+              {t('lab.submit')}
+              <ArrowRight aria-hidden="true" size={20} className="rtl:-scale-x-100" />
+            </span>
           )}
         </button>
       </div>
@@ -357,18 +364,32 @@ export function PromptLab({ lang, lesson }: { lang: ExplainLang; lesson: string 
       )}
       {result && (
         <div className="flex flex-col gap-4" aria-live="polite">
-          <p className="m-0 text-lg font-bold">{t('lab.total', { n: result.total })}</p>
-          <ul className="m-0 grid list-none grid-cols-1 gap-3 p-0 sm:grid-cols-2">
+          <div className="flex flex-wrap items-center gap-5">
+            <ScoreRing total={result.total} label={t('lab.total', { n: result.total })} outOf={t('lab.outOf')} />
+            <div className="min-w-0 flex-1">
+              <h3 className="m-0 flex items-center gap-2 font-display text-xl font-semibold">
+                <Trophy aria-hidden="true" size={19} className="text-maroon" />
+                {t('lab.scoreTitle')}
+              </h3>
+              <p className="m-0 mt-1 text-[17px] text-ink-2" dir="auto">
+                {result.summary}
+              </p>
+            </div>
+          </div>
+          <ul className="m-0 grid list-none grid-cols-1 gap-4 p-0 sm:grid-cols-2">
             {CRITERIA.map((c) => {
               const s = result.scores[c]
+              const tone = s.score >= 4 ? 'bg-success' : s.score >= 3 ? 'bg-gold' : 'bg-maroon'
               return (
-                <li key={c} className="rounded-2xl border border-line bg-surface-2 p-4">
+                <li key={c} className="well p-4">
                   <div className="flex items-center justify-between gap-2">
                     <span className="font-bold">{t(`lab.criterion.${c}` as MessageKey)}</span>
-                    <span className="font-bold text-maroon">{t('lab.scoreOf', { n: s.score })}</span>
+                    <span className="font-en font-bold">{t('lab.scoreOf', { n: s.score })}</span>
                   </div>
-                  <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-line" aria-hidden="true">
-                    <div className={`h-full rounded-full ${s.score >= 4 ? 'bg-success' : s.score >= 3 ? 'bg-gold' : 'bg-maroon'}`} style={{ width: `${s.score * 20}%` }} />
+                  <div className="mt-2 grid grid-cols-5 gap-1.5" aria-hidden="true">
+                    {[1, 2, 3, 4, 5].map((n) => (
+                      <span key={n} className={`h-2.5 rounded-full ${n <= s.score ? tone : 'bg-surface-3'}`} />
+                    ))}
                   </div>
                   <p className="mt-2 mb-0 text-[15px] text-ink-2" dir="auto">
                     {s.feedback}
@@ -377,12 +398,12 @@ export function PromptLab({ lang, lesson }: { lang: ExplainLang; lesson: string 
               )
             })}
           </ul>
-          <p className="m-0 text-[17px]" dir="auto">
-            {result.summary}
-          </p>
           <div className="rounded-2xl border border-success bg-success-soft p-4">
             <div className="mb-2 flex items-center justify-between gap-2">
-              <h3 className="m-0 text-base font-bold text-success-text">{t('lab.improved')}</h3>
+              <h3 className="m-0 flex items-center gap-1.5 text-base font-bold text-success-text">
+                <Layers aria-hidden="true" size={17} />
+                {t('lab.improved')}
+              </h3>
               <button type="button" onClick={copy} className="flex min-h-11 cursor-pointer items-center gap-1.5 rounded-xl border border-success bg-white px-3 font-bold text-success-text">
                 {copied ? <Check aria-hidden="true" size={16} /> : <Copy aria-hidden="true" size={16} />}
                 {copied ? t('lab.copied') : t('lab.copy')}
@@ -395,5 +416,23 @@ export function PromptLab({ lang, lesson }: { lang: ExplainLang; lesson: string 
         </div>
       )}
     </section>
+  )
+}
+
+/** The prompt score out of 20 as a ring; the number is the label. */
+function ScoreRing({ total, label, outOf }: { total: number; label: string; outOf: string }) {
+  const r = 40
+  const c = 2 * Math.PI * r
+  return (
+    <div role="img" aria-label={label} className="relative size-28 shrink-0">
+      <svg viewBox="0 0 100 100" className="size-full -rotate-90 rtl:scale-y-[-1]" aria-hidden="true">
+        <circle cx="50" cy="50" r={r} fill="var(--white)" stroke="var(--surface-3)" strokeWidth="10" />
+        <circle cx="50" cy="50" r={r} fill="none" stroke="var(--maroon)" strokeWidth="10" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - total / 20)} />
+      </svg>
+      <span aria-hidden="true" className="absolute inset-0 flex flex-col items-center justify-center leading-none">
+        <span className="font-en text-3xl font-bold">{total}</span>
+        <span className="mt-1 text-xs text-ink-2">{outOf}</span>
+      </span>
+    </div>
   )
 }
