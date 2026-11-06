@@ -24,7 +24,9 @@ export default defineConfig({
   webServer: process.env.BASE_URL
     ? undefined
     : {
-        command: 'cd .. && DEMO_MODE=1 DARBY_TERMBANK=off MCP_ENABLED=0 .venv/bin/uvicorn server.main:app --port 7870',
+        // Image features on with unreachable endpoints: their buttons and tabs render, and any call fails as "waking".
+        command:
+          'cd .. && DEMO_MODE=1 DARBY_TERMBANK=off MCP_ENABLED=0 IMAGE_ENABLED=1 ORYX_IVU_URL=http://127.0.0.1:9 ORYX_IG_URL=http://127.0.0.1:9 .venv/bin/uvicorn server.main:app --port 7870',
         url: 'http://127.0.0.1:7870/api/health',
         reuseExistingServer: false,
         timeout: 60_000,

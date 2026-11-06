@@ -106,6 +106,17 @@ test('lesson: picks up where you left off, and the step list jumps back', async 
   await expect(page.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '1')
 })
 
+test('image features show when switched on and fail gently without their endpoints', async ({ page }) => {
+  await page.goto('/')
+  await expect(page.getByRole('button', { name: 'صوّر أو ارفع صورة' })).toBeVisible()
+  await page.goto('/tutor?tab=image')
+  await expect(page.getByRole('heading', { name: 'مختبر أوامر الصور' })).toBeVisible()
+  await page.getByLabel('أمرك للصورة').fill('مكتب في الدوحة')
+  await page.getByRole('button', { name: 'قيّم أمري' }).click()
+  await expect(page.getByRole('alert')).toBeVisible()
+  await noHorizontalScroll(page)
+})
+
 test('English interface switches to LTR', async ({ page }) => {
   await page.goto('/')
   await page.getByRole('button', { name: /English/ }).click()

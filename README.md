@@ -14,6 +14,10 @@ models:
   - Xenova/mms-tts-ara
   - facebook/mms-tts-ara
   - onnx-community/Kokoro-82M-v1.0-ONNX
+  - QCRI/Fanar-2-Oryx-IVU
+  - nuvais/Fanar-2-Oryx-IVU-Q8_0-GGUF
+  - QCRI/Fanar-2-Oryx-IG
+  - black-forest-labs/FLUX.1-schnell
 datasets:
   - nuvais/darby-term-bank
   - nuvais/darby-ai-glossary-ar-en
@@ -112,6 +116,8 @@ Every model call goes through `server/llm.py`: reasoning switched off through Fa
 | [intfloat/multilingual-e5-small](https://huggingface.co/intfloat/multilingual-e5-small) | Search vectors | MIT |
 | [facebook/mms-tts-ara](https://huggingface.co/facebook/mms-tts-ara) via [Xenova/mms-tts-ara](https://huggingface.co/Xenova/mms-tts-ara) | Arabic speech | **CC BY-NC 4.0: non-commercial, fine for this demo; a commercial launch needs another Arabic voice** |
 | [Kokoro-82M](https://huggingface.co/hexgrad/Kokoro-82M) via [onnx-community/Kokoro-82M-v1.0-ONNX](https://huggingface.co/onnx-community/Kokoro-82M-v1.0-ONNX) | English speech | Apache 2.0 |
+| [QCRI/Fanar-2-Oryx-IVU](https://huggingface.co/QCRI/Fanar-2-Oryx-IVU) via [nuvais/Fanar-2-Oryx-IVU-Q8_0-GGUF](https://huggingface.co/nuvais/Fanar-2-Oryx-IVU-Q8_0-GGUF) (from mradermacher's quantization) | Photo explain: reads the English text in a photo (behind `IMAGE_ENABLED`) | Apache 2.0 |
+| [QCRI/Fanar-2-Oryx-IG](https://huggingface.co/QCRI/Fanar-2-Oryx-IG) on [black-forest-labs/FLUX.1-schnell](https://huggingface.co/black-forest-labs/FLUX.1-schnell) | Draws image prompts in the image prompt lab (behind `IMAGE_ENABLED`, endpoint not created yet) | Apache 2.0 (FLUX.1-schnell is gated: accept its terms first) |
 | [Jerry999/multilingual-terminology](https://huggingface.co/datasets/Jerry999/multilingual-terminology) (GIST, [arXiv 2412.18367](https://arxiv.org/abs/2412.18367)) | Human Arabic for about 4,800 AI terms | Apache 2.0 |
 | [ymoslem/MS-Glossary-EN-AR](https://huggingface.co/datasets/ymoslem/MS-Glossary-EN-AR) | About 22,000 software terms (Microsoft localisation) | Not stated on its card; used for the hackathon and referenced, never re-uploaded |
 

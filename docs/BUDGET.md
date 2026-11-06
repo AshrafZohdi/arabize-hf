@@ -18,5 +18,7 @@ USD 100 shared credits. Every paid run is logged here (time in Qatar time, hardw
 | 2026-11-06 15:55 | Arabic term audio Job `darby-audio-ar` (job 6aedce470e0338d1bb814bae): 140 cards, mms-tts-ara ONNX | cpu-upgrade, USD 0.03/h | 4.1 | under 0.01 | Written into the bucket `FayezAlkh12/darby-media` |
 | 2026-11-06 15:55 | English term audio Job `darby-audio-en`: first run failed (module path), rerun (job 6aedceb3c78863f9c6344f3a) 140 cards with kokoro-js | cpu-upgrade, USD 0.03/h | 15 | under 0.01 | Same engine and voice as the browser |
 | 2026-11-06 12:30 | Fanar endpoint awake for live tutor and prompt lab tests and recordings, then idle until scale to zero | 1x A10G, USD 1.00/h | about 30 (estimate) | about 0.50 | |
+| 2026-11-06 20:55 | Copy Job: Q8_0 GGUF and vision projector of Fanar-2-Oryx-IVU into `nuvais/Fanar-2-Oryx-IVU-Q8_0-GGUF` (job 6aee1449c78863f9c634e6ed), sha256 checked | cpu-basic | about 6 | under 0.01 | |
+| 2026-11-06 21:05 | Endpoint `FayezAlkh12/darby-oryx-ivu` created for photo explain (Fanar-2-Oryx-IVU Q8_0, llama.cpp with `--mmproj`) | 1x L4, about USD 0.80/h, scale to zero after 15 min | first boot and tests | about 0.30 (estimate) | Approved by the team (plan point 2) |
 
 Total spent: about USD 3.70 (endpoint estimates, four A100 Job runs, one CPU Job, Space hours; to be checked against the billing page)

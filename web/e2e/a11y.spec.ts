@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test'
 import { todaysWord } from './helpers'
 
 // WCAG 2.2 AA checks with axe on every page, Arabic interface. Serious and critical issues fail the test.
-const PAGES = ['/', '/glossary', '/tutor', '/tutor?tab=lab&lesson=day-2', '/lesson/day-1', '/no-such-page']
+const PAGES = ['/', '/glossary', '/tutor', '/tutor?tab=lab&lesson=day-2', '/lesson/day-1', '/no-such-page', '/tutor?tab=image']
 
 async function seriousIssues(page: import('@playwright/test').Page) {
   const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze()

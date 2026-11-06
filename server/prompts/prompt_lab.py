@@ -49,7 +49,10 @@ def prompt_language(text: str) -> str:
     return "en" if latin > arabic else "ar"
 
 
-def build_scoring_prompt(task: str, learner_prompt: str, lang: str, rubric: dict[str, str] | None = None, example_good: str | None = None) -> tuple[str, str]:
+def build_scoring_prompt(
+    task: str, learner_prompt: str, lang: str, rubric: dict[str, str] | None = None, example_good: str | None = None, improved_in: str | None = None
+) -> tuple[str, str]:
+    """improved_in="en" forces an English improved prompt (the image model reads English); otherwise it follows the learner."""
     rubric_text = "\n".join(f"- {c}: {(rubric or {}).get(c, DEFAULT_RUBRIC[c])}" for c in CRITERIA)
     system = "\n\n".join(
         [
@@ -74,7 +77,9 @@ def build_scoring_prompt(task: str, learner_prompt: str, lang: str, rubric: dict
             f"<learner_prompt>{escape_learner_text(learner_prompt)}</learner_prompt>",
             REMINDER[lang],
             # Next to the learner text, where Fanar follows it: in tests it rewrote English prompts in Arabic.
-            "The learner wrote the prompt in English, so write improved_prompt in English (feedback and summary stay as above)."
+            "Write improved_prompt in English, because the image model only reads English (feedback and summary stay as above)."
+            if improved_in == "en"
+            else "The learner wrote the prompt in English, so write improved_prompt in English (feedback and summary stay as above)."
             if prompt_language(learner_prompt) == "en"
             else "The learner wrote the prompt in Arabic, so write improved_prompt in Arabic.",
         ]

@@ -1,0 +1,6 @@
+diffusers==0.37.1
+peft==0.18.1
+transformers>=4.48
+accelerate>=1.2
+sentencepiece
+protobuf

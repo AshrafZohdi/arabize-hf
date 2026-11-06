@@ -2,6 +2,7 @@
 
 import logging
 import threading
+from dataclasses import replace
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
@@ -12,7 +13,7 @@ from server.config import Settings, load_settings
 from server.glossary import load_glossary, load_glossary_from_hub
 from server.llm import LLM
 from server.game import Game
-from server.routes import explain, game, glossary, lessons, tutor, voice
+from server.routes import explain, game, glossary, images, lessons, tutor, vision, voice
 from server.lessons import load_lessons
 from server.termbank import TermBank, apply_curated, load_term_bank
 
@@ -26,6 +27,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     # Compress text (JS, CSS, JSON); Starlette leaves text/event-stream alone, so streamed answers stay live.
     app.add_middleware(GZipMiddleware, minimum_size=1024)
     app.state.llm = LLM(settings)
+    # Photo explain: the same client (waking state, rate limit, JSON checks) pointed at the Oryx-IVU endpoint.
+    app.state.vision = (
+        LLM(replace(settings, fanar_endpoint_url=settings.oryx_ivu_url, fanar_model="QCRI/Fanar-2-Oryx-IVU"))
+        if settings.image_enabled and settings.oryx_ivu_url
+        else None
+    )
     app.state.glossary = load_glossary(settings.content_dir)
     # Our glossary straight away; the full bank replaces it when the background load finishes.
     app.state.termbank = TermBank.from_rows(_glossary_rows(app.state.glossary), {"steps": {"sources": "loading"}})
@@ -47,6 +54,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(lessons.router)
     app.include_router(game.router)
     app.include_router(voice.router)
+    app.include_router(vision.router)
+    app.include_router(images.router)
 
     @app.get("/api/health")
     def health() -> dict:
@@ -56,6 +65,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "demo_mode": settings.demo_mode,
             "llm": app.state.llm.status(),
             "voice_enabled": settings.voice_enabled,
+            "image": {
+                "read": app.state.vision is not None,
+                "read_state": app.state.vision.status() if app.state.vision is not None else None,
+                "generate": bool(settings.image_enabled and settings.oryx_ig_url),
+            },
             "voice_recordings": len(app.state.audio_manifest),
             "termbank": {k: v for k, v in app.state.termbank.status.items()},
             "semantic_search": app.state.embedder is not None and app.state.termbank.vectors is not None,

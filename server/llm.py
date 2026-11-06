@@ -453,8 +453,9 @@ class LLM:
         max_tokens: int,
         fixture_input: dict[str, Any] | None = None,
         temperature: float = JSON_TEMPERATURE,
+        images: list[str] | None = None,
     ) -> JsonResult[T]:
-        """Structured answer validated against `schema`.
+        """Structured answer validated against `schema`. `images` are data URLs sent with the user turn (vision models).
 
         Raises LLMUnavailable (no endpoint and no fixture) or LLMBadOutput (two invalid replies);
         the route then shows the waking-up state or the glossary-only answer.
@@ -467,7 +468,10 @@ class LLM:
                 raise LLMUnavailable(offline)
             return JsonResult(schema.model_validate(fixture), "fixture", 0, 0)
 
-        messages = [{"role": "system", "content": f"{system}\n\n{json_instruction(schema)}"}, {"role": "user", "content": user}]
+        content: Any = user
+        if images:
+            content = [*({"type": "image_url", "image_url": {"url": u}} for u in images), {"type": "text", "text": user}]
+        messages = [{"role": "system", "content": f"{system}\n\n{json_instruction(schema)}"}, {"role": "user", "content": content}]
         error = ""
         for attempt in (1, 2):
             try:

@@ -1,4 +1,4 @@
-import { AlertTriangle, ArrowRight, BookOpen, Check, Copy, Hourglass, Layers, Lightbulb, Loader2, MessageCircle, Pencil, Send, Target, Trophy } from 'lucide-react'
+import { AlertTriangle, ArrowRight, BookOpen, Image as ImageIcon, Check, Copy, Hourglass, Layers, Lightbulb, Loader2, MessageCircle, Pencil, Send, Target, Trophy } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { PageTitle } from '../components/PageTitle'
 import { Segmented } from '../components/Segmented'
@@ -9,15 +9,22 @@ import { HighlightedText } from '../components/explain/HighlightedText'
 import { ApiError, findTerms, glossaryCards, listLessons, promptLabTask, scorePrompt, streamTutor, type ChatTurn, type LessonSummary, type PromptScores, type TermMatch } from '../lib/api'
 import { useExplainLang, type ExplainLang } from '../lib/explainLang'
 import { Link } from '../lib/router'
+import { imageFeatures } from '../lib/image'
 import { tutorSession } from '../lib/session'
 
-type Tab = 'chat' | 'lab'
+type Tab = 'chat' | 'lab' | 'image'
 
 export function TutorPage() {
   const { t, lang: uiLang } = useI18n()
   const [lang, setLang] = useExplainLang()
   const params = new URLSearchParams(window.location.search)
-  const [tab, setTab] = useState<Tab>(params.get('tab') === 'lab' ? 'lab' : 'chat')
+  const asked = params.get('tab')
+  const [tab, setTab] = useState<Tab>(asked === 'lab' || asked === 'image' ? asked : 'chat')
+  // The image tab appears only when the Space has image generation switched on.
+  const [drawOn, setDrawOn] = useState(false)
+  useEffect(() => {
+    imageFeatures().then((f) => setDrawOn(f.generate))
+  }, [])
   const [lessons, setLessons] = useState<LessonSummary[]>([])
   const [lesson, setLesson] = useState<string>(params.get('lesson') ?? 'day-2')
 
@@ -41,11 +48,12 @@ export function TutorPage() {
           options={[
             { value: 'chat' as Tab, label: t('tutor.tabChat') },
             { value: 'lab' as Tab, label: t('tutor.tabLab') },
+            ...(drawOn ? [{ value: 'image' as Tab, label: t('tutor.tabImage') }] : []),
           ]}
           value={tab}
           onChange={setTab}
         />
-        <label className="flex w-full max-w-[420px] min-w-0 flex-col gap-1 font-semibold text-ink-2 sm:w-auto">
+        <label className={`w-full max-w-[420px] min-w-0 flex-col gap-1 font-semibold text-ink-2 sm:w-auto ${tab === 'image' ? 'hidden' : 'flex'}`}>
           {t('tutor.lessonLabel')}
           <select
             value={lesson}
@@ -61,7 +69,13 @@ export function TutorPage() {
           </select>
         </label>
       </div>
-      {tab === 'chat' ? <Chat lang={lang} lesson={lesson || null} /> : <PromptLab lang={lang} lesson={lesson || 'day-2'} />}
+      {tab === 'chat' ? (
+        <Chat lang={lang} lesson={lesson || null} />
+      ) : tab === 'image' && drawOn ? (
+        <ImageLab lang={lang} />
+      ) : (
+        <PromptLab lang={lang} lesson={lesson || 'day-2'} />
+      )}
     </>
   )
 }
@@ -288,7 +302,6 @@ export function PromptLab({ lang, lesson }: { lang: ExplainLang; lesson: string 
   const [busy, setBusy] = useState(false)
   const [result, setResult] = useState<PromptScores | null>(null)
   const [error, setError] = useState<MessageKey | null>(null)
-  const [copied, setCopied] = useState(false)
 
   // A new lesson is a new task, so the old score goes; switching the language only re-labels the task.
   useEffect(() => {
@@ -328,16 +341,6 @@ export function PromptLab({ lang, lesson }: { lang: ExplainLang; lesson: string 
     }
   }
 
-  const copy = async () => {
-    if (!result) return
-    try {
-      await navigator.clipboard.writeText(result.improved_prompt)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    } catch {
-      // Clipboard can be blocked; the text stays selectable.
-    }
-  }
 
   return (
     <section aria-labelledby="lab-h" className="card flex flex-col gap-4">
@@ -393,58 +396,75 @@ export function PromptLab({ lang, lesson }: { lang: ExplainLang; lesson: string 
           {t(error)}
         </p>
       )}
-      {result && (
-        <div className="flex flex-col gap-4" aria-live="polite">
-          <div className="flex flex-wrap items-center gap-5">
-            <ScoreRing total={result.total} label={t('lab.total', { n: result.total })} outOf={t('lab.outOf')} />
-            <div className="min-w-0 flex-1">
-              <h3 className="m-0 flex items-center gap-2 font-display text-xl font-semibold">
-                <Trophy aria-hidden="true" size={19} className="text-maroon" />
-                {t('lab.scoreTitle')}
-              </h3>
-              <p className="m-0 mt-1 text-[17px] text-ink-2" dir="auto">
-                {result.summary}
-              </p>
-            </div>
-          </div>
-          <ul className="m-0 grid list-none grid-cols-1 gap-4 p-0 sm:grid-cols-2">
-            {CRITERIA.map((c) => {
-              const s = result.scores[c]
-              const tone = s.score >= 4 ? 'bg-success' : s.score >= 3 ? 'bg-gold' : 'bg-maroon'
-              return (
-                <li key={c} className="well p-4">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="font-bold">{t(`lab.criterion.${c}` as MessageKey)}</span>
-                    <span className="font-en font-bold">{t('lab.scoreOf', { n: s.score })}</span>
-                  </div>
-                  <div className="mt-2 grid grid-cols-5 gap-1.5" aria-hidden="true">
-                    {[1, 2, 3, 4, 5].map((n) => (
-                      <span key={n} className={`h-2.5 rounded-full ${n <= s.score ? tone : 'bg-surface-3'}`} />
-                    ))}
-                  </div>
-                  <p className="mt-2 mb-0 text-[15px] text-ink-2" dir="auto">
-                    {s.feedback}
-                  </p>
-                </li>
-              )
-            })}
-          </ul>
-          <div className="rounded-2xl border border-success bg-success-soft p-4">
-            <div className="mb-2 flex items-center justify-between gap-2">
-              <h3 className="m-0 flex items-center gap-1.5 text-base font-bold text-success-text">
-                <Layers aria-hidden="true" size={17} />
-                {t('lab.improved')}
-              </h3>
-              <button type="button" onClick={copy} className="flex min-h-11 cursor-pointer items-center gap-1.5 rounded-xl border border-success bg-white px-3 font-bold text-success-text">
-                {copied ? <Check aria-hidden="true" size={16} /> : <Copy aria-hidden="true" size={16} />}
-                {copied ? t('lab.copied') : t('lab.copy')}
-              </button>
-            </div>
-            <Translatable text={result.improved_prompt} lang={lang} className="text-[17px]" />
-          </div>
-        </div>
-      )}
+      {result && <ScoreView result={result} lang={lang} criterion="lab.criterion" />}
     </section>
+  )
+}
+
+/** A prompt's score: the ring out of 20, five segments per criterion, the summary and the improved prompt. */
+export function ScoreView({ result, lang, criterion, footer }: { result: PromptScores; lang: ExplainLang; criterion: 'lab.criterion' | 'image.criterion'; footer?: React.ReactNode }) {
+  const { t } = useI18n()
+  const [copied, setCopied] = useState(false)
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(result.improved_prompt)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      // Clipboard can be blocked; the text stays selectable.
+    }
+  }
+  return (
+    <div className="flex flex-col gap-4" aria-live="polite">
+      <div className="flex flex-wrap items-center gap-5">
+        <ScoreRing total={result.total} label={t('lab.total', { n: result.total })} outOf={t('lab.outOf')} />
+        <div className="min-w-0 flex-1">
+          <h3 className="m-0 flex items-center gap-2 font-display text-xl font-semibold">
+            <Trophy aria-hidden="true" size={19} className="text-maroon" />
+            {t('lab.scoreTitle')}
+          </h3>
+          <p className="m-0 mt-1 text-[17px] text-ink-2" dir="auto">
+            {result.summary}
+          </p>
+        </div>
+      </div>
+      <ul className="m-0 grid list-none grid-cols-1 gap-4 p-0 sm:grid-cols-2">
+        {CRITERIA.map((c) => {
+          const s = result.scores[c]
+          const tone = s.score >= 4 ? 'bg-success' : s.score >= 3 ? 'bg-gold' : 'bg-maroon'
+          return (
+            <li key={c} className="well p-4">
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-bold">{t(`${criterion}.${c}` as MessageKey)}</span>
+                <span className="font-en font-bold">{t('lab.scoreOf', { n: s.score })}</span>
+              </div>
+              <div className="mt-2 grid grid-cols-5 gap-1.5" aria-hidden="true">
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <span key={n} className={`h-2.5 rounded-full ${n <= s.score ? tone : 'bg-surface-3'}`} />
+                ))}
+              </div>
+              <p className="mt-2 mb-0 text-[15px] text-ink-2" dir="auto">
+                {s.feedback}
+              </p>
+            </li>
+          )
+        })}
+      </ul>
+      <div className="rounded-2xl border border-success bg-success-soft p-4">
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <h3 className="m-0 flex items-center gap-1.5 text-base font-bold text-success-text">
+            <Layers aria-hidden="true" size={17} />
+            {t('lab.improved')}
+          </h3>
+          <button type="button" onClick={copy} className="flex min-h-11 cursor-pointer items-center gap-1.5 rounded-xl border border-success bg-white px-3 font-bold text-success-text">
+            {copied ? <Check aria-hidden="true" size={16} /> : <Copy aria-hidden="true" size={16} />}
+            {copied ? t('lab.copied') : t('lab.copy')}
+          </button>
+        </div>
+        <Translatable text={result.improved_prompt} lang={lang} className="text-[17px]" />
+        {footer}
+      </div>
+    </div>
   )
 }
 
@@ -463,5 +483,143 @@ function ScoreRing({ total, label, outOf }: { total: number; label: string; outO
         <span className="mt-1 text-xs text-ink-2">{outOf}</span>
       </span>
     </div>
+  )
+}
+
+/** Image prompts: Fanar scores the learner's image prompt and writes a better one in English; Fanar-2-Oryx-IG draws it. */
+function ImageLab({ lang }: { lang: ExplainLang }) {
+  const { t } = useI18n()
+  const [task, setTask] = useState<{ task: string; task_en: string } | null>(null)
+  const [prompt, setPrompt] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [result, setResult] = useState<PromptScores | null>(null)
+  const [error, setError] = useState<MessageKey | null>(null)
+  const [drawing, setDrawing] = useState(false)
+  const [image, setImage] = useState<string | null>(null)
+  const [drawNote, setDrawNote] = useState<string | null>(null)
+
+  useEffect(() => {
+    fetch(`/api/image-lab/task?lang=${lang}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then(setTask)
+      .catch(() => {})
+  }, [lang])
+
+  const score = async () => {
+    if (!prompt.trim()) return
+    setBusy(true)
+    setError(null)
+    setResult(null)
+    setImage(null)
+    try {
+      const r = await fetch('/api/image-lab', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ prompt, lang }) })
+      if (!r.ok) throw new ApiError(r.status)
+      setResult(await r.json())
+    } catch (e) {
+      setError(e instanceof ApiError && e.status === 503 ? 'lab.unavailable' : e instanceof ApiError && e.status === 429 ? 'tutor.limit' : 'lab.failed')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const draw = async () => {
+    if (!result) return
+    setDrawing(true)
+    setDrawNote(null)
+    try {
+      const r = await fetch('/api/generate-image', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ prompt: result.improved_prompt, lang }) })
+      const body = await r.json().catch(() => ({}))
+      if (r.ok) setImage(body.image)
+      else if (r.status === 422 && body.reason) setDrawNote(body.reason)
+      else if (r.status === 503) setDrawNote(t('image.waking'))
+      else if (r.status === 429) setDrawNote(t('tutor.limit'))
+      else setDrawNote(t('image.failed'))
+    } catch {
+      setDrawNote(t('image.failed'))
+    } finally {
+      setDrawing(false)
+    }
+  }
+
+  return (
+    <section aria-labelledby="image-h" className="card flex flex-col gap-4">
+      <h2 id="image-h" className="m-0 flex items-center gap-2 font-display text-[22px] font-semibold text-maroon">
+        <ImageIcon aria-hidden="true" size={20} />
+        {t('image.title')}
+      </h2>
+      {task && (
+        <div className="well p-4">
+          <h3 className="m-0 mb-1 flex items-center gap-1.5 text-sm font-bold text-maroon">
+            <Target aria-hidden="true" size={16} />
+            {t('lab.task')}
+          </h3>
+          <p className="m-0 text-[17px]" dir="auto">
+            {task.task}
+          </p>
+          {lang !== 'en' && (
+            <p dir="ltr" lang="en" className="m-0 mt-2 border-t border-line pt-2 font-en text-[15px] text-ink-2">
+              {task.task_en}
+            </p>
+          )}
+        </div>
+      )}
+      <label htmlFor="image-input" className="font-semibold text-ink-2">
+        {t('image.yourPrompt')}
+      </label>
+      <textarea
+        id="image-input"
+        dir="auto"
+        rows={4}
+        maxLength={2000}
+        value={prompt}
+        onChange={(e) => setPrompt(e.target.value)}
+        placeholder={t('image.placeholder')}
+        className="min-h-28 w-full resize-y rounded-[20px] border-2 border-line bg-white/80 p-4 text-[17px] text-ink placeholder:text-muted focus:border-maroon"
+      />
+      <div>
+        <button type="button" className="btn-primary" onClick={score} disabled={busy || !prompt.trim()}>
+          <span className="flex items-center gap-2">
+            {busy && <Loader2 aria-hidden="true" size={20} className="animate-spin" />}
+            {busy ? t('lab.working') : t('lab.submit')}
+          </span>
+        </button>
+      </div>
+      {error && (
+        <p role="alert" className="m-0 flex items-center gap-2 rounded-2xl bg-maroon-soft p-3 font-semibold text-maroon-text">
+          <AlertTriangle aria-hidden="true" size={18} />
+          {t(error)}
+        </p>
+      )}
+      {result && (
+        <ScoreView
+          result={result}
+          lang={lang}
+          criterion="image.criterion"
+          footer={
+            <div className="mt-3 flex flex-col gap-3">
+              <div>
+                <button type="button" className="btn-primary" onClick={draw} disabled={drawing}>
+                  <span className="flex items-center gap-2">
+                    {drawing ? <Loader2 aria-hidden="true" size={20} className="animate-spin" /> : <ImageIcon aria-hidden="true" size={20} />}
+                    {drawing ? t('image.drawing') : t('image.draw')}
+                  </span>
+                </button>
+              </div>
+              {drawNote && (
+                <p role="status" className="m-0 text-ink-2">
+                  {drawNote}
+                </p>
+              )}
+              {image && (
+                <figure className="m-0">
+                  <img src={image} alt={t('image.alt', { p: result.improved_prompt })} className="w-full max-w-[560px] rounded-2xl" width={768} height={768} />
+                  <figcaption className="mt-1 text-[13px] text-ink-2">{t('image.caption')}</figcaption>
+                </figure>
+              )}
+            </div>
+          }
+        />
+      )}
+    </section>
   )
 }
