@@ -23,10 +23,12 @@ function playUrl(url: string): Promise<void> {
   })
 }
 
-async function exists(url: string): Promise<boolean> {
+/** A recording exists when the server redirects to the bucket. GET (FastAPI answers HEAD with 405) without following
+ * the redirect, so nothing is downloaded twice. */
+async function hasRecording(url: string): Promise<boolean> {
   try {
-    const r = await fetch(url, { method: 'HEAD', redirect: 'manual' })
-    return r.type === 'opaqueredirect' || r.ok || r.status === 302
+    const r = await fetch(url, { redirect: 'manual' })
+    return r.type === 'opaqueredirect' || r.status === 302
   } catch {
     return false
   }
@@ -45,7 +47,7 @@ function loadKokoro(): Promise<Kokoro> {
 export async function speak(lang: 'en' | 'ar', text: string, termId?: string | null): Promise<void> {
   if (termId) {
     const url = `/api/tts/term/${encodeURIComponent(termId)}?lang=${lang}`
-    if (lang === 'ar' || (await exists(url))) return playUrl(url)
+    if (lang === 'ar' || (await hasRecording(url))) return playUrl(url)
   }
   if (lang === 'ar') return playUrl(`/api/tts?lang=ar&text=${encodeURIComponent(text)}`)
   const tts = await loadKokoro()
