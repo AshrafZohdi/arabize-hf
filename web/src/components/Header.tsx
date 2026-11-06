@@ -68,7 +68,8 @@ function LangToggle({ lang, setLang, label }: { lang: UiLang; setLang: (l: UiLan
     <button
       type="button"
       onClick={() => setLang(other)}
-      aria-label={`${label}: ${other === 'en' ? 'English' : 'العربية'}`}
+      // The name starts with the visible text (WCAG 2.5.3, so voice control users can say what they see).
+      aria-label={`${other === 'en' ? 'EN' : 'ع'}, ${label}: ${other === 'en' ? 'English' : 'العربية'}`}
       lang={other}
       className="flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-full border border-line bg-white px-3 font-bold text-ink-2 hover:bg-surface-3"
     >
