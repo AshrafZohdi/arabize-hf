@@ -1,7 +1,7 @@
 import { Loader2, Volume2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useI18n } from '../i18n'
-import { speak, voiceEnabled } from '../lib/voice'
+import { preloadTerm, speak, voiceEnabled } from '../lib/voice'
 
 /** Two listen buttons: the English term and the Arabic term. Hidden when voice is off. */
 export function ListenButtons({ en, ar, termId }: { en: string; ar: string; termId?: string | null }) {
@@ -13,6 +13,9 @@ export function ListenButtons({ en, ar, termId }: { en: string; ar: string; term
   useEffect(() => {
     voiceEnabled().then(setOn)
   }, [])
+  useEffect(() => {
+    if (termId) preloadTerm(termId)
+  }, [termId])
   if (!on) return null
 
   const play = async (lang: 'en' | 'ar') => {

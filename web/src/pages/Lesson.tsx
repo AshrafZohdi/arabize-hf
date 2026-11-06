@@ -1,5 +1,5 @@
 import type React from 'react'
-import { ArrowDown, ArrowRight, ArrowUp, BookOpen, Check, Clock, Dumbbell, Flame, Layers, Lightbulb, MessageSquare, Pencil, Star, Target, Trophy, X, type LucideIcon } from 'lucide-react'
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, BookOpen, Check, Clock, Dumbbell, Flame, Layers, Lightbulb, MessageSquare, Pencil, Star, Target, Trophy, X, type LucideIcon } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Segmented } from '../components/Segmented'
 import { useI18n, type MessageKey } from '../i18n'
@@ -44,6 +44,8 @@ export function LessonPage({ slug }: { slug: string }) {
   const [at, setAt] = useState(0)
   const [missed, setMissed] = useState<Step[]>([])
   const [answered, setAnswered] = useState(false)
+  // The furthest step reached: going back never locks a step the learner already passed.
+  const [reached, setReached] = useState(0)
   const [finished, setFinished] = useState<number | null>(null)
   const [termOpen, setTermOpen] = useState<string | null>(null)
   const top = useRef<HTMLHeadingElement>(null)
@@ -81,7 +83,7 @@ export function LessonPage({ slug }: { slug: string }) {
 
   const step = steps[at]
   const isExercise = step.kind === 'exercise'
-  const canNext = !isExercise || answered
+  const canNext = !isExercise || answered || at < reached
   const title = pick(lesson.title, lang)
 
   const next = () => {
@@ -97,6 +99,13 @@ export function LessonPage({ slug }: { slug: string }) {
       setMissed([])
     }
     setAt(target)
+    setReached((r) => Math.max(r, target))
+    setAnswered(false)
+  }
+
+  const back = () => {
+    if (at === 0) return
+    setAt(at - 1)
     setAnswered(false)
   }
 
@@ -104,7 +113,7 @@ export function LessonPage({ slug }: { slug: string }) {
     setAnswered(true)
     if (step.kind !== 'exercise') return
     if (correct && firstTry && !step.retry) award(`ex:${lesson.slug}:${step.block}:${step.index}`, EXERCISE_XP)
-    if (!correct && !step.retry) setMissed((m) => [...m, step])
+    if (!correct && !step.retry) setMissed((m) => (m.some((x) => x.kind === 'exercise' && x.block === step.block && x.index === step.index) ? m : [...m, step]))
   }
 
   const langOptions: { value: ExplainLang; label: string; lang: string }[] = [
@@ -255,7 +264,19 @@ export function LessonPage({ slug }: { slug: string }) {
                   onResult={onResult}
                 />
               )}
-              <div className="flex justify-end">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                {at > 0 ? (
+                  <button
+                    type="button"
+                    onClick={back}
+                    className="flex min-h-12 cursor-pointer items-center gap-2 rounded-2xl border border-white/80 bg-white/80 px-5 font-bold text-ink shadow-[0_4px_0_var(--shadow)]"
+                  >
+                    <ArrowLeft aria-hidden="true" size={20} className="rtl:-scale-x-100" />
+                    {t('lesson.back')}
+                  </button>
+                ) : (
+                  <span />
+                )}
                 <button type="button" className="btn-primary flex items-center gap-2" disabled={!canNext} onClick={next}>
                   {at === steps.length - 1 ? t('lesson.finish') : t('lesson.next')}
                   <ArrowRight aria-hidden="true" size={20} className="rtl:-scale-x-100" />

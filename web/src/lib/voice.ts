@@ -11,27 +11,54 @@ export function voiceEnabled(): Promise<boolean> {
   return enabled
 }
 
+let recordingList: Promise<Record<string, string>> | null = null
+/** Recording URLs by "en/<id>" and "ar/<id>", fetched once, so taps go straight to the bucket. */
+function recordings(): Promise<Record<string, string>> {
+  recordingList ??= fetch('/api/tts/recordings')
+    .then((r) => (r.ok ? r.json() : {}))
+    .catch(() => ({}))
+  return recordingList
+}
+
+// Preloaded audio for the cards on screen, so a tap plays at once (kept small: a few cards at a time).
+const preloaded = new Map<string, HTMLAudioElement>()
+function audioFor(url: string): HTMLAudioElement {
+  let a = preloaded.get(url)
+  if (!a) {
+    a = new Audio(url)
+    a.preload = 'auto'
+    preloaded.set(url, a)
+    if (preloaded.size > 12) preloaded.delete(preloaded.keys().next().value!)
+  }
+  return a
+}
+
+async function termUrl(lang: 'en' | 'ar', termId: string): Promise<string | null> {
+  const list = await recordings()
+  // Arabic without a recording is spoken by the Space (and cached there); English without one is spoken in the browser.
+  return list[`${lang}/${termId}`] ?? (lang === 'ar' ? `/api/tts/term/${encodeURIComponent(termId)}?lang=ar` : null)
+}
+
+/** Start loading a term's audio in both languages before the learner taps. */
+export async function preloadTerm(termId: string): Promise<void> {
+  if (!(await voiceEnabled())) return
+  for (const lang of ['ar', 'en'] as const) {
+    const url = await termUrl(lang, termId)
+    if (url) audioFor(url)
+  }
+}
+
 let current: HTMLAudioElement | null = null
 function playUrl(url: string): Promise<void> {
   current?.pause()
-  const a = new Audio(url)
+  const a = audioFor(url)
+  a.currentTime = 0
   current = a
   return new Promise((resolve, reject) => {
     a.onended = () => resolve()
     a.onerror = () => reject(new Error('audio failed'))
     a.play().catch(reject)
   })
-}
-
-/** A recording exists when the server redirects to the bucket. GET (FastAPI answers HEAD with 405) without following
- * the redirect, so nothing is downloaded twice. */
-async function hasRecording(url: string): Promise<boolean> {
-  try {
-    const r = await fetch(url, { redirect: 'manual' })
-    return r.type === 'opaqueredirect' || r.status === 302
-  } catch {
-    return false
-  }
 }
 
 type Kokoro = { generate: (text: string, opts: { voice: string }) => Promise<{ toBlob: () => Blob }> }
@@ -46,8 +73,8 @@ function loadKokoro(): Promise<Kokoro> {
 
 export async function speak(lang: 'en' | 'ar', text: string, termId?: string | null): Promise<void> {
   if (termId) {
-    const url = `/api/tts/term/${encodeURIComponent(termId)}?lang=${lang}`
-    if (lang === 'ar' || (await hasRecording(url))) return playUrl(url)
+    const url = await termUrl(lang, termId)
+    if (url) return playUrl(url)
   }
   if (lang === 'ar') return playUrl(`/api/tts?lang=ar&text=${encodeURIComponent(text)}`)
   const tts = await loadKokoro()

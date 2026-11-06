@@ -77,7 +77,12 @@ def search(
         out.append(quick_card(r) | {"match": "word" if i in word_hits else "meaning"})
         if len(out) >= limit:
             break
-    return {"results": out, "semantic": bool(semantic), "terms": len(tb.rows)}
+    suggestion = None
+    if q.strip() and not any(s >= 1.5 for s, _ in lexical):
+        near = tb.suggest(q)
+        if near is not None and (not out or out[0]["id"] != tb.rows[near]["id"]):
+            suggestion = quick_card(tb.rows[near])
+    return {"results": out, "semantic": bool(semantic), "terms": len(tb.rows), "suggestion": suggestion}
 
 
 @router.get("/api/glossary/browse")

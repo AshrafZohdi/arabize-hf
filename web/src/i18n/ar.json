@@ -289,6 +289,10 @@
   "lesson.nextLesson": "الدرس الجاي",
   "lab.scoreTitle": "التقييم",
   "lab.outOf": "من 20",
-  "explain.bankNote": "هذا المصطلح في بنك المصطلحات بدون شرح كامل بعد. اسأل المعلّم عنه.",
-  "explain.fromBank": "من بنك مصطلحات دربي"
+  "explain.bankNote": "هذا المصطلح في بنك المصطلحات بدون شرح كامل بعد.",
+  "explain.fromBank": "من بنك مصطلحات دربي",
+  "glossary.didYouMean": "تقصد:",
+  "explain.preparingQuestion": "فنار يجهّز لك سؤال سريع...",
+  "lesson.back": "رجوع",
+  "explain.askTutor": "اسأل المعلّم عنه"
 }

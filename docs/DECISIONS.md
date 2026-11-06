@@ -89,3 +89,11 @@ Found in testing: the highlighter only knew the exact bank form, so RAG, PPO and
 - `data/curated/abbreviations.csv`: 39 common abbreviations, each mapped to a full term that exists in the bank (checked against the live bank). AR, CV and DL are left out because in work texts they usually mean Arabic, a resume and a download. Abbreviations keep their case like other acronyms.
 - Fanar may only write cards for highlighted terms without a Darby card; the server drops any other model card.
 - Every highlighted term gets a card: a Darby card, a Fanar card, or its term bank entry (English, Arabic, source, a note to ask the tutor). Tapping a highlighted word opens its card.
+
+## D19. 2026-11-06: Polish from team testing
+1. Lessons have a back button. Steps already passed stay passable; points are paid once and a missed exercise is queued for retry once.
+2. The term card being read no longer swaps when Fanar's answer arrives: chips keep their order (new ones join at the end) and the choice is kept by term. A placeholder holds the quick question's place while Fanar finishes.
+3. Term bank cards (no Darby or Fanar card) link to the tutor with "What does X mean?" filled in.
+4. and 5. Abbreviations of 3 or more letters highlight in any case (rag, Rag, RAG); 2 letter ones stay case-sensitive so "it" and "us" are never caught. Glossary search finds abbreviations in any case and suggests the nearest term for a typo (Darby cards first, then the bank).
+6. Listen buttons play recordings straight from the Storage Bucket (the recording list is fetched once from `/api/tts/recordings`) and the open card's audio is preloaded, instead of a redirect through the Space on every tap.
+7. `data/curated/non_technical.csv`: 110 emoji, sticker, slang and everyday entries from the Microsoft terminology (for example "WTF…" and "a man and his dog") are left out of search, browse and highlighting. Picked with rules plus an E5 score (closer to everyday topics than to technical ones), then reviewed by hand to keep real terms such as "A record", "MAN" and "man-in-the-middle". Exact case, because "man" is an emoji and "MAN" a network. The published dataset is unchanged.

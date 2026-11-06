@@ -1,5 +1,6 @@
 import { BookOpen, BookmarkCheck, Library, Plus, Sparkles } from 'lucide-react'
 import { useI18n } from '../../i18n'
+import { Link } from '../../lib/router'
 import type { Card } from '../../lib/api'
 import { saveTerm, termKey, useDictionary } from '../../lib/dictionary'
 import { ListenButtons } from '../ListenButtons'
@@ -28,7 +29,12 @@ export function TermCard({ card, showMsa, textDir = 'rtl' }: { card: Card; showM
         <ListenButtons en={card.term_en} ar={card.term_ar} termId={card.id} />
       </div>
       {card.source === 'bank' ? (
-        <p className="mt-3.5 mb-0 text-[17px] text-ink-2">{t('explain.bankNote')}</p>
+        <p className="mt-3.5 mb-0 flex flex-wrap items-center gap-x-3 gap-y-1 text-[17px] text-ink-2">
+          {t('explain.bankNote')}
+          <Link href={`/tutor?q=${encodeURIComponent(t('tutor.suggestWhat', { a: card.term_en }))}`} className="flex min-h-11 items-center font-bold">
+            {t('explain.askTutor')}
+          </Link>
+        </p>
       ) : (
         <p className="mt-3.5 mb-0 text-[17px]" dir={textDir}>
           {card.explanation}

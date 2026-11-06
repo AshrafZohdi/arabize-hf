@@ -114,7 +114,7 @@ export async function glossaryCards(lang: ExplainLang): Promise<GlossaryCard[]> 
   return (await r.json()).cards
 }
 
-export async function glossarySearch(q: string, domain: string, signal?: AbortSignal): Promise<{ results: QuickCard[]; semantic: boolean; terms: number }> {
+export async function glossarySearch(q: string, domain: string, signal?: AbortSignal): Promise<{ results: QuickCard[]; semantic: boolean; terms: number; suggestion: QuickCard | null }> {
   const r = await fetch(`/api/glossary/search?${new URLSearchParams({ q, domain, limit: '20' })}`, { signal })
   if (!r.ok) throw new ApiError(r.status)
   return r.json()

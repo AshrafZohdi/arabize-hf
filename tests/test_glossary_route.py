@@ -96,3 +96,16 @@ def test_hub_glossary_shape_works_with_cards(tmp_path, monkeypatch):
     card = gl.card("chatbot", "gulf")
     assert card["explanation"] == "برنامج يسولف وياك." and card["source"] == "fanar"
     assert gl.finder.find("Ask the chatbots")[0].term.id == "chatbot"
+
+
+def test_search_suggests_the_nearest_card_for_a_typo(tmp_path):
+    c = client(tmp_path)
+    body = c.get("/api/glossary/search", params={"q": "halucination"}).json()
+    assert body["suggestion"]["en"] == "Hallucination"
+    assert c.get("/api/glossary/search", params={"q": "Hallucination"}).json()["suggestion"] is None
+
+
+def test_search_finds_abbreviations_in_any_case(tmp_path):
+    c = client(tmp_path)
+    for q in ("llm", "Llm", "LLM"):
+        assert c.get("/api/glossary/search", params={"q": q}).json()["results"][0]["en"] == "Large language model"

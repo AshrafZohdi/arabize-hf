@@ -1,6 +1,7 @@
 """Text to speech, P1, behind VOICE_ENABLED. ASR is a stub until Whisper is wired.
 
 GET  /api/tts?text=&lang=ar          live Arabic speech (mms-tts-ara on ONNX Runtime), cached
+GET  /api/tts/recordings              every recording URL, for preloading in the browser
 GET  /api/tts/term/{id}?lang=ar|en   pre-generated term audio from the Storage Bucket (redirect); Arabic falls back
                                      to live speech; English is spoken in the browser with kokoro-js
 POST /api/asr                        501 for now (openai/whisper-large-v3-turbo planned)
@@ -60,6 +61,14 @@ def tts(request: Request, text: str = Query(min_length=1, max_length=MAX_TTS_CHA
         return _audio(_speak(request, text))
     except ValueError:
         raise HTTPException(status_code=422, detail="nothing to say") from None
+
+
+@router.get("/api/tts/recordings")
+def recordings(request: Request) -> Any:
+    """Every pre-generated recording as {"en/<id>": url, "ar/<id>": url}, so the browser plays and preloads straight
+    from the bucket instead of asking the Space for a redirect on each tap."""
+    _enabled(request)
+    return JSONResponse(request.app.state.audio_manifest, headers={"Cache-Control": "public, max-age=3600"})
 
 
 @router.get("/api/tts/term/{term_id}")

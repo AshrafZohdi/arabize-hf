@@ -99,7 +99,8 @@ function Chat({ lang, lesson }: { lang: ExplainLang; lesson: string | null }) {
       ? [t('tutor.suggestWhat', { a: name(terms[0]) }), t('tutor.suggestDiff', { a: name(terms[0]), b: name(terms[1]) }), t('tutor.suggestExample', { a: name(terms[terms.length - 1]) })]
       : []
   const [turns, setTurns] = useState<ChatTurn[]>([])
-  const [input, setInput] = useState('')
+  // A question handed over from another page ("Ask the tutor" on a term card) arrives as ?q= and waits for Send.
+  const [input, setInput] = useState(() => new URLSearchParams(window.location.search).get('q')?.slice(0, 500) ?? '')
   const [busy, setBusy] = useState(false)
   const [notice, setNotice] = useState<MessageKey | null>(null)
   const [left, setLeft] = useState<number | null>(null)

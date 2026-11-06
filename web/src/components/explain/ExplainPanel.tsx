@@ -31,7 +31,8 @@ export function ExplainPanel({ lang, langControl }: { lang: ExplainLang; langCon
   const [cards, setCards] = useState<Card[]>([])
   const [result, setResult] = useState<ExplainResult | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [selected, setSelected] = useState(0)
+  // The chosen card by term, not by position, so it stays put as more chips arrive.
+  const [picked, setPicked] = useState<string | null>(null)
   const abort = useRef<AbortController | null>(null)
   const textarea = useRef<HTMLTextAreaElement>(null)
 
@@ -67,16 +68,10 @@ export function ExplainPanel({ lang, langControl }: { lang: ExplainLang; langCon
         out.push({ id: m.id, term_en: m.en, term_ar: m.ar, explanation: '', analogy: '', related: [], source: 'bank' })
       }
     }
-    // Put the term the question is about first, as in the design.
-    const answer = result?.question?.options[result.question.correct_index]?.toLowerCase()
-    const i = answer ? out.findIndex((c) => c.term_en.toLowerCase() === answer) : -1
-    if (i > 0) out.unshift(...out.splice(i, 1))
+    // New chips only ever join at the end, so the card being read never moves or changes when Fanar's answer lands.
     return out
   }, [cards, result, matches])
 
-  useEffect(() => {
-    setSelected(0)
-  }, [allCards.length])
 
   const send = async (skipPrivacy = false) => {
     if (!text.trim()) return
@@ -95,6 +90,7 @@ export function ExplainPanel({ lang, langControl }: { lang: ExplainLang; langCon
     setPhase('streaming')
     setExplanation('')
     setCards([])
+    setPicked(null)
     setResult(null)
     setError(null)
     try {
@@ -135,13 +131,14 @@ export function ExplainPanel({ lang, langControl }: { lang: ExplainLang; langCon
           ? 'explain.fallback.failed'
           : null
 
+  const selected = Math.max(0, picked ? allCards.findIndex((c) => c.term_en === picked) : 0)
   const card = allCards[selected]
 
   // Tapping a highlighted word opens its card below.
   const pickTerm = (m: TermMatch) => {
     const i = allCards.findIndex((c) => [m.en.toLowerCase(), m.text.toLowerCase()].includes(c.term_en.toLowerCase()))
     if (i < 0) return
-    setSelected(i)
+    setPicked(allCards[i].term_en)
     requestAnimationFrame(() => document.getElementById('term-panel')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }))
   }
   const showResult = phase !== 'idle'
@@ -328,7 +325,7 @@ export function ExplainPanel({ lang, langControl }: { lang: ExplainLang; langCon
                   key={c.term_en}
                   type="button"
                   aria-pressed={i === selected}
-                  onClick={() => setSelected(i)}
+                  onClick={() => setPicked(c.term_en)}
                   lang="en"
                   className={`min-h-11 cursor-pointer rounded-full border px-4 font-en text-sm font-semibold ${
                     i === selected ? 'border-maroon bg-maroon text-white' : 'border-line bg-white text-ink-2 hover:bg-surface-3'
@@ -343,7 +340,17 @@ export function ExplainPanel({ lang, langControl }: { lang: ExplainLang; langCon
           {(card || result?.question) && (
             <div id="term-panel" className="flex flex-wrap gap-7">
               {card && <TermCard card={card} showMsa={lang === 'gulf' && Boolean(card.term_gulf)} textDir={lang === 'en' ? 'ltr' : 'rtl'} />}
-              {result?.question && <QuickQuestion key={result.question.question} question={result.question} textDir={lang === 'en' ? 'ltr' : 'rtl'} />}
+              {result?.question ? (
+                <QuickQuestion key={result.question.question} question={result.question} textDir={lang === 'en' ? 'ltr' : 'rtl'} />
+              ) : (
+                phase === 'streaming' && (
+                  // Holds the question's place while Fanar finishes, so the card beside it does not jump.
+                  <div role="status" className="well flex min-h-64 min-w-0 flex-[1_1_300px] items-center justify-center gap-2 p-5 text-ink-2">
+                    <Loader2 aria-hidden="true" size={20} className="animate-spin" />
+                    {t('explain.preparingQuestion')}
+                  </div>
+                )
+              )}
             </div>
           )}
           {phase === 'done' && !card && !result?.question && !error && !result?.off_topic && <p className="m-0 text-muted">{t('explain.noTerms')}</p>}

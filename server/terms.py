@@ -69,14 +69,19 @@ class TermFinder:
         for t in terms:
             self.add(t)
 
-    def add(self, term: Term, surface: str | None = None) -> None:
-        """Index `term` under its English, or under `surface` (an abbreviation such as RAG for its full term)."""
+    def add(self, term: Term, surface: str | None = None, any_case: bool = False) -> None:
+        """Index `term` under its English, or under `surface` (an abbreviation such as RAG for its full term).
+        any_case: also match the surface in lower or title case (rag, Rag), for abbreviations of 3 or more letters."""
         words = _WORD.findall(surface or term.en)
         if not words:
             return
         keys = [_key(w) for w in words]
+        lasts = suffix_forms(keys[-1])
+        if any_case:
+            lasts |= {f.lower() for f in lasts}
+            keys = [k if len(words) == 1 else k.lower() for k in keys]
         added = False
-        for last in suffix_forms(keys[-1]):
+        for last in lasts:
             node = self._root
             for k in [*keys[:-1], last]:
                 node = node.children.setdefault(k, _Node())

@@ -72,3 +72,12 @@ def test_term_audio_redirects_to_the_bucket_or_speaks_arabic(tmp_path):
 def test_asr_is_a_stub(tmp_path):
     c, _ = client(tmp_path)
     assert c.post("/api/asr").status_code == 501
+
+
+def test_recordings_list_for_preloading(tmp_path):
+    c, app = client(tmp_path)
+    app.state.audio_manifest = {"ar/prompt": "https://huggingface.co/buckets/x/y/resolve/audio/ar/prompt.wav"}
+    r = c.get("/api/tts/recordings")
+    assert r.status_code == 200 and r.json() == app.state.audio_manifest
+    c2, _ = client(tmp_path, voice=False)
+    assert c2.get("/api/tts/recordings").status_code == 404

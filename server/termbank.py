@@ -69,14 +69,16 @@ class TermBank:
     def add_abbreviations(self, pairs: list[tuple[str, str]]) -> int:
         """Highlight abbreviations as their full term, for example RAG as retrieval-augmented generation
         (data/curated/abbreviations.csv). Pairs whose full term is not in the bank are skipped. Returns how many were added."""
-        by_en = {r["en"].lower(): r for r in self.rows if r["highlight"]}
+        by_en = {r["en"].lower(): (i, r) for i, r in enumerate(self.rows) if r["highlight"]}
         added = 0
         for abbr, en in pairs:
-            r = by_en.get(en.lower())
-            if r is None:
+            hit = by_en.get(en.lower())
+            if hit is None:
                 continue
+            i, r = hit
+            self._aliases.setdefault(abbr.lower(), []).append(i)  # search finds rag, Rag and RAG
             term = Term(id=r["id"], en=r["en"], ar=r["ar_display"], source=r["ar_origin"], has_card=bool(r["has_full_card"]))
-            self.finder.add(term, surface=abbr)
+            self.finder.add(term, surface=abbr, any_case=sum(c.isalpha() for c in abbr) >= 3)
             added += 1
         return added
 
@@ -105,6 +107,21 @@ class TermBank:
                 hits.append((score, i))
         hits.sort(reverse=True)
         return hits[:limit]
+
+    def suggest(self, q: str) -> int | None:
+        """The nearest term for a query with no word match (a typo such as "halucination"): Darby cards first, then the bank."""
+        import difflib
+
+        ql = q.strip().lower()
+        if len(ql) < 4:
+            return None
+        cards = [i for i, r in enumerate(self.rows) if r["has_full_card"]]
+        for pool, cutoff in ((cards, 0.75), (range(len(self.rows)), 0.85)):
+            names = {self._en[i]: i for i in pool}
+            close = difflib.get_close_matches(ql, list(names), n=1, cutoff=cutoff)
+            if close:
+                return names[close[0]]
+        return None
 
     def browse(self, domain: str = "all", letter: str = "", offset: int = 0, limit: int = 50) -> tuple[list[dict[str, Any]], int]:
         """Every term A to Z, optionally one field and one first letter ("#" for terms that start with a digit)."""
@@ -148,6 +165,18 @@ def _rows_from_frame(df) -> list[dict[str, Any]]:
         row["ar_full"] = row["ar_full"] or row["ar_display"]
         out.append(row)
     return out
+
+
+def non_technical(content_dir: Path) -> set[str]:
+    """Emoji, sticker, slang and everyday entries from the Microsoft terminology (data/curated/non_technical.csv),
+    left out of search, browse and highlighting."""
+    import csv
+
+    try:
+        with open(content_dir.parent / "data" / "curated" / "non_technical.csv", encoding="utf-8") as f:
+            return {r["en"] for r in csv.DictReader(f)}  # exact case: "man" is an emoji, "MAN" a network
+    except OSError:
+        return set()
 
 
 def apply_abbreviations(tb: TermBank, content_dir: Path, status: dict[str, Any]) -> None:
@@ -196,6 +225,9 @@ def load_term_bank(content_dir: Path, token: str | None = None, full_card_ids: s
         frame = bank
 
     rows = _rows_from_frame(frame)
+    dropped = non_technical(content_dir)
+    rows = [r for r in rows if r["en"] not in dropped]
+    status["steps"]["non_technical"] = f"{len(dropped)} emoji, sticker and everyday entries left out"
     for r in rows:  # cards published in the glossary dataset (ours and Fanar's) count as full cards
         if full_card_ids and r["id"] in full_card_ids:
             r["has_full_card"] = True

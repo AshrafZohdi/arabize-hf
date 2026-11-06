@@ -70,4 +70,22 @@ def test_abbreviation_matches_its_full_term(finder):
     rag = t("Retrieval-augmented generation")
     finder.add(rag, surface="RAG")
     assert found(finder, "We use RAG and two RAGs.") == [("RAG", "Retrieval-augmented generation"), ("RAGs", "Retrieval-augmented generation")]
-    assert found(finder, "a rag on the desk") == []  # abbreviations keep their case, like other acronyms
+    assert found(finder, "a rag on the desk") == []  # without any_case, abbreviations keep their case like other acronyms
+
+
+def test_non_technical_list_is_loaded_and_keeps_real_terms():
+    from pathlib import Path
+
+    from server.termbank import non_technical
+
+    dropped = non_technical(Path(__file__).parents[1] / "content")
+    assert {"WTF…", "a man and his dog", "bald man with glasses", "man"} <= dropped
+    assert not {"A record", "man-in-the-middle", "trojan horse", "MAN", "ghost record"} & dropped
+
+
+def test_longer_abbreviations_match_in_any_case(finder):
+    rag = t("Retrieval-augmented generation")
+    finder.add(rag, surface="RAG", any_case=True)
+    finder.add(t("Machine learning"), surface="ML", any_case=False)
+    assert [m.text for m in finder.find("RAG, Rag and rag")] == ["RAG", "Rag", "rag"]
+    assert found(finder, "ML but not ml") == [("ML", "Machine learning")]

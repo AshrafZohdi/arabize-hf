@@ -19,6 +19,7 @@ export function GlossaryPage() {
   const [domain, setDomain] = useState<Domain>('all')
   const [cards, setCards] = useState<GlossaryCard[]>([])
   const [results, setResults] = useState<QuickCard[] | null>(null)
+  const [suggestion, setSuggestion] = useState<QuickCard | null>(null)
   const [bankSize, setBankSize] = useState(0)
   const [error, setError] = useState(false)
   const [open, setOpen] = useState<GlossaryCard | null>(null)
@@ -37,6 +38,7 @@ export function GlossaryPage() {
       glossarySearch(q, domain, ctrl.signal)
         .then((r) => {
           setResults(r.results)
+          setSuggestion(r.suggestion)
           setBankSize(r.terms)
           setError(false)
         })
@@ -94,6 +96,20 @@ export function GlossaryPage() {
 
       {results ? (
         <section aria-live="polite" aria-label={t('glossary.results', { n: results.length })}>
+          {suggestion && (
+            <p className="glass mt-0 mb-3 flex flex-wrap items-center gap-2 rounded-2xl! px-4 py-2 text-ink-2">
+              {t('glossary.didYouMean')}
+              <button
+                type="button"
+                onClick={() => setQ(suggestion.en)}
+                className="min-h-11 cursor-pointer rounded-full border-0 bg-maroon-soft px-4 font-en font-bold text-maroon-text"
+                lang="en"
+              >
+                {suggestion.en}
+              </button>
+              <span lang="ar">{suggestion.ar}</span>
+            </p>
+          )}
           <p className="mt-0 mb-3 font-semibold text-ink-2">{t('glossary.results', { n: results.length })}</p>
           {results.length === 0 && <p className="text-muted">{t('glossary.empty')}</p>}
           <ul className="m-0 grid list-none grid-cols-1 gap-3 p-0 md:grid-cols-2">
