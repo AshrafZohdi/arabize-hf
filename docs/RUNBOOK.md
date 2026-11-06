@@ -10,6 +10,8 @@
 | Health | https://fayezalkh12-darby.hf.space/api/health |
 
 ## 30 minutes before the pitch
+
+- `scripts/keep_warm.py` now keeps both Fanar and the Oryx photo reader awake (about USD 1.80/h together); `--fanar-only` skips the photo reader.
 1. Open `/api/health`: `termbank.terms` 23999, `semantic_search` true, `voice_recordings` 280, `lessons.source` hub. If not, restart the Space (Settings, Restart) and wait about 2 minutes.
 2. Wake Fanar at least 15 minutes early (cold start is about 4 minutes): `.venv/bin/python scripts/keep_warm.py` and leave it running until the pitch ends. `/api/health` shows `llm.state` ready after the first real call.
 3. Clear the demo browser's site data (or use a private window) so points, streak and today's code start fresh.
