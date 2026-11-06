@@ -294,5 +294,12 @@
   "glossary.didYouMean": "Did you mean:",
   "explain.preparingQuestion": "Fanar is preparing a quick question...",
   "lesson.back": "Back",
-  "explain.askTutor": "Ask the tutor about it"
+  "explain.askTutor": "Ask the tutor about it",
+  "translate.toEn": "Translate to English",
+  "translate.toGulf": "Translate to Gulf Arabic",
+  "translate.toMsa": "Translate to Standard Arabic",
+  "translate.original": "Show original",
+  "translate.working": "Fanar is translating...",
+  "translate.failed": "Could not translate right now. Try again.",
+  "translate.waking": "Fanar is waking up, try again in a minute."
 }

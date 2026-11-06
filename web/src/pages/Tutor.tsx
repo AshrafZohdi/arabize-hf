@@ -4,6 +4,7 @@ import { PageTitle } from '../components/PageTitle'
 import { Segmented } from '../components/Segmented'
 import { useI18n, type MessageKey } from '../i18n'
 import { LogoMark } from '../components/Logo'
+import { Translatable } from '../components/Translate'
 import { HighlightedText } from '../components/explain/HighlightedText'
 import { ApiError, findTerms, glossaryCards, listLessons, promptLabTask, scorePrompt, streamTutor, type ChatTurn, type LessonSummary, type PromptScores, type TermMatch } from '../lib/api'
 import { useExplainLang, type ExplainLang } from '../lib/explainLang'
@@ -165,10 +166,14 @@ function Chat({ lang, lesson }: { lang: ExplainLang; lesson: string | null }) {
               <div key={i} className="flex max-w-[92%] items-start gap-2.5 self-end">
                 <div className="order-1 rounded-2xl rounded-se-md border border-white/80 bg-white/85 px-4 py-3 text-ink shadow-[0_4px_0_var(--shadow)]">
                   <span className="mb-0.5 block text-xs font-bold text-muted">{t('tutor.darby')}</span>
-                  <p dir="auto" className="m-0 text-[17px] whitespace-pre-wrap">
-                    {m.content}
-                    {busy && i === turns.length - 1 && <span aria-hidden="true" className="ms-1 inline-block h-4 w-1.5 animate-pulse bg-maroon align-middle" />}
-                  </p>
+                  {busy && i === turns.length - 1 ? (
+                    <p dir="auto" className="m-0 text-[17px] whitespace-pre-wrap">
+                      {m.content}
+                      <span aria-hidden="true" className="ms-1 inline-block h-4 w-1.5 animate-pulse bg-maroon align-middle" />
+                    </p>
+                  ) : (
+                    <Translatable text={m.content} lang={lang} className="text-[17px]" />
+                  )}
                 </div>
                 <span aria-hidden="true" className="order-2 shrink-0">
                   <LogoMark />
@@ -435,9 +440,7 @@ export function PromptLab({ lang, lesson }: { lang: ExplainLang; lesson: string 
                 {copied ? t('lab.copied') : t('lab.copy')}
               </button>
             </div>
-            <p className="m-0 text-[17px] whitespace-pre-wrap" dir="auto">
-              {result.improved_prompt}
-            </p>
+            <Translatable text={result.improved_prompt} lang={lang} className="text-[17px]" />
           </div>
         </div>
       )}

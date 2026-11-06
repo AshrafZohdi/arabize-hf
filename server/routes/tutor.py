@@ -20,6 +20,7 @@ from pydantic import BaseModel, Field
 
 from server.llm import LLM, MAX_INPUT_CHARS, LLMBadOutput, LLMUnavailable, RateLimited, ai_rate_limiter
 from server.net import client_ip
+from server.prompts.translate import Target, Translation, build_translate_prompt
 from server.prompts.prompt_lab import CRITERIA, PromptScore, build_scoring_prompt
 from server.prompts.tutor import build_messages, build_tutor_system
 
@@ -174,3 +175,33 @@ async def prompt_lab(body: PromptLabIn, request: Request) -> Any:
         return JSONResponse({"error": "bad_output"}, status_code=502)
     s: PromptScore = res.data
     return {"scores": {c: getattr(s, c).model_dump() for c in CRITERIA}, "total": s.total, "summary": s.summary, "improved_prompt": s.improved_prompt, "source": res.source}
+
+
+class TranslateIn(BaseModel):
+    text: str = Field(min_length=1, max_length=MAX_INPUT_CHARS)
+    target: Target = "gulf"
+
+
+@router.post("/api/translate")
+async def translate(body: TranslateIn, request: Request) -> Any:
+    """A tutor reply, term card or improved prompt in the other language (Fanar)."""
+    try:
+        ai_rate_limiter.hit(client_ip(request))
+    except RateLimited as e:
+        return JSONResponse({"error": "rate_limited", "retry_after": e.retry_after}, status_code=429, headers={"Retry-After": str(e.retry_after)})
+    system, user = build_translate_prompt(body.text, body.target)
+    llm: LLM = request.app.state.llm
+    try:
+        res = await llm.json(
+            feature="translate",
+            system=system,
+            user=user,
+            schema=Translation,
+            max_tokens=800,
+            fixture_input={"text": body.text, "target": body.target},
+        )
+    except LLMUnavailable as e:
+        return JSONResponse({"error": "unavailable", "state": e.state}, status_code=503)
+    except LLMBadOutput:
+        return JSONResponse({"error": "bad_output"}, status_code=502)
+    return {"translation": res.data.translation, "target": body.target, "source": res.source}

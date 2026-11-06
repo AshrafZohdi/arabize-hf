@@ -208,3 +208,9 @@ export async function guessCode(lang: 'en' | 'ar', token: string, guess: string)
   if (r.status >= 500) throw new ApiError(r.status)
   return r.json()
 }
+
+export async function translateText(text: string, target: ExplainLang): Promise<string> {
+  const r = await fetch('/api/translate', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ text, target }) })
+  if (!r.ok) throw new ApiError(r.status, Number(r.headers.get('retry-after')) || undefined)
+  return (await r.json()).translation
+}

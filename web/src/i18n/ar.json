@@ -294,5 +294,12 @@
   "glossary.didYouMean": "تقصد:",
   "explain.preparingQuestion": "فنار يجهّز لك سؤال سريع...",
   "lesson.back": "رجوع",
-  "explain.askTutor": "اسأل المعلّم عنه"
+  "explain.askTutor": "اسأل المعلّم عنه",
+  "translate.toEn": "ترجم للإنجليزي",
+  "translate.toGulf": "ترجم للخليجي",
+  "translate.toMsa": "ترجم للفصحى",
+  "translate.original": "النص الأصلي",
+  "translate.working": "فنار يترجم...",
+  "translate.failed": "ما قدرنا نترجم الحين. جرّب مرة ثانية.",
+  "translate.waking": "فنار يصحى الحين، جرّب بعد دقيقة."
 }

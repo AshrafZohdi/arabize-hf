@@ -4,9 +4,11 @@ import { Link } from '../../lib/router'
 import type { Card } from '../../lib/api'
 import { saveTerm, termKey, useDictionary } from '../../lib/dictionary'
 import { ListenButtons } from '../ListenButtons'
+import { Translatable } from '../Translate'
+import type { ExplainLang } from '../../lib/explainLang'
 
 /** textDir: the direction of the explanation language, which can differ from the interface (Arabic text in the English UI). */
-export function TermCard({ card, showMsa, textDir = 'rtl' }: { card: Card; showMsa: boolean; textDir?: 'rtl' | 'ltr' }) {
+export function TermCard({ card, showMsa, textDir = 'rtl', lang = 'gulf' }: { card: Card; showMsa: boolean; textDir?: 'rtl' | 'ltr'; lang?: ExplainLang }) {
   const { t } = useI18n()
   const saved = Boolean(useDictionary().terms[termKey(card.term_en)])
   const Icon = card.source === 'glossary' ? BookOpen : card.source === 'bank' ? Library : Sparkles
@@ -36,15 +38,17 @@ export function TermCard({ card, showMsa, textDir = 'rtl' }: { card: Card; showM
           </Link>
         </p>
       ) : (
-        <p className="mt-3.5 mb-0 text-[17px]" dir={textDir}>
-          {card.explanation}
-        </p>
-      )}
-      {card.analogy && (
-        <div className="mt-3.5 rounded-[14px] bg-surface-3 px-4 py-3 text-ink-2" dir={textDir}>
-          <span className="sr-only">{t('explain.analogy')}: </span>
-          {card.analogy}
-        </div>
+        <Translatable text={[card.explanation, card.analogy].filter(Boolean).join('\n\n')} lang={lang} className="mt-3.5 text-[17px]">
+          <p className="m-0" dir={textDir}>
+            {card.explanation}
+          </p>
+          {card.analogy && (
+            <div className="mt-3.5 rounded-[14px] bg-surface-3 px-4 py-3 text-ink-2" dir={textDir}>
+              <span className="sr-only">{t('explain.analogy')}: </span>
+              {card.analogy}
+            </div>
+          )}
+        </Translatable>
       )}
       <div className="mt-3.5 flex flex-wrap items-center gap-3">
         <button

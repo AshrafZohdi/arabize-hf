@@ -339,7 +339,7 @@ export function ExplainPanel({ lang, langControl }: { lang: ExplainLang; langCon
 
           {(card || result?.question) && (
             <div id="term-panel" className="flex flex-wrap gap-7">
-              {card && <TermCard card={card} showMsa={lang === 'gulf' && Boolean(card.term_gulf)} textDir={lang === 'en' ? 'ltr' : 'rtl'} />}
+              {card && <TermCard key={card.term_en} card={card} lang={lang} showMsa={lang === 'gulf' && Boolean(card.term_gulf)} textDir={lang === 'en' ? 'ltr' : 'rtl'} />}
               {result?.question ? (
                 <QuickQuestion key={result.question.question} question={result.question} textDir={lang === 'en' ? 'ltr' : 'rtl'} />
               ) : (
