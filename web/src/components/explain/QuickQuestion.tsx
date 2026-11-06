@@ -10,7 +10,7 @@ function questionKey(q: Question): string {
   return `explain:${h >>> 0}`
 }
 
-export function QuickQuestion({ question }: { question: Question }) {
+export function QuickQuestion({ question, textDir = 'rtl' }: { question: Question; textDir?: 'rtl' | 'ltr' }) {
   const { t } = useI18n()
   const [wrong, setWrong] = useState<number[]>([])
   const [solved, setSolved] = useState(false)
@@ -34,7 +34,9 @@ export function QuickQuestion({ question }: { question: Question }) {
         </h3>
         <span className="rounded-full bg-gold-soft px-3 py-1 text-sm font-bold text-gold-text">{t('quiz.points', { n: XP.practice })}</span>
       </div>
-      <p className="mt-2 mb-4 text-lg font-bold">{question.question}</p>
+      <p className="mt-2 mb-4 text-lg font-bold" dir={textDir}>
+        {question.question}
+      </p>
       <div dir="ltr" lang="en" className="grid grid-cols-1 gap-2.5 font-en min-[400px]:grid-cols-2">
         {question.options.map((o, i) => {
           const isRight = solved && i === question.correct_index
@@ -64,7 +66,7 @@ export function QuickQuestion({ question }: { question: Question }) {
       <p role="status" aria-live="polite" className="mt-3.5 mb-0 min-h-6 text-sm font-semibold">
         {solved ? (
           <span className="text-success-text">
-            {t('quiz.correct')} {question.why}
+            {t('quiz.correct')} <span dir={textDir}>{question.why}</span>
           </span>
         ) : wrong.length > 0 ? (
           <span className="text-ink-2">{t('quiz.wrong')}</span>

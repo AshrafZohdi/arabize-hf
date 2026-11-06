@@ -4,7 +4,8 @@ import type { Card } from '../../lib/api'
 import { saveTerm, termKey, useDictionary } from '../../lib/dictionary'
 import { ListenButtons } from '../ListenButtons'
 
-export function TermCard({ card, showMsa }: { card: Card; showMsa: boolean }) {
+/** textDir: the direction of the explanation language, which can differ from the interface (Arabic text in the English UI). */
+export function TermCard({ card, showMsa, textDir = 'rtl' }: { card: Card; showMsa: boolean; textDir?: 'rtl' | 'ltr' }) {
   const { t } = useI18n()
   const saved = Boolean(useDictionary().terms[termKey(card.term_en)])
   const Icon = card.source === 'glossary' ? BookOpen : Sparkles
@@ -26,9 +27,11 @@ export function TermCard({ card, showMsa }: { card: Card; showMsa: boolean }) {
         </div>
         <ListenButtons en={card.term_en} ar={card.term_ar} termId={card.id} />
       </div>
-      <p className="mt-3.5 mb-0 text-[17px]">{card.explanation}</p>
+      <p className="mt-3.5 mb-0 text-[17px]" dir={textDir}>
+        {card.explanation}
+      </p>
       {card.analogy && (
-        <div className="mt-3.5 rounded-[14px] bg-surface-3 px-4 py-3 text-ink-2">
+        <div className="mt-3.5 rounded-[14px] bg-surface-3 px-4 py-3 text-ink-2" dir={textDir}>
           <span className="sr-only">{t('explain.analogy')}: </span>
           {card.analogy}
         </div>

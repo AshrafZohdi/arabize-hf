@@ -107,7 +107,7 @@ export function LessonPage({ slug }: { slug: string }) {
         <Segmented label={t('home.explainLanguage')} options={langOptions} value={lang} onChange={setLang} />
       </div>
       <div>
-        <p className="m-0 font-display text-lg font-semibold text-ink-2" lang={title.lang} dir={title.lang === 'en' ? 'ltr' : undefined}>
+        <p className="m-0 font-display text-lg font-semibold text-ink-2" lang={title.lang} dir={title.lang === 'en' ? 'ltr' : 'rtl'}>
           {lesson.order}. {title.text}
         </p>
         <div className="mt-2 flex items-center gap-3">
@@ -167,7 +167,7 @@ export function LessonPage({ slug }: { slug: string }) {
 function RichText({ texts, lang, onTerm }: { texts: Texts; lang: ExplainLang; onTerm: (id: string) => void }) {
   const shown = pick(texts, lang)
   return (
-    <div lang={shown.lang} dir={shown.lang === 'en' ? 'ltr' : undefined} className={`text-[17px] whitespace-pre-line ${shown.lang === 'en' ? 'font-en text-left' : ''}`}>
+    <div lang={shown.lang} dir={shown.lang === 'en' ? 'ltr' : 'rtl'} className={`text-[17px] whitespace-pre-line ${shown.lang === 'en' ? 'font-en text-left' : ''}`}>
       {segments(shown.text).map((s, i) =>
         'term' in s ? (
           <button
@@ -224,7 +224,7 @@ function ExerciseView({ ex, lang, seed, onResult }: { ex: Exercise; lang: Explai
     const options = ex.options as Texts[]
     body = (
       <>
-        <p className="m-0 text-lg font-bold" lang={q.lang} dir={q.lang === 'en' ? 'ltr' : undefined}>
+        <p className="m-0 text-lg font-bold" lang={q.lang} dir={q.lang === 'en' ? 'ltr' : 'rtl'}>
           {q.text}
         </p>
         <div className="grid grid-cols-1 gap-2.5">

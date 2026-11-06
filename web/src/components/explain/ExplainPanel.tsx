@@ -284,7 +284,7 @@ export function ExplainPanel({ lang }: { lang: ExplainLang }) {
           {(explanation || phase === 'streaming') && !result?.off_topic && !fallbackKey && (
             <div>
               <h3 className="m-0 mb-1 text-base font-bold text-maroon">{t('explain.meaning')}</h3>
-              <p className="m-0 text-[17px]" dir={lang === 'en' ? 'ltr' : undefined} lang={lang === 'en' ? 'en' : 'ar'}>
+              <p className="m-0 text-[17px]" dir={lang === 'en' ? 'ltr' : 'rtl'} lang={lang === 'en' ? 'en' : 'ar'}>
                 {explanation}
                 {phase === 'streaming' && <span aria-hidden="true" className="ms-1 inline-block h-4 w-1.5 animate-pulse bg-maroon align-middle" />}
               </p>
@@ -312,8 +312,8 @@ export function ExplainPanel({ lang }: { lang: ExplainLang }) {
 
           {(card || result?.question) && (
             <div className="flex flex-wrap gap-7">
-              {card && <TermCard card={card} showMsa={lang === 'gulf' && Boolean(card.term_gulf)} />}
-              {result?.question && <QuickQuestion key={result.question.question} question={result.question} />}
+              {card && <TermCard card={card} showMsa={lang === 'gulf' && Boolean(card.term_gulf)} textDir={lang === 'en' ? 'ltr' : 'rtl'} />}
+              {result?.question && <QuickQuestion key={result.question.question} question={result.question} textDir={lang === 'en' ? 'ltr' : 'rtl'} />}
             </div>
           )}
           {phase === 'done' && !card && !result?.question && !error && !result?.off_topic && <p className="m-0 text-muted">{t('explain.noTerms')}</p>}

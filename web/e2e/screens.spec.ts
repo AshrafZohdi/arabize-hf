@@ -1,0 +1,28 @@
+import { test } from '@playwright/test'
+
+// Pitch screenshots, only when SCREENSHOTS=1: every page, Arabic and English, at the project's viewport.
+const EMAIL = 'Before you send the summary to the client, check it for hallucinations. Give the model more context in your prompt and ask it to cite the source paragraph.'
+test.skip(!process.env.SCREENSHOTS, 'set SCREENSHOTS=1 to capture')
+
+for (const lang of ['ar', 'en'] as const) {
+  test(`screens ${lang}`, async ({ page }, info) => {
+    await page.addInitScript((l) => {
+      localStorage.clear()
+      localStorage.setItem('darby.uiLang', l)
+    }, lang)
+    const dir = `../docs/screenshots/final/${info.project.name}-${lang}`
+    await page.goto('/')
+    await page.locator('#explain-input').fill(EMAIL)
+    await page.locator('.btn-primary').first().click()
+    // Wait for the finished answer: the quick question is the last part to arrive.
+    await page.locator('#quiz-h').waitFor({ timeout: 20_000 })
+    await page.locator('.btn-primary:not([disabled])').first().waitFor({ timeout: 20_000 })
+    await page.screenshot({ path: `${dir}-home.png`, fullPage: true })
+    await page.goto('/glossary')
+    await page.screenshot({ path: `${dir}-glossary.png`, fullPage: false })
+    await page.goto('/tutor?lesson=day-1')
+    await page.screenshot({ path: `${dir}-tutor.png`, fullPage: false })
+    await page.goto('/lesson/day-2')
+    await page.screenshot({ path: `${dir}-lesson.png`, fullPage: false })
+  })
+}

@@ -286,6 +286,8 @@ function QuickCardItem({ r, full, onOpen }: { r: QuickCard; full?: GlossaryCard;
 
 function FullCardDialog({ card, onClose }: { card: GlossaryCard | null; onClose: () => void }) {
   const { t } = useI18n()
+  const [explainLang] = useExplainLang()
+  const textDir = explainLang === 'en' ? 'ltr' : 'rtl' // card text follows the explanation language, not the interface
   const ref = useRef<HTMLDialogElement>(null)
   const opener = useRef<Element | null>(null)
   const saved = useDictionary().terms[termKey(card?.term_en ?? '')]
@@ -336,10 +338,24 @@ function FullCardDialog({ card, onClose }: { card: GlossaryCard | null; onClose:
           </p>
           <ListenButtons en={card.term_en} ar={card.term_ar} termId={card.id} />
           {card.term_gulf && <p className="m-0 text-ink-2">{t('glossary.gulfUsage', { t: card.term_gulf })}</p>}
-          <Field label={t('glossary.definition')}>{card.explanation}</Field>
-          {card.analogy && <div className="rounded-[14px] bg-surface-3 px-4 py-3 text-ink-2">{card.analogy}</div>}
-          {card.example && <Field label={t('glossary.example')}>{card.example}</Field>}
-          {card.mistake && <Field label={t('glossary.mistake')}>{card.mistake}</Field>}
+          <Field label={t('glossary.definition')} dir={textDir}>
+            {card.explanation}
+          </Field>
+          {card.analogy && (
+            <div className="rounded-[14px] bg-surface-3 px-4 py-3 text-ink-2" dir={textDir}>
+              {card.analogy}
+            </div>
+          )}
+          {card.example && (
+            <Field label={t('glossary.example')} dir={textDir}>
+              {card.example}
+            </Field>
+          )}
+          {card.mistake && (
+            <Field label={t('glossary.mistake')} dir={textDir}>
+              {card.mistake}
+            </Field>
+          )}
           {card.related.length > 0 && (
             <Field label={t('glossary.related')}>
               <span dir="ltr" lang="en" className="font-en">
@@ -366,11 +382,13 @@ function FullCardDialog({ card, onClose }: { card: GlossaryCard | null; onClose:
   )
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({ label, children, dir }: { label: string; children: React.ReactNode; dir?: 'rtl' | 'ltr' }) {
   return (
     <div>
       <h3 className="m-0 mb-1 text-sm font-bold text-maroon">{label}</h3>
-      <p className="m-0 text-[17px]">{children}</p>
+      <p className="m-0 text-[17px]" dir={dir}>
+        {children}
+      </p>
     </div>
   )
 }
