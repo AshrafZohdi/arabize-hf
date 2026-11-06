@@ -62,6 +62,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "glossary_cards": len(app.state.glossary.entries),
         }
 
+    if settings.mcp_enabled:
+        # Before the catch-all web route below, or the web app would answer the MCP paths.
+        from server.mcp_app import mount
+
+        mount(app)
+
     @app.get("/api/{rest:path}", include_in_schema=False)
     def api_not_found(rest: str) -> None:
         raise HTTPException(status_code=404, detail="not found")
