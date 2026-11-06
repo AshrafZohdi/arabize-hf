@@ -11,7 +11,7 @@ from server.config import Settings, load_settings
 from server.glossary import load_glossary, load_glossary_from_hub
 from server.llm import LLM
 from server.game import Game
-from server.routes import explain, game, glossary, lessons, tutor
+from server.routes import explain, game, glossary, lessons, tutor, voice
 from server.lessons import load_lessons
 from server.termbank import TermBank, load_term_bank
 
@@ -27,6 +27,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     # Our glossary straight away; the full bank replaces it when the background load finishes.
     app.state.termbank = TermBank.from_rows(_glossary_rows(app.state.glossary), {"steps": {"sources": "loading"}})
     app.state.embedder = None
+    app.state.audio_manifest = {}
+    if settings.voice_enabled:
+        from server.voice.mms import MmsArabic
+
+        app.state.tts = {"ar": MmsArabic()}
     app.state.lessons, app.state.lessons_source = load_lessons(settings.content_dir, from_hub=False)
     # The daily word comes from our own glossary in content/, which never changes while the app runs.
     app.state.game = Game(load_glossary(settings.content_dir), settings.content_dir, _game_secret(settings))
@@ -37,6 +42,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(tutor.router)
     app.include_router(lessons.router)
     app.include_router(game.router)
+    app.include_router(voice.router)
 
     @app.get("/api/health")
     def health() -> dict:
@@ -46,6 +52,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "demo_mode": settings.demo_mode,
             "llm": app.state.llm.status(),
             "voice_enabled": settings.voice_enabled,
+            "voice_recordings": len(app.state.audio_manifest),
             "termbank": {k: v for k, v in app.state.termbank.status.items()},
             "semantic_search": app.state.embedder is not None and app.state.termbank.vectors is not None,
             "lessons": {"count": len(app.state.lessons), "source": app.state.lessons_source},
@@ -71,6 +78,24 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return FileResponse(index, headers={"Cache-Control": "no-cache"})
 
     return app
+
+
+def load_audio_manifest(bucket: str | None) -> dict[str, str]:
+    """Pre-generated term audio in the public Storage Bucket: {"ar/<id>": url, "en/<id>": url}."""
+    if not bucket:
+        return {}
+    import json
+    import urllib.request
+
+    base = f"https://huggingface.co/buckets/{bucket}/resolve"
+    out: dict[str, str] = {}
+    for lang in ("ar", "en"):  # one manifest per pre-generation Job
+        try:
+            with urllib.request.urlopen(f"{base}/audio/manifest-{lang}.json", timeout=20) as r:  # follows the CDN redirect
+                out |= {k: f"{base}/audio/{v}" for k, v in json.loads(r.read())["files"].items()}
+        except Exception as e:
+            logging.getLogger("darby").warning("audio manifest %s: %s", lang, type(e).__name__)
+    return out
 
 
 def _game_secret(settings: Settings) -> bytes:
@@ -100,6 +125,12 @@ def _glossary_rows(g) -> list[dict]:
 
 
 def _load_bank(app: FastAPI, settings: Settings) -> None:
+    if settings.voice_enabled:
+        try:
+            app.state.audio_manifest = load_audio_manifest(settings.hf_bucket)
+            app.state.tts["ar"].synthesize("مرحبا")  # load the model now, not on the first listen
+        except Exception as e:
+            logging.getLogger("darby").warning("voice warm-up: %s", type(e).__name__)
     try:
         app.state.lessons, app.state.lessons_source = load_lessons(settings.content_dir, from_hub=True, token=settings.hf_token)
     except Exception as e:
