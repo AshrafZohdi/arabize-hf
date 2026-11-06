@@ -2,9 +2,12 @@ import { createStore } from './store'
 
 // XP, streaks and saved terms live in local storage for the hackathon (no accounts).
 // XP rules from the old Arabize app: 15 for explaining and practising a term, plus 5 on the first attempt.
-export type Progress = { xp: number; streak: number; lastActive: string | null; paid: string[] }
+export type Progress = { xp: number; streak: number; lastActive: string | null; paid: string[]; dayXp?: number }
 
 export const XP = { practice: 15, firstTry: 5 } as const
+
+/** Daily goal in points (the old Arabize app had a per-day XP goal; 30 is about two quick questions). */
+export const DAILY_GOAL = 30
 
 const store = createStore<Progress>('darby.progress', { xp: 0, streak: 0, lastActive: null, paid: [] })
 export const useProgress = store.use
@@ -26,6 +29,12 @@ export function award(key: string, amount: number, now = new Date()): number {
   const p = store.get()
   if (p.paid.includes(key)) return 0
   const today = qatarDate(now)
-  store.set({ xp: p.xp + amount, streak: nextStreak(p, today), lastActive: today, paid: [...p.paid.slice(-499), key] })
+  const dayXp = (p.lastActive === today ? (p.dayXp ?? 0) : 0) + amount
+  store.set({ xp: p.xp + amount, streak: nextStreak(p, today), lastActive: today, paid: [...p.paid.slice(-499), key], dayXp })
   return amount
+}
+
+/** Points earned today (Qatar date); zero once the day has changed. */
+export function todayXp(p: Progress, now = new Date()): number {
+  return p.lastActive === qatarDate(now) ? (p.dayXp ?? 0) : 0
 }

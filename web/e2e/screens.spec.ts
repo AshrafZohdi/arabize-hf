@@ -18,6 +18,9 @@ for (const lang of ['ar', 'en'] as const) {
     await page.locator('#quiz-h').waitFor({ timeout: 20_000 })
     await page.locator('.btn-primary:not([disabled])').first().waitFor({ timeout: 20_000 })
     await page.screenshot({ path: `${dir}-home.png`, fullPage: true })
+    // A viewport capture mid page shows the fixed page light and tab bar as a visitor sees them (kept out of the repo).
+    await page.locator('#quiz-h').scrollIntoViewIfNeeded()
+    await page.screenshot({ path: info.outputPath('home-scrolled.png') })
     await page.goto('/glossary')
     await page.screenshot({ path: `${dir}-glossary.png`, fullPage: false })
     await page.goto('/tutor?lesson=day-1')

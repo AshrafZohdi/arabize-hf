@@ -220,8 +220,6 @@
   "path.locked": "Locked",
   "path.continue": "Continue",
   "path.review": "Review",
-  "path.showAll": "See the whole path",
-  "path.showLess": "Show less",
   "review.due": {
     "zero": "No terms to review",
     "one": "1 term to review today",
@@ -261,5 +259,9 @@
   "voice.listenEn": "Listen in English",
   "voice.listenAr": "Listen in Arabic",
   "voice.loading": "Preparing the voice",
-  "voice.failed": "Audio did not play"
+  "voice.failed": "Audio did not play",
+  "home.goalTitle": "Today's goal",
+  "home.goalProgress": "{k} of {n} points",
+  "review.sub": "Two minutes to make them stick",
+  "code.attempt": "Try {k} of {n}"
 }

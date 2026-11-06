@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest'
-import { award, qatarDate, resetProgressCache } from './progress'
+import { award, qatarDate, resetProgressCache, todayXp } from './progress'
 
 afterEach(() => {
   localStorage.clear()
@@ -24,5 +24,13 @@ describe('award', () => {
   })
   it('uses Qatar time for the date', () => {
     expect(qatarDate(new Date('2026-11-05T22:30:00Z'))).toBe('2026-11-06')
+  })
+  it('counts points per Qatar day for the daily goal', () => {
+    award('a', 15, new Date('2026-11-05T10:00:00+03:00'))
+    award('b', 20, new Date('2026-11-05T11:00:00+03:00'))
+    expect(todayXp(read(), new Date('2026-11-05T12:00:00+03:00'))).toBe(35)
+    expect(todayXp(read(), new Date('2026-11-06T09:00:00+03:00'))).toBe(0)
+    award('c', 15, new Date('2026-11-06T09:00:00+03:00'))
+    expect(read().dayXp).toBe(15)
   })
 })

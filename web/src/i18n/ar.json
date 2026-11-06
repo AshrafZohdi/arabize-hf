@@ -220,8 +220,6 @@
   "path.locked": "مقفل",
   "path.continue": "كمّل",
   "path.review": "راجعه",
-  "path.showAll": "شوف الدرب كامل",
-  "path.showLess": "اعرض أقل",
   "review.due": {
     "zero": "ما في مصطلحات تبي مراجعة",
     "one": "مصطلح واحد يبي مراجعة اليوم",
@@ -261,5 +259,9 @@
   "voice.listenEn": "استمع للنطق بالإنجليزي",
   "voice.listenAr": "استمع بالعربي",
   "voice.loading": "نجهّز الصوت",
-  "voice.failed": "ما اشتغل الصوت"
+  "voice.failed": "ما اشتغل الصوت",
+  "home.goalTitle": "هدف اليوم",
+  "home.goalProgress": "{k} من {n} نقطة",
+  "review.sub": "دقيقتين وتثبت في راسك",
+  "code.attempt": "محاولة {k} من {n}"
 }

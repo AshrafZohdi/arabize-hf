@@ -1,7 +1,8 @@
+import type { CSSProperties } from 'react'
 import { ExplainPanel } from '../components/explain/ExplainPanel'
 import { DailyCode } from '../components/home/DailyCode'
 import { PathCard } from '../components/home/PathCard'
-import { ReviewBanner } from '../components/home/ReviewBanner'
+import { DailyGoal, ReviewBanner } from '../components/home/ReviewBanner'
 import { PageTitle } from '../components/PageTitle'
 import { Segmented } from '../components/Segmented'
 import { useI18n } from '../i18n'
@@ -25,16 +26,27 @@ export function Home() {
       <PageTitle
         title={greeting}
         subtitle={t('home.subtitle')}
-        aside={<Segmented label={t('home.explainLanguage')} options={options} value={explainLang} onChange={setExplainLang} />}
+        aside={
+          <div className="flex flex-wrap gap-3">
+            <ReviewBanner />
+            <DailyGoal />
+          </div>
+        }
       />
       <div className="flex flex-wrap items-start gap-5 sm:gap-7">
-        <div className="flex min-w-0 flex-[999_1_600px] flex-col gap-5 sm:gap-7">
-          <ExplainPanel lang={explainLang} />
+        <div className="card-enter flex min-w-0 flex-[999_1_600px] flex-col gap-5 sm:gap-7">
+          <ExplainPanel
+            lang={explainLang}
+            langControl={<Segmented label={t('home.explainLanguage')} options={options} value={explainLang} onChange={setExplainLang} />}
+          />
         </div>
         <aside className="flex min-w-0 flex-[1_1_340px] flex-col gap-5 sm:gap-7">
-          <DailyCode />
-          <PathCard />
-          <ReviewBanner />
+          <div className="card-enter" style={{ '--i': 1 } as CSSProperties}>
+            <DailyCode />
+          </div>
+          <div className="card-enter" style={{ '--i': 2 } as CSSProperties}>
+            <PathCard />
+          </div>
         </aside>
       </div>
     </>

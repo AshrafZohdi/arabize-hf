@@ -72,3 +72,11 @@ Measured: multilingual-e5-small ranks shared words above meaning across the whol
 
 ## D16. 2026-11-06: Darby as an MCP server
 A Gradio app mounted in FastAPI at `/mcp-tools` with `mcp_server=True` exposes `lookup_term`, `explain_text` (deterministic, no model call, free) and `todays_code_clue` (clue and length, never the answer). It is mounted before the web app's catch-all route. Endpoint for MCP clients (streamable HTTP): `https://fayezalkh12-darby.hf.space/mcp-tools/gradio_api/mcp/`. Verified with the `mcp` Python client against the live Space. Gradio 6.31 needs pydantic 2.12.x, so the Space pins pydantic 2.12.5 (all tests pass on it).
+
+## D17. 2026-11-06: Frosted Dunes redesign
+The team supplied page mockups (`darby-frosted-dunes-mockups/`, kept out of git at 34 MB). Same tokens and fonts; only the surface and motion change.
+- Page light (brand radial gradients, dune lines, grain) on a fixed layer behind glass cards (`.card`, `.glass`: surface 58%, blur 24px, white border, inner highlight, the ledge shadow).
+- One section nav landmark: inside the header pill from 640 px, a fixed glass tab bar at the bottom on phones. The header glass sits on a background layer, because `backdrop-filter` on an ancestor would pin a fixed child to the header.
+- Home: review and daily goal pills next to the greeting, the explanation language toggle inside the Smart Explain card, all 7 lessons on a numbered rail, "attempt k of 6" on the daily code, tiles flip only on the row just played.
+- Daily goal: 30 points a day, counted per Qatar date in local storage. The old Arabize app had a per-day XP goal; 30 matches the mockup and is about two quick questions.
+- Motion respects `prefers-reduced-motion`.

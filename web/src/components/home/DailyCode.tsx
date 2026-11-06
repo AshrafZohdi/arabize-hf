@@ -1,5 +1,5 @@
-import { Check, Copy } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { Check, Copy, Grid3x3 } from 'lucide-react'
+import { useEffect, useState, type CSSProperties } from 'react'
 import { useI18n, type MessageKey } from '../../i18n'
 import { guessCode, startCode, type CodeStart, type Mark } from '../../lib/api'
 import { award } from '../../lib/progress'
@@ -40,6 +40,8 @@ export function DailyCode() {
   const [busy, setBusy] = useState(false)
   const [copied, setCopied] = useState(false)
   const [error, setError] = useState(false)
+  // Only the row just played flips; rows restored from storage show their colours at once.
+  const [flipRow, setFlipRow] = useState(-1)
 
   useEffect(() => {
     setStart(null)
@@ -74,6 +76,7 @@ export function DailyCode() {
         answer: r.answer ? { id: r.answer.id, word: r.answer.word } : null,
       }
       setState(next)
+      setFlipRow(next.rows.length - 1)
       store(`darby.code.${start.date}.${lang}`, next)
       setInput('')
       if (r.answer) award(`code:${start.date}:${lang}`, r.answer.xp)
@@ -103,11 +106,18 @@ export function DailyCode() {
 
   return (
     <section aria-labelledby="code-h" className="card">
-      <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
-        <h2 id="code-h" className="m-0 font-display text-[22px] font-semibold whitespace-nowrap text-maroon">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+        <h2 id="code-h" className="m-0 flex items-center gap-2 font-display text-[22px] font-semibold whitespace-nowrap text-maroon">
+          <Grid3x3 aria-hidden="true" size={20} />
           {t('home.codeTitle')}
         </h2>
-        <div className="flex items-center gap-2">
+        {start && state && !state.finished && (
+          <span className="rounded-full bg-surface-3/80 px-3 py-1 text-sm font-semibold text-ink-2">
+            {t('code.attempt', { k: Math.min(state.rows.length + 1, start.max_tries), n: start.max_tries })}
+          </span>
+        )}
+      </div>
+      <div className="mb-3 flex items-center gap-2">
           <div role="group" aria-label={t('code.langLabel')} className="flex gap-1 rounded-full border border-line p-0.5">
             {(['en', 'ar'] as const).map((l) => (
               <button
@@ -123,7 +133,6 @@ export function DailyCode() {
             ))}
           </div>
           <span className="rounded-full bg-gold-soft px-3 py-1 text-sm font-bold text-gold-text">{t('code.points', { n: 30 })}</span>
-        </div>
       </div>
       {error && <p className="m-0 text-muted">{t('code.error')}</p>}
       {start && state && (
@@ -141,7 +150,13 @@ export function DailyCode() {
             {state.rows.map((row, i) => (
               <div key={i} className="grid gap-1.5" style={cols}>
                 {[...row.guess].map((ch, j) => (
-                  <div key={j} role="img" className={`flex h-11 items-center justify-center rounded-[10px] uppercase ${TILE[row.marks[j]]}`} aria-label={`${ch}: ${t(MARK_KEY[row.marks[j]])}`}>
+                  <div
+                    key={j}
+                    role="img"
+                    className={`flex h-11 items-center justify-center rounded-[10px] uppercase shadow-[0_3px_0_var(--shadow)] ${TILE[row.marks[j]]} ${i === flipRow ? 'tile-flip' : ''}`}
+                    style={{ '--i': j } as CSSProperties}
+                    aria-label={`${ch}: ${t(MARK_KEY[row.marks[j]])}`}
+                  >
                     <span aria-hidden="true">{ch}</span>
                   </div>
                 ))}
@@ -155,7 +170,7 @@ export function DailyCode() {
                   {Array.from({ length: len }, (_, j) => (
                     <div
                       key={j}
-                      className={`flex h-11 items-center justify-center rounded-[10px] border-2 bg-white uppercase text-ink ${
+                      className={`flex h-11 items-center justify-center rounded-[10px] border-2 bg-white/70 uppercase text-ink ${
                         i === 0 && (j < typed.length || j === typed.length) ? 'border-maroon' : 'border-line'
                       }`}
                     >

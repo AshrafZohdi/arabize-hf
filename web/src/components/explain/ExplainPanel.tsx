@@ -1,5 +1,5 @@
 import { AlertTriangle, ArrowRight, Check, Hourglass, Info, Loader2, Pencil, RotateCcw, X } from 'lucide-react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useI18n, type MessageKey } from '../../i18n'
 import { ApiError, findTerms, streamExplain, type Card, type ExplainResult, type ExplainStyle, type TermMatch } from '../../lib/api'
 import { termKey, useDictionary } from '../../lib/dictionary'
@@ -14,7 +14,8 @@ const STYLES: ExplainStyle[] = ['work', 'school', 'life', 'technical', 'one_line
 
 type Phase = 'idle' | 'streaming' | 'done'
 
-export function ExplainPanel({ lang }: { lang: ExplainLang }) {
+/** `langControl` sits in the card header (the explanation language toggle on Home). */
+export function ExplainPanel({ lang, langControl }: { lang: ExplainLang; langControl?: ReactNode }) {
   const { t, lang: uiLang } = useI18n()
   const dictionary = useDictionary()
   const isKnown = (en: string) => Boolean(dictionary.terms[termKey(en)])
@@ -132,13 +133,15 @@ export function ExplainPanel({ lang }: { lang: ExplainLang }) {
     <>
       <section aria-labelledby="explain-h" className="card">
         <div className="mb-3.5 flex flex-wrap items-center justify-between gap-3">
-          <h2 id="explain-h" className="m-0 font-display text-[22px] font-semibold text-maroon">
+          <h2 id="explain-h" className="m-0 flex items-center gap-2 font-display text-[22px] font-semibold text-maroon">
+            <Pencil aria-hidden="true" size={20} />
             {t('home.explainTitle')}
           </h2>
-          {uniqueTerms.length > 0 && (
-            <span className="text-sm text-muted">{t('explain.termsSummary', { n: uniqueTerms.length, k: knownCount })}</span>
-          )}
+          {langControl}
         </div>
+        {uniqueTerms.length > 0 && (
+          <p className="mt-0 mb-2 text-sm text-ink-2">{t('explain.termsSummary', { n: uniqueTerms.length, k: knownCount })}</p>
+        )}
 
         <label htmlFor="explain-input" className={editing ? 'mb-2 block font-semibold text-ink-2' : 'sr-only'}>
           {t('explain.inputLabel')}
