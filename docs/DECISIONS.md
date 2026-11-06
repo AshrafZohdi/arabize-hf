@@ -56,3 +56,10 @@ The USD 100 credits are on Fayez's personal account (`FayezAlkh12`, can pay); th
 
 ## D13. 2026-11-05: Semantic search design
 Measured: multilingual-e5-small ranks shared words above meaning across the whole bank ("made-up facts": fact table 0.87, Hallucination 0.82). Search order is now: word matches (with curated Arabic aliases, for example الأوامر for Prompt from the brief), then up to 3 Darby cards close in meaning (cards re-embedded with their definitions in English and Arabic), then whole-bank meaning matches only at 0.88 or more. Query vectors come from the ONNX export with ONNX Runtime (identical to sentence-transformers, cosine 1.0 on test strings), so the Space has no PyTorch. A larger embedding model would do better; not switched without a team decision.
+
+## D14. 2026-11-06: Incident: Space down about 11 minutes (12:19 to 12:30 UTC)
+- What happened: a test file I added used Node's `fs` and `path`; the web TypeScript build (no Node types) failed in the Space Docker build, and the Space served 503 until the fix built.
+- Root cause: I pushed after running the web tests but not the full build. The test runner (vitest) does not typecheck; `tsc -b` in the build does.
+- Fix: the check now reads sources with Vite's `import.meta.glob` (no Node types). Full gate passed (pytest, web tests, web build, Docker build) before the fix was pushed.
+- Prevention: `scripts/gate.sh` runs every check the Space build depends on, plus a scan for tokens in the staged diff; it runs before every push.
+- The bug the test was guarding: Chrome 155 returns a Promise from `scrollIntoView`; an effect with an expression body handed it to React as a cleanup ("destroy is not a function") and blanked the tutor page after sending. Fixed with braced effects, a regression test that mimics the Promise, and the source check.
