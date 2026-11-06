@@ -257,5 +257,9 @@
   "lesson.recap": "الخلاصة",
   "lesson.exercise": "تمرين",
   "lesson.promptLab": "مختبر الأوامر",
-  "lesson.termLoading": "لحظة"
+  "lesson.termLoading": "لحظة",
+  "voice.listenEn": "استمع للنطق بالإنجليزي",
+  "voice.listenAr": "استمع بالعربي",
+  "voice.loading": "نجهّز الصوت",
+  "voice.failed": "ما اشتغل الصوت"
 }

@@ -7,6 +7,7 @@ import { glossaryBrowse, glossaryCards, glossarySearch, type GlossaryCard, type 
 import { removeTerm, saveTerm, termKey, useDictionary } from '../lib/dictionary'
 import { useExplainLang } from '../lib/explainLang'
 import { Link } from '../lib/router'
+import { ListenButtons } from '../components/ListenButtons'
 
 type Domain = 'all' | 'ai' | 'software'
 
@@ -333,6 +334,7 @@ function FullCardDialog({ card, onClose }: { card: GlossaryCard | null; onClose:
             {card.source === 'fanar' ? <Sparkles aria-hidden="true" size={14} /> : <BookOpen aria-hidden="true" size={14} />}
             {card.source === 'fanar' ? t('explain.fromFanar') : t('explain.fromGlossary')}
           </p>
+          <ListenButtons en={card.term_en} ar={card.term_ar} termId={card.id} />
           {card.term_gulf && <p className="m-0 text-ink-2">{t('glossary.gulfUsage', { t: card.term_gulf })}</p>}
           <Field label={t('glossary.definition')}>{card.explanation}</Field>
           {card.analogy && <div className="rounded-[14px] bg-surface-3 px-4 py-3 text-ink-2">{card.analogy}</div>}

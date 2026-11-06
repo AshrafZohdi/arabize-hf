@@ -3,17 +3,19 @@
 //
 //   hf jobs run --flavor cpu-upgrade --timeout 20m -v hf://spaces/FayezAlkh12/darby:/code \
 //     -v hf://buckets/FayezAlkh12/darby-media:/out node:22-slim \
-//     bash -c "cd /tmp && npm i --no-audit --no-fund kokoro-js@1.2.1 && node /code/jobs/pregen_audio_en.mjs"
+//     bash -c "cd /tmp && npm i --no-audit --no-fund kokoro-js@1.2.1 && cp /code/jobs/pregen_audio_en.mjs . && node pregen_audio_en.mjs"
+// (Node resolves packages next to the script, so it runs from /tmp where kokoro-js is installed.)
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { KokoroTTS } from 'kokoro-js'
 
 const MODEL = 'onnx-community/Kokoro-82M-v1.0-ONNX'
-const REVISION = '1939ad2a8e416c0acfeecc08a694d14ef25f2231'
+// kokoro-js takes no revision: the model follows main (1939ad2a8e416c0acfeecc08a694d14ef25f2231 when written).
+const REVISION = 'main (not pinnable through kokoro-js)'
 const VOICE = 'af_heart'
 const t0 = Date.now()
 const res = await fetch('https://huggingface.co/datasets/nuvais/darby-ai-glossary-ar-en/resolve/main/data/glossary.json')
 const cards = await res.json()
-const tts = await KokoroTTS.from_pretrained(MODEL, { dtype: 'q8', device: 'cpu', revision: REVISION })
+const tts = await KokoroTTS.from_pretrained(MODEL, { dtype: 'q8', device: 'cpu' })
 mkdirSync('/out/audio/en', { recursive: true })
 const files = {}
 const failed = []

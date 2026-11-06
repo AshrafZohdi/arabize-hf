@@ -2,6 +2,7 @@ import { BookOpen, BookmarkCheck, Plus, Sparkles } from 'lucide-react'
 import { useI18n } from '../../i18n'
 import type { Card } from '../../lib/api'
 import { saveTerm, termKey, useDictionary } from '../../lib/dictionary'
+import { ListenButtons } from '../ListenButtons'
 
 export function TermCard({ card, showMsa }: { card: Card; showMsa: boolean }) {
   const { t } = useI18n()
@@ -23,6 +24,7 @@ export function TermCard({ card, showMsa }: { card: Card; showMsa: boolean }) {
             </span>
           </div>
         </div>
+        <ListenButtons en={card.term_en} ar={card.term_ar} termId={card.id} />
       </div>
       <p className="mt-3.5 mb-0 text-[17px]">{card.explanation}</p>
       {card.analogy && (

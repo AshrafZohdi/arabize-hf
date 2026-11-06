@@ -257,5 +257,9 @@
   "lesson.recap": "Recap",
   "lesson.exercise": "Exercise",
   "lesson.promptLab": "Prompt lab",
-  "lesson.termLoading": "One moment"
+  "lesson.termLoading": "One moment",
+  "voice.listenEn": "Listen in English",
+  "voice.listenAr": "Listen in Arabic",
+  "voice.loading": "Preparing the voice",
+  "voice.failed": "Audio did not play"
 }
