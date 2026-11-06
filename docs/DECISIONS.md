@@ -63,3 +63,9 @@ Measured: multilingual-e5-small ranks shared words above meaning across the whol
 - Fix: the check now reads sources with Vite's `import.meta.glob` (no Node types). Full gate passed (pytest, web tests, web build, Docker build) before the fix was pushed.
 - Prevention: `scripts/gate.sh` runs every check the Space build depends on, plus a scan for tokens in the staged diff; it runs before every push.
 - The bug the test was guarding: Chrome 155 returns a Promise from `scrollIntoView`; an effect with an expression body handed it to React as a cleanup ("destroy is not a function") and blanked the tutor page after sending. Fixed with braced effects, a regression test that mimics the Promise, and the source check.
+
+## D15. 2026-11-06: Voice without PyTorch in the Space
+- Arabic: `facebook/mms-tts-ara` (CC BY-NC 4.0, fine for the hackathon demo, flagged in the README) through its ONNX export `Xenova/mms-tts-ara` (revision e9dd80f9) on ONNX Runtime, which the Space already has for search. `is_uroman` is false, so no romanisation. The VitsTokenizer is ported (vocabulary filter, blank token between characters). About 0.2 s per term on CPU after loading.
+- English: Kokoro-82M (Apache 2.0) with `kokoro-js` in the learner's browser, loaded only on the first listen that has no recording (2.2 MB code chunk, gzipped 905 KB, plus the q8 model from the Hub). `kokoro-js` cannot pin a model revision; it follows main (1939ad2a when built).
+- Pre-generated audio for all 140 cards, both languages, written by CPU Jobs straight into the public Storage Bucket `FayezAlkh12/darby-media` (mounted at `/out`; the Space repo mounted read-only at `/code`, so the Jobs run the app's own voice code). The Space redirects `/api/tts/term/{id}` to the bucket file; the browser prefers the recording over generating speech.
+- Voice is behind `VOICE_ENABLED` (a Space variable, now on). `/api/asr` is a 501 stub for Whisper.
