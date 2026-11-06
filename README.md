@@ -14,6 +14,8 @@ models:
   - Xenova/mms-tts-ara
   - facebook/mms-tts-ara
   - onnx-community/Kokoro-82M-v1.0-ONNX
+  - openbmb/VoxCPM2
+  - Systran/faster-whisper-small
   - QCRI/Fanar-2-Oryx-IVU
   - nuvais/Fanar-2-Oryx-IVU-Q8_0-GGUF
   - QCRI/Fanar-2-Oryx-IG
@@ -114,7 +116,9 @@ Every model call goes through `server/llm.py`: reasoning switched off through Fa
 | [QCRI/Fanar-2-27B-Instruct](https://huggingface.co/QCRI/Fanar-2-27B-Instruct) | Every AI feature | Apache 2.0 |
 | [nuvais/Fanar-2-27B-Instruct-Q5_K_M-GGUF](https://huggingface.co/nuvais/Fanar-2-27B-Instruct-Q5_K_M-GGUF) | Endpoint weights (from mradermacher's quantization) | Apache 2.0 |
 | [intfloat/multilingual-e5-small](https://huggingface.co/intfloat/multilingual-e5-small) | Search vectors | MIT |
-| [facebook/mms-tts-ara](https://huggingface.co/facebook/mms-tts-ara) via [Xenova/mms-tts-ara](https://huggingface.co/Xenova/mms-tts-ara) | Arabic speech | **CC BY-NC 4.0: non-commercial, fine for this demo; a commercial launch needs another Arabic voice** |
+| [openbmb/VoxCPM2](https://huggingface.co/openbmb/VoxCPM2) | Arabic voice of the 140 term cards, recorded in a GPU Job and checked word by word with Whisper | Apache 2.0 |
+| [Systran/faster-whisper-small](https://huggingface.co/Systran/faster-whisper-small) (OpenAI Whisper small) | Speech to text for the microphone buttons | MIT |
+| [facebook/mms-tts-ara](https://huggingface.co/facebook/mms-tts-ara) via [Xenova/mms-tts-ara](https://huggingface.co/Xenova/mms-tts-ara) | Live Arabic speech for words without a recording | **CC BY-NC 4.0: non-commercial, fine for this demo; a commercial launch needs another Arabic voice** |
 | [Kokoro-82M](https://huggingface.co/hexgrad/Kokoro-82M) via [onnx-community/Kokoro-82M-v1.0-ONNX](https://huggingface.co/onnx-community/Kokoro-82M-v1.0-ONNX) | English speech | Apache 2.0 |
 | [QCRI/Fanar-2-Oryx-IVU](https://huggingface.co/QCRI/Fanar-2-Oryx-IVU) via [nuvais/Fanar-2-Oryx-IVU-Q8_0-GGUF](https://huggingface.co/nuvais/Fanar-2-Oryx-IVU-Q8_0-GGUF) (from mradermacher's quantization) | Photo explain: reads the English text in a photo (behind `IMAGE_ENABLED`) | Apache 2.0 |
 | [QCRI/Fanar-2-Oryx-IG](https://huggingface.co/QCRI/Fanar-2-Oryx-IG) on [black-forest-labs/FLUX.1-schnell](https://huggingface.co/black-forest-labs/FLUX.1-schnell) | Draws image prompts in the image prompt lab (behind `IMAGE_ENABLED`, endpoint not created yet) | Apache 2.0 (FLUX.1-schnell is gated: accept its terms first) |
