@@ -80,4 +80,6 @@ The team supplied page mockups (`darby-frosted-dunes-mockups/`, kept out of git 
 - Home: review and daily goal pills next to the greeting, the explanation language toggle inside the Smart Explain card, all 7 lessons on a numbered rail, "attempt k of 6" on the daily code, tiles flip only on the row just played.
 - Daily goal: 30 points a day, counted per Qatar date in local storage. The old Arabize app had a per-day XP goal; 30 matches the mockup and is about two quick questions.
 - Daily code win opens a modal over Home (trophy, the word, its meaning, points, streak, a share grid without the word, a countdown to the next Qatar midnight). The 404 page got the illustrated layout with links back.
+- Tutor: a side column with three question templates filled with the lesson's key terms (not model generated) and the terms linked to the glossary. Only the recorded demo question has a fixture, so suggestions need the endpoint awake.
+- Lesson: a lesson bar (lesson k of n, progress, minutes), a step rail on wide screens, and the finish screen with points, streak and lesson terms plus a next lesson button. The one step per screen flow is unchanged.
 - Motion respects `prefers-reduced-motion`. axe covers the 404 and the open win dialog.

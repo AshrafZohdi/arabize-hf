@@ -277,5 +277,14 @@
   "tutor.lessonTerms": "مصطلحات الدرس",
   "tutor.suggestWhat": "شنو يعني {a}؟",
   "tutor.suggestDiff": "شنو الفرق بين {a} و{b}؟",
-  "tutor.suggestExample": "عطني مثال على {a} من الشغل"
+  "tutor.suggestExample": "عطني مثال على {a} من الشغل",
+  "lesson.of": "الدرس {k} من {n}",
+  "lesson.minutes": "{m} دقايق",
+  "lesson.stepsTitle": "خطوات الدرس",
+  "lesson.exercises": "تمارين",
+  "lesson.doneTitle": "كفو! خلّصت الدرس",
+  "lesson.statPoints": "نقطة",
+  "lesson.statStreak": "أيام ورا بعض",
+  "lesson.statTerms": "مصطلحات الدرس",
+  "lesson.nextLesson": "الدرس الجاي"
 }

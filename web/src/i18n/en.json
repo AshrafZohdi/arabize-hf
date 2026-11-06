@@ -277,5 +277,14 @@
   "tutor.lessonTerms": "Lesson terms",
   "tutor.suggestWhat": "What does {a} mean?",
   "tutor.suggestDiff": "What is the difference between {a} and {b}?",
-  "tutor.suggestExample": "Give me a work example of {a}"
+  "tutor.suggestExample": "Give me a work example of {a}",
+  "lesson.of": "Lesson {k} of {n}",
+  "lesson.minutes": "{m} min",
+  "lesson.stepsTitle": "Lesson steps",
+  "lesson.exercises": "Exercises",
+  "lesson.doneTitle": "Nice! Lesson complete",
+  "lesson.statPoints": "points",
+  "lesson.statStreak": "days in a row",
+  "lesson.statTerms": "lesson terms",
+  "lesson.nextLesson": "Next lesson"
 }

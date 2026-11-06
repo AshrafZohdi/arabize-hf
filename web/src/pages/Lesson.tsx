@@ -1,18 +1,19 @@
-import { ArrowDown, ArrowUp, Check, PartyPopper, X } from 'lucide-react'
+import type React from 'react'
+import { ArrowDown, ArrowRight, ArrowUp, BookOpen, Check, Clock, Dumbbell, Flame, Layers, Lightbulb, MessageSquare, Pencil, Star, Target, Trophy, X, type LucideIcon } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Segmented } from '../components/Segmented'
 import { useI18n, type MessageKey } from '../i18n'
-import { ApiError, type Card } from '../lib/api'
+import { ApiError, listLessons, type Card, type LessonSummary } from '../lib/api'
 import { useExplainLang, type ExplainLang } from '../lib/explainLang'
 import { completeLesson, LESSON_XP } from '../lib/lessonProgress'
 import { buildSteps, pick, seededShuffle, segments, termSlug, withRetries, type Step, type Texts } from '../lib/lessonSteps'
-import { award } from '../lib/progress'
+import { award, useProgress } from '../lib/progress'
 import { Link, useRouter } from '../lib/router'
 import { PromptLab } from './Tutor'
 
 type Exercise = Record<string, unknown> & { type: 'mcq' | 'match' | 'fill' | 'order'; explanation?: Texts }
 type Block = { type: string; en?: string; ar?: string; gulf?: string; terms?: string[]; exercises?: Exercise[] }
-type Lesson = { slug: string; order: number; title: Texts; blocks: Block[] }
+type Lesson = { slug: string; order: number; est_minutes?: number; title: Texts; blocks: Block[] }
 
 const BLOCK_TITLE: Record<string, MessageKey> = {
   hook: 'lesson.hook',
@@ -21,6 +22,15 @@ const BLOCK_TITLE: Record<string, MessageKey> = {
   key_terms: 'lesson.keyTerms',
   prompt_lab: 'lesson.promptLab',
   recap: 'lesson.recap',
+}
+const BLOCK_ICON: Record<string, LucideIcon> = {
+  hook: Target,
+  concept: Lightbulb,
+  example: MessageSquare,
+  key_terms: BookOpen,
+  exercise: Dumbbell,
+  prompt_lab: Pencil,
+  recap: Layers,
 }
 const EXERCISE_XP = 5 // first-try exercise (old app's rule)
 
@@ -37,6 +47,12 @@ export function LessonPage({ slug }: { slug: string }) {
   const [finished, setFinished] = useState<number | null>(null)
   const [termOpen, setTermOpen] = useState<string | null>(null)
   const top = useRef<HTMLHeadingElement>(null)
+  const [all, setAll] = useState<LessonSummary[]>([])
+  const { streak } = useProgress()
+
+  useEffect(() => {
+    listLessons().then(setAll).catch(() => {})
+  }, [])
 
   useEffect(() => {
     fetch(`/api/lessons/${slug}`)
@@ -97,68 +113,158 @@ export function LessonPage({ slug }: { slug: string }) {
     { value: 'gulf', label: t('lang.gulf'), lang: 'ar' },
   ]
 
+  const nextLesson = all.find((l) => l.order === lesson.order + 1)
+  const termCount = lesson.blocks.find((b) => b.type === 'key_terms')?.terms?.length ?? 0
+  const shownStep = Math.min(at + 1, steps.length)
+  const blockType = isExercise ? 'exercise' : lesson.blocks[step.block].type
+  const Icon = BLOCK_ICON[blockType] ?? Lightbulb
+  // The rail lists the lesson's blocks; all exercises in a block are one row.
+  const rail = lesson.blocks.map((b, i) => ({ i, type: b.type }))
+  const currentBlock = finished !== null ? lesson.blocks.length : step.block
+
   return (
-    <div className="mx-auto flex max-w-[760px] flex-col gap-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <Link href="/" className="flex min-h-11 items-center gap-1.5 font-semibold no-underline">
-          <X aria-hidden="true" size={18} />
-          {t('lesson.exit')}
+    <div className="mx-auto flex max-w-[1100px] flex-col gap-5">
+      <div className="glass flex flex-wrap items-center gap-x-5 gap-y-3 px-4 py-3">
+        <Link
+          href="/"
+          aria-label={t('lesson.exit')}
+          className="flex size-11 shrink-0 items-center justify-center rounded-full border border-white/80 bg-white/80 text-ink-2 no-underline hover:text-ink"
+        >
+          <X aria-hidden="true" size={20} />
         </Link>
-        <Segmented label={t('home.explainLanguage')} options={langOptions} value={lang} onChange={setLang} />
-      </div>
-      <div>
-        <p className="m-0 font-display text-lg font-semibold text-ink-2" lang={title.lang} dir={title.lang === 'en' ? 'ltr' : 'rtl'}>
-          {lesson.order}. {title.text}
-        </p>
-        <div className="mt-2 flex items-center gap-3">
+        <div className="min-w-0 flex-[1_1_200px]">
+          {all.length > 0 && <p className="m-0 text-[13px] font-bold text-maroon">{t('lesson.of', { k: lesson.order, n: all.length })}</p>}
+          <p className="m-0 font-display text-lg leading-snug font-semibold" lang={title.lang} dir={title.lang === 'en' ? 'ltr' : 'rtl'}>
+            {title.text}
+          </p>
+        </div>
+        <div className="flex min-w-0 flex-[2_1_220px] items-center gap-3">
           <div
             role="progressbar"
             aria-valuemin={1}
             aria-valuemax={steps.length}
-            aria-valuenow={Math.min(at + 1, steps.length)}
-            aria-label={t('lesson.progress', { k: Math.min(at + 1, steps.length), n: steps.length })}
-            className="h-3 flex-1 overflow-hidden rounded-full bg-line"
+            aria-valuenow={shownStep}
+            aria-label={t('lesson.progress', { k: shownStep, n: steps.length })}
+            className="h-3 flex-1 overflow-hidden rounded-full bg-surface-3"
           >
-            <div className="h-full rounded-full bg-maroon transition-[width]" style={{ width: `${((finished !== null ? steps.length : at + 1) / steps.length) * 100}%` }} />
+            <div className="h-full rounded-full bg-maroon transition-[width] duration-300" style={{ width: `${((finished !== null ? steps.length : at + 1) / steps.length) * 100}%` }} />
           </div>
-          <span className="text-sm text-muted">{t('lesson.progress', { k: Math.min(at + 1, steps.length), n: steps.length })}</span>
+          <span className="text-sm whitespace-nowrap text-ink-2">{t('lesson.progress', { k: shownStep, n: steps.length })}</span>
         </div>
+        {lesson.est_minutes && (
+          <span className="hidden items-center gap-1.5 rounded-full bg-white/80 px-3 py-1.5 text-sm font-bold sm:flex">
+            <Clock aria-hidden="true" size={15} />
+            {t('lesson.minutes', { m: lesson.est_minutes })}
+          </span>
+        )}
+        <Segmented label={t('home.explainLanguage')} options={langOptions} value={lang} onChange={setLang} />
       </div>
 
-      {finished !== null ? (
-        <section className="card flex flex-col items-center gap-3 text-center">
-          <PartyPopper aria-hidden="true" size={44} className="text-gold" />
-          <h1 ref={top} tabIndex={-1} className="m-0 font-display text-[28px] font-semibold text-maroon">
-            {t('lesson.done')}
-          </h1>
-          <p className="m-0 rounded-full bg-gold-soft px-4 py-1 text-lg font-bold text-gold-text">{t('lesson.doneXp', { n: finished || LESSON_XP })}</p>
-          <button type="button" className="btn-primary" onClick={() => navigate('/')}>
-            {t('lesson.backHome')}
-          </button>
-        </section>
-      ) : (
-        <section className="card flex flex-col gap-4" aria-live="polite">
-          <h1 ref={top} tabIndex={-1} className="m-0 font-display text-[22px] font-semibold text-maroon outline-none">
-            {isExercise ? `${t('lesson.exercise')}${step.retry ? ` · ${t('lesson.again')}` : ''}` : t(BLOCK_TITLE[lesson.blocks[step.block].type] ?? 'lesson.concept')}
-          </h1>
-          {step.kind === 'block' ? (
-            <BlockView block={lesson.blocks[step.block]} lang={lang} slug={lesson.slug} onTerm={setTermOpen} />
+      <div className="flex flex-wrap items-start gap-5 sm:gap-7">
+        <nav aria-labelledby="rail-h" className="card hidden min-w-0 flex-[1_1_240px] lg:block">
+          <h2 id="rail-h" className="m-0 mb-3 flex items-center gap-2 font-display text-xl font-semibold">
+            <Layers aria-hidden="true" size={19} className="text-maroon" />
+            {t('lesson.stepsTitle')}
+          </h2>
+          <ol className="m-0 flex list-none flex-col gap-1.5 p-0">
+            {rail.map(({ i, type }, n) => {
+              const state = i < currentBlock ? 'done' : i === currentBlock ? 'current' : 'next'
+              return (
+                <li
+                  key={i}
+                  aria-current={state === 'current' ? 'step' : undefined}
+                  className={`flex min-h-11 items-center gap-3 rounded-2xl px-2.5 ${state === 'current' ? 'bg-maroon-soft font-bold text-maroon-text' : 'text-ink-2'}`}
+                >
+                  <span
+                    className={`flex size-8 shrink-0 items-center justify-center rounded-lg font-en text-sm font-bold ${
+                      state === 'done' ? 'bg-success text-white' : state === 'current' ? 'bg-maroon text-white' : 'bg-surface-3 text-ink-2'
+                    }`}
+                  >
+                    {state === 'done' ? <Check aria-hidden="true" size={16} strokeWidth={3} /> : n + 1}
+                  </span>
+                  {t(type === 'exercise' ? 'lesson.exercises' : (BLOCK_TITLE[type] ?? 'lesson.concept'))}
+                  {state === 'done' && <span className="sr-only">({t('path.done')})</span>}
+                </li>
+              )
+            })}
+          </ol>
+        </nav>
+
+        <div className="flex min-w-0 flex-[999_1_480px] flex-col gap-5">
+          {finished !== null ? (
+            <section className="card card-enter flex flex-col items-center gap-5 text-center">
+              <span className="flex size-24 items-center justify-center rounded-[28px] bg-gold text-white shadow-[0_6px_0_var(--gold-text)]">
+                <Trophy aria-hidden="true" size={46} />
+              </span>
+              <div>
+                <h1 ref={top} tabIndex={-1} className="m-0 font-display text-[30px] leading-tight font-semibold outline-none sm:text-[38px]">
+                  {t('lesson.doneTitle')}
+                </h1>
+                <p className="m-0 mt-1 text-ink-2" lang={title.lang}>
+                  {title.text}
+                </p>
+              </div>
+              <ul className="m-0 grid w-full list-none grid-cols-1 gap-3 p-0 min-[420px]:grid-cols-3">
+                {[
+                  { Icon: Star, tone: 'bg-gold', value: `+${finished || LESSON_XP}`, label: t('lesson.statPoints') },
+                  { Icon: Flame, tone: 'bg-flame', value: String(streak), label: t('lesson.statStreak') },
+                  { Icon: BookOpen, tone: 'bg-teal', value: String(termCount), label: t('lesson.statTerms') },
+                ].map(({ Icon: I, tone, value, label }, n) => (
+                  <li key={label} className="well card-enter flex flex-col items-center gap-1.5 p-4" style={{ '--i': n + 1 } as React.CSSProperties}>
+                    <span className={`flex size-11 items-center justify-center rounded-xl text-white ${tone}`}>
+                      <I aria-hidden="true" size={20} />
+                    </span>
+                    <span className="font-en text-2xl font-bold">{value}</span>
+                    <span className="text-sm text-ink-2">{label}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="flex flex-wrap justify-center gap-3">
+                {nextLesson && (
+                  <button type="button" className="btn-primary flex items-center gap-2" onClick={() => navigate(`/lesson/${nextLesson.slug}`)}>
+                    {t('lesson.nextLesson')}
+                    <ArrowRight aria-hidden="true" size={20} className="rtl:-scale-x-100" />
+                  </button>
+                )}
+                <button
+                  type="button"
+                  className="min-h-12 cursor-pointer rounded-2xl border border-white/80 bg-white/80 px-5 font-bold text-ink shadow-[0_4px_0_var(--shadow)]"
+                  onClick={() => navigate('/')}
+                >
+                  {t('lesson.backHome')}
+                </button>
+              </div>
+            </section>
           ) : (
-            <ExerciseView
-              key={`${at}-${step.block}-${step.index}`}
-              ex={lesson.blocks[step.block].exercises![step.index]}
-              lang={lang}
-              seed={`${lesson.slug}:${step.block}:${step.index}`}
-              onResult={onResult}
-            />
+            <section key={at} className="card card-enter flex flex-col gap-4" aria-live="polite">
+              <p className="m-0 flex items-center gap-1.5 text-sm font-bold text-maroon">
+                <Icon aria-hidden="true" size={16} />
+                {t('lesson.progress', { k: shownStep, n: steps.length })}
+              </p>
+              <h1 ref={top} tabIndex={-1} className="m-0 -mt-2 font-display text-[24px] font-semibold outline-none">
+                {isExercise ? `${t('lesson.exercise')}${step.retry ? ` · ${t('lesson.again')}` : ''}` : t(BLOCK_TITLE[lesson.blocks[step.block].type] ?? 'lesson.concept')}
+              </h1>
+              {step.kind === 'block' ? (
+                <BlockView block={lesson.blocks[step.block]} lang={lang} slug={lesson.slug} onTerm={setTermOpen} />
+              ) : (
+                <ExerciseView
+                  key={`${at}-${step.block}-${step.index}`}
+                  ex={lesson.blocks[step.block].exercises![step.index]}
+                  lang={lang}
+                  seed={`${lesson.slug}:${step.block}:${step.index}`}
+                  onResult={onResult}
+                />
+              )}
+              <div className="flex justify-end">
+                <button type="button" className="btn-primary flex items-center gap-2" disabled={!canNext} onClick={next}>
+                  {at === steps.length - 1 ? t('lesson.finish') : t('lesson.next')}
+                  <ArrowRight aria-hidden="true" size={20} className="rtl:-scale-x-100" />
+                </button>
+              </div>
+            </section>
           )}
-          <div className="flex justify-end">
-            <button type="button" className="btn-primary" disabled={!canNext} onClick={next}>
-              {at === steps.length - 1 ? t('lesson.finish') : t('lesson.next')}
-            </button>
-          </div>
-        </section>
-      )}
+        </div>
+      </div>
       <TermDialog id={termOpen} lang={lang} onClose={() => setTermOpen(null)} />
     </div>
   )
@@ -174,7 +280,7 @@ function RichText({ texts, lang, onTerm }: { texts: Texts; lang: ExplainLang; on
             key={i}
             type="button"
             onClick={() => onTerm(termSlug(s.term))}
-            className="inline cursor-pointer rounded-md border-0 bg-maroon-soft px-1 font-[inherit] text-[inherit] font-bold text-maroon-text underline decoration-dotted underline-offset-4"
+            className="inline cursor-pointer rounded-t-md border-0 border-b-2 border-solid border-maroon bg-maroon-soft px-1 font-[inherit] text-[inherit] font-bold text-maroon-text"
           >
             {s.label}
           </button>
