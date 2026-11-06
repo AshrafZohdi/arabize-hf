@@ -76,3 +76,14 @@ test('English interface switches to LTR', async ({ page }) => {
   await expect(page.getByRole('navigation', { name: 'Sections' })).toBeVisible()
   await noHorizontalScroll(page)
 })
+
+for (const lang of ['ar', 'en'] as const) {
+  test(`no page scrolls sideways (${lang})`, async ({ page }) => {
+    await page.addInitScript((l) => localStorage.setItem('darby.uiLang', l), lang)
+    for (const path of ['/', '/glossary', '/tutor?lesson=day-2', '/tutor?tab=lab&lesson=day-2', '/lesson/day-2', '/no-such-page']) {
+      await page.goto(path)
+      await page.waitForLoadState('networkidle')
+      await noHorizontalScroll(page)
+    }
+  })
+}

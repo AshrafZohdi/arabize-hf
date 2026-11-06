@@ -272,5 +272,10 @@
   "code.nextIn": "شيفرة جديدة بعد",
   "code.nextZone": "، بتوقيت قطر",
   "notFound.tag": "ضعت عن الدرب",
-  "notFound.body": "يمكن الرابط قديم أو فيه غلطة. ارجع للرئيسية وكمّل من حيث وقفت."
+  "notFound.body": "يمكن الرابط قديم أو فيه غلطة. ارجع للرئيسية وكمّل من حيث وقفت.",
+  "tutor.suggestTitle": "جرّب تسأل",
+  "tutor.lessonTerms": "مصطلحات الدرس",
+  "tutor.suggestWhat": "شنو يعني {a}؟",
+  "tutor.suggestDiff": "شنو الفرق بين {a} و{b}؟",
+  "tutor.suggestExample": "عطني مثال على {a} من الشغل"
 }

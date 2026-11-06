@@ -272,5 +272,10 @@
   "code.nextIn": "New code in",
   "code.nextZone": ", Qatar time",
   "notFound.tag": "Off the path",
-  "notFound.body": "The link may be old or have a typo. Go back home and carry on where you left off."
+  "notFound.body": "The link may be old or have a typo. Go back home and carry on where you left off.",
+  "tutor.suggestTitle": "Try asking",
+  "tutor.lessonTerms": "Lesson terms",
+  "tutor.suggestWhat": "What does {a} mean?",
+  "tutor.suggestDiff": "What is the difference between {a} and {b}?",
+  "tutor.suggestExample": "Give me a work example of {a}"
 }

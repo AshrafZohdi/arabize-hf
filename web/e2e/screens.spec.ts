@@ -36,7 +36,12 @@ for (const lang of ['ar', 'en'] as const) {
     await page.goto('/glossary')
     await page.locator('#full-h + p + ul li').first().waitFor()
     await page.screenshot({ path: `${dir}-glossary.png`, fullPage: false })
-    await page.goto('/tutor?lesson=day-1')
+    await page.goto('/tutor?lesson=day-2')
+    // The recorded demo question (fixtures match exact text), so DEMO_MODE answers it.
+    await page.locator('#suggest-h').waitFor()
+    await page.locator('#tutor-input').fill('شلون أعرف إن الـ AI قاعد يهلوس في التقرير؟')
+    await page.locator('#tutor-input').press('Enter')
+    await page.locator('[role="log"][aria-busy="false"] .bg-white\\/85').first().waitFor({ timeout: 20_000 })
     await page.screenshot({ path: `${dir}-tutor.png`, fullPage: false })
     await page.goto('/lesson/day-2')
     await page.locator('h1').first().waitFor()
