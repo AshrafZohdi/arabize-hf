@@ -124,3 +124,10 @@ a:hover { color: var(--maroon-deep); }
   100% { opacity: 0; transform: translateY(-48px) scale(1); }
 }
 .points-fly { animation: points-fly 1.4s ease-out forwards; }
+
+/* The current path node glows gently. Reduce Motion stops it (rule above). */
+@keyframes path-glow {
+  0%, 100% { box-shadow: 0 3px 0 var(--maroon-deep), 0 0 0 0 var(--maroon-soft); }
+  50% { box-shadow: 0 3px 0 var(--maroon-deep), 0 0 0 6px var(--maroon-soft); }
+}
+.path-glow { animation: path-glow 2.4s ease-in-out infinite; }

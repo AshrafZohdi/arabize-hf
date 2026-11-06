@@ -3,6 +3,7 @@ import { Header } from './components/Header'
 import { useI18n } from './i18n'
 import { useRouter } from './lib/router'
 import { Home } from './pages/Home'
+import { LessonPage } from './pages/Lesson'
 import { GlossaryPage } from './pages/Glossary'
 import { NotFound } from './pages/Simple'
 import { TutorPage } from './pages/Tutor'
@@ -11,6 +12,8 @@ function Page({ path }: { path: string }) {
   if (path === '/') return <Home />
   if (path.startsWith('/glossary')) return <GlossaryPage />
   if (path.startsWith('/tutor')) return <TutorPage />
+  const lesson = path.match(/^\/lesson\/([a-z0-9-]+)\/?$/)
+  if (lesson) return <LessonPage key={lesson[1]} slug={lesson[1]} />
   return <NotFound />
 }
 

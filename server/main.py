@@ -10,7 +10,8 @@ from fastapi.responses import FileResponse
 from server.config import Settings, load_settings
 from server.glossary import load_glossary, load_glossary_from_hub
 from server.llm import LLM
-from server.routes import explain, glossary, lessons, tutor
+from server.game import Game
+from server.routes import explain, game, glossary, lessons, tutor
 from server.lessons import load_lessons
 from server.termbank import TermBank, load_term_bank
 
@@ -27,12 +28,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.termbank = TermBank.from_rows(_glossary_rows(app.state.glossary), {"steps": {"sources": "loading"}})
     app.state.embedder = None
     app.state.lessons, app.state.lessons_source = load_lessons(settings.content_dir, from_hub=False)
+    # The daily word comes from our own glossary in content/, which never changes while the app runs.
+    app.state.game = Game(load_glossary(settings.content_dir), settings.content_dir, _game_secret(settings))
     if settings.termbank_source == "hub":
         threading.Thread(target=_load_bank, args=(app, settings), daemon=True, name="termbank").start()
     app.include_router(explain.router)
     app.include_router(glossary.router)
     app.include_router(tutor.router)
     app.include_router(lessons.router)
+    app.include_router(game.router)
 
     @app.get("/api/health")
     def health() -> dict:
@@ -67,6 +71,20 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return FileResponse(index, headers={"Cache-Control": "no-cache"})
 
     return app
+
+
+def _game_secret(settings: Settings) -> bytes:
+    """Signs daily code state. DARBY_GAME_SECRET if set; otherwise derived from the HF token (stable across restarts);
+    otherwise random, which only means games in progress restart when the Space restarts."""
+    import hashlib
+    import os
+    import secrets
+
+    if os.getenv("DARBY_GAME_SECRET"):
+        return os.environ["DARBY_GAME_SECRET"].encode()
+    if settings.hf_token:
+        return hashlib.sha256(b"darby-daily-code:" + settings.hf_token.encode()).digest()
+    return secrets.token_bytes(32)
 
 
 def _glossary_rows(g) -> list[dict]:

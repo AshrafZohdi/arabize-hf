@@ -1,4 +1,7 @@
 import { ExplainPanel } from '../components/explain/ExplainPanel'
+import { DailyCode } from '../components/home/DailyCode'
+import { PathCard } from '../components/home/PathCard'
+import { ReviewBanner } from '../components/home/ReviewBanner'
 import { PageTitle } from '../components/PageTitle'
 import { Segmented } from '../components/Segmented'
 import { useI18n } from '../i18n'
@@ -29,14 +32,9 @@ export function Home() {
           <ExplainPanel lang={explainLang} />
         </div>
         <aside className="flex min-w-0 flex-[1_1_340px] flex-col gap-5 sm:gap-7">
-          <section aria-labelledby="code-h" className="card">
-            <h2 id="code-h" className="m-0 font-display text-[22px] font-semibold text-maroon">{t('home.codeTitle')}</h2>
-            <p className="mb-0 text-muted">{t('placeholder.soon')}</p>
-          </section>
-          <section aria-labelledby="path-h" className="card">
-            <h2 id="path-h" className="m-0 font-display text-[22px] font-semibold text-maroon">{t('home.pathTitle')}</h2>
-            <p className="mb-0 text-muted">{t('placeholder.soon')}</p>
-          </section>
+          <DailyCode />
+          <PathCard />
+          <ReviewBanner />
         </aside>
       </div>
     </>

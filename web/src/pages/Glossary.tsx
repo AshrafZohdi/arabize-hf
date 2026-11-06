@@ -4,7 +4,7 @@ import { PageTitle } from '../components/PageTitle'
 import { Segmented } from '../components/Segmented'
 import { useI18n, type MessageKey } from '../i18n'
 import { glossaryBrowse, glossaryCards, glossarySearch, type GlossaryCard, type QuickCard } from '../lib/api'
-import { saveTerm, termKey, useDictionary } from '../lib/dictionary'
+import { removeTerm, saveTerm, termKey, useDictionary } from '../lib/dictionary'
 import { useExplainLang } from '../lib/explainLang'
 import { Link } from '../lib/router'
 
@@ -13,7 +13,8 @@ type Domain = 'all' | 'ai' | 'software'
 export function GlossaryPage() {
   const { t } = useI18n()
   const [lang] = useExplainLang()
-  const [q, setQ] = useState('')
+  const params = new URLSearchParams(window.location.search)
+  const [q, setQ] = useState(() => params.get('q') ?? '')
   const [domain, setDomain] = useState<Domain>('all')
   const [cards, setCards] = useState<GlossaryCard[]>([])
   const [results, setResults] = useState<QuickCard[] | null>(null)
@@ -88,6 +89,8 @@ export function GlossaryPage() {
         </p>
       )}
 
+      <MyDictionary open={params.get('mine') === '1'} />
+
       {results ? (
         <section aria-live="polite" aria-label={t('glossary.results', { n: results.length })}>
           <p className="mt-0 mb-3 font-semibold text-ink-2">{t('glossary.results', { n: results.length })}</p>
@@ -131,6 +134,37 @@ export function GlossaryPage() {
       {!results && <BrowseAll domain={domain} cardById={cardById} onOpen={setOpen} />}
       <FullCardDialog card={open} onClose={() => setOpen(null)} />
     </>
+  )
+}
+
+/** Terms the learner saved, kept in this browser. Shown when there are any. */
+function MyDictionary({ open }: { open: boolean }) {
+  const { t } = useI18n()
+  const { terms } = useDictionary()
+  const list = Object.values(terms).sort((a, b) => b.savedAt.localeCompare(a.savedAt))
+  if (list.length === 0) return null
+  return (
+    <details open={open} className="card mb-7">
+      <summary className="min-h-11 cursor-pointer font-display text-[22px] font-semibold text-maroon">
+        {t('glossary.mine')} ({list.length})
+      </summary>
+      <p className="mt-1 mb-3 text-muted">{t('glossary.mineNote')}</p>
+      <ul className="m-0 grid list-none grid-cols-1 gap-2 p-0 md:grid-cols-2">
+        {list.map((s) => (
+          <li key={s.term_en} className="flex items-center justify-between gap-2 rounded-2xl border border-line bg-surface-2 p-3">
+            <span className="min-w-0">
+              <span className="block font-display font-semibold text-maroon">{s.term_ar}</span>
+              <span dir="ltr" lang="en" className="block font-en text-sm font-semibold text-ink-2">
+                {s.term_en}
+              </span>
+            </span>
+            <button type="button" onClick={() => removeTerm(s.term_en)} aria-label={`${t('glossary.remove')}: ${s.term_en}`} className="flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-line bg-white text-ink-2">
+              <X aria-hidden="true" size={18} />
+            </button>
+          </li>
+        ))}
+      </ul>
+    </details>
   )
 }
 

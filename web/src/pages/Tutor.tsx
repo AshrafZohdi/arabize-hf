@@ -169,7 +169,7 @@ function Chat({ lang, lesson }: { lang: ExplainLang; lesson: string | null }) {
 
 const CRITERIA = ['goal', 'context', 'format', 'constraints'] as const
 
-function PromptLab({ lang, lesson }: { lang: ExplainLang; lesson: string }) {
+export function PromptLab({ lang, lesson }: { lang: ExplainLang; lesson: string }) {
   const { t } = useI18n()
   const [task, setTask] = useState('')
   const [prompt, setPrompt] = useState('')

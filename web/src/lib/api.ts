@@ -184,3 +184,27 @@ export async function scorePrompt(lesson: string, prompt: string, lang: ExplainL
   if (!r.ok) throw new ApiError(r.status, Number(r.headers.get('retry-after')) || undefined)
   return r.json()
 }
+
+export type Mark = 'hit' | 'near' | 'miss'
+export type CodeStart = { date: string; lang: 'en' | 'ar'; length: number; max_tries: number; clue: { term: string; meaning: string }; token: string }
+export type CodeGuess = {
+  guess: string
+  marks: Mark[]
+  won: boolean
+  finished: boolean
+  tries_left: number
+  token: string
+  answer?: { id: string; word: string; xp: number }
+}
+
+export async function startCode(lang: 'en' | 'ar'): Promise<CodeStart> {
+  const r = await fetch(`/api/daily-code?lang=${lang}`)
+  if (!r.ok) throw new ApiError(r.status)
+  return r.json()
+}
+
+export async function guessCode(lang: 'en' | 'ar', token: string, guess: string): Promise<CodeGuess | { error: string; reason?: string }> {
+  const r = await fetch('/api/daily-code/guess', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ lang, token, guess }) })
+  if (r.status >= 500) throw new ApiError(r.status)
+  return r.json()
+}
