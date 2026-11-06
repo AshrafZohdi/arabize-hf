@@ -6,7 +6,7 @@ import { useI18n, type MessageKey } from '../i18n'
 import { ApiError, listLessons, type Card, type LessonSummary } from '../lib/api'
 import { useExplainLang, type ExplainLang } from '../lib/explainLang'
 import { completeLesson, getPlace, LESSON_XP, savePlace } from '../lib/lessonProgress'
-import { buildSteps, pick, seededShuffle, segments, termSlug, withRetries, type Step, type Texts } from '../lib/lessonSteps'
+import { buildSteps, pick, seededShuffle, segments, termSlug, type Step, type Texts } from '../lib/lessonSteps'
 import { award, useProgress } from '../lib/progress'
 import { Link, useRouter } from '../lib/router'
 import { PromptLab } from './Tutor'
@@ -42,7 +42,6 @@ export function LessonPage({ slug }: { slug: string }) {
   const [missing, setMissing] = useState(false)
   const [steps, setSteps] = useState<Step[]>([])
   const [at, setAt] = useState(0)
-  const [missed, setMissed] = useState<Step[]>([])
   const [answered, setAnswered] = useState(false)
   // The furthest step reached: going back never locks a step the learner already passed.
   const [reached, setReached] = useState(0)
@@ -103,12 +102,8 @@ export function LessonPage({ slug }: { slug: string }) {
       setFinished(completeLesson(lesson.slug))
       return
     }
-    // Reaching the recap: missed exercises come back first, once.
-    const recapIndex = steps.length - 1
-    if (target === recapIndex && missed.length) {
-      setSteps(withRetries(steps, missed, target))
-      setMissed([])
-    }
+    // Lessons always move forward step by step (missed exercises used to come back before the recap, which felt like
+    // being sent back to an earlier exercise).
     setAt(target)
     setReached((r) => Math.max(r, target))
     setAnswered(false)
@@ -130,7 +125,6 @@ export function LessonPage({ slug }: { slug: string }) {
     setAnswered(true)
     if (step.kind !== 'exercise') return
     if (correct && firstTry && !step.retry) award(`ex:${lesson.slug}:${step.block}:${step.index}`, EXERCISE_XP)
-    if (!correct && !step.retry) setMissed((m) => (m.some((x) => x.kind === 'exercise' && x.block === step.block && x.index === step.index) ? m : [...m, step]))
   }
 
   const langOptions: { value: ExplainLang; label: string; lang: string }[] = [

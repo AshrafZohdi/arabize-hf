@@ -25,7 +25,7 @@ REMINDER = {
 
 
 class CriterionScore(BaseModel):
-    score: int = Field(ge=1, le=5)
+    score: int = Field(ge=0, le=5)
     feedback: str = Field(max_length=300)
 
 
@@ -54,7 +54,8 @@ def build_scoring_prompt(task: str, learner_prompt: str, lang: str, rubric: dict
     system = "\n\n".join(
         [
             "You are a strict but encouraging grader in a course that teaches professionals in Qatar to write prompts for AI tools.",
-            "Score the learner's prompt for the given work task on each criterion from 1 (missing) to 5 (excellent).",
+            "Score the learner's prompt for the given work task on each criterion from 0 to 5: 0 when the criterion is missing, 1 when barely there, 5 when excellent. "
+            "If the text is not a real prompt for this task (random letters, nonsense, unrelated chat), every criterion is 0.",
             f"Rubric:\n{rubric_text}",
             f"Write all feedback and the summary in {LANGUAGE[lang]}. Keep English technical terms in brackets after the Arabic term when writing Arabic. "
             "The Arabic for prompt is أمر.",

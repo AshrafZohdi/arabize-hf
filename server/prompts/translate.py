@@ -1,4 +1,4 @@
-"""Translate a Darby text (a tutor reply, a term card, an improved prompt) between English and Arabic."""
+"""Translate a Darbi text (a tutor reply, a term card, an improved prompt) between English and Arabic."""
 
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ class Translation(BaseModel):
 def build_translate_prompt(text: str, target: Target) -> tuple[str, str]:
     system = " ".join(
         [
-            f"You translate short texts for Darby, an app that teaches AI and software vocabulary. Translate the text into {TARGET_NAME[target]}.",
+            f"You translate short texts for Darbi, an app that teaches AI and software vocabulary. Translate the text into {TARGET_NAME[target]}.",
             "Keep the meaning, the tone and the line breaks. Do not add, explain or leave out anything.",
             "Keep code, file names and prompts that are meant to be pasted into an AI tool exactly as they are only if they are already in the target language."
             if target == "en"

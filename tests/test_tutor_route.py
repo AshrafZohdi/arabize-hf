@@ -115,3 +115,13 @@ def test_improved_prompt_language_follows_the_learner():
     assert user.rstrip().endswith("write improved_prompt in English (feedback and summary stay as above).")
     _, user = build_scoring_prompt("task", "اكتب إيميل", "gulf")
     assert "write improved_prompt in Arabic" in user
+
+
+def test_a_criterion_can_score_zero():
+    from server.prompts.prompt_lab import PromptScore, build_scoring_prompt
+
+    zero = {"score": 0, "feedback": "x"}
+    s = PromptScore(goal=zero, context=zero, format=zero, constraints=zero, summary="x", improved_prompt="x")
+    assert s.total == 0
+    system, _ = build_scoring_prompt("task", "asdkj qwe", "gulf")
+    assert "every criterion is 0" in system

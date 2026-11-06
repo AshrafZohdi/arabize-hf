@@ -108,3 +108,11 @@ Found in testing: the highlighter only knew the exact bank form, so RAG, PPO and
 - Translate: `/api/translate` (Fanar, rate limited, learner text wrapped as data) behind a button on tutor replies, term cards (explanation and analogy) and the improved prompt in the prompt lab. Arabic goes to English; English goes to Gulf or Standard Arabic following the explanation language. Fetched once per text and cached in the page. No fixtures: with the endpoint asleep the button says Fanar is waking.
 - Prompt lab: Fanar rewrote English prompts in Arabic; the prompt's language is now detected and stated next to the learner text (verified live: English prompt, English improved prompt, Gulf feedback).
 - QA: `CROSS=1 npx playwright test` adds iPhone WebKit and desktop Firefox; the demo and axe suites pass on all four (Chromium phone and desktop, WebKit iPhone, Firefox desktop).
+
+## D21. 2026-11-06: Third round of team testing
+- The English name is spelled Darbi in everything people see (interface, page title, README, MCP tool text, model prompts). Repo, Space and dataset IDs keep `darby` so links do not break.
+- Logo: Arabic and Latin names sit side by side on one baseline; stacked, the dots under the Arabic ran into the Latin name.
+- Prompt lab: each criterion can score 0, and a text that is not a real prompt scores 0 on every criterion.
+- Smart Explain: the text box always stays open; after explaining, the text shows again below it with tappable highlighted terms.
+- Term cards: long Arabic terms wrap in their own column and never run under the listen buttons.
+- Lessons only move forward: the rule that brought missed exercises back before the recap (from the old app) is removed, because it looked like being sent back to an earlier exercise. All 21 exercises keep their render test.

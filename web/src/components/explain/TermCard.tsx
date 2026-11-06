@@ -14,21 +14,24 @@ export function TermCard({ card, showMsa, textDir = 'rtl', lang = 'gulf' }: { ca
   const Icon = card.source === 'glossary' ? BookOpen : card.source === 'bank' ? Library : Sparkles
   return (
     <article className="min-w-0 flex-[1_1_300px]" aria-labelledby={`term-${termKey(card.term_en)}`}>
-      <div className="flex items-center gap-3.5">
+      <div className="flex items-start gap-3.5">
         <span className="flex size-14 shrink-0 items-center justify-center rounded-[18px] bg-maroon-soft text-maroon">
           <Icon aria-hidden="true" size={28} strokeWidth={2} />
         </span>
         <div className="min-w-0 flex-auto">
-          <h3 id={`term-${termKey(card.term_en)}`} className="m-0 font-display text-[26px] leading-[1.3] font-semibold text-maroon" lang="ar">
+          {/* Long Arabic terms wrap inside their own column and never run under the listen buttons. */}
+          <h3 id={`term-${termKey(card.term_en)}`} className="m-0 font-display text-[22px] leading-[1.35] font-semibold [overflow-wrap:anywhere] text-maroon sm:text-[26px]" lang="ar">
             {card.term_ar}
           </h3>
-          <div className="font-en text-[17px] font-semibold text-ink-2">
+          <div className="font-en text-[17px] font-semibold [overflow-wrap:anywhere] text-ink-2">
             <span dir="ltr" lang="en">
               {card.term_en}
             </span>
           </div>
         </div>
-        <ListenButtons en={card.term_en} ar={card.term_ar} termId={card.id} />
+        <span className="shrink-0">
+          <ListenButtons en={card.term_en} ar={card.term_ar} termId={card.id} />
+        </span>
       </div>
       {card.source === 'bank' ? (
         <p className="mt-3.5 mb-0 flex flex-wrap items-center gap-x-3 gap-y-1 text-[17px] text-ink-2">

@@ -1,5 +1,5 @@
 ---
-title: Darby
+title: Darbi
 emoji: 🧭
 colorFrom: red
 colorTo: yellow
@@ -22,11 +22,11 @@ datasets:
   - ymoslem/MS-Glossary-EN-AR
 ---
 
-# Darby (دربي)
+# Darbi (دربي)
 
 **A Qatari model teaching Qataris the language of AI.**
 
-Darby ("my path") teaches Arabic-speaking professionals in Qatar to use AI at work, and the English vocabulary that comes with it, in simple Arabic or Gulf dialect, through short game mechanics. Its brain is Fanar 2, the Arabic model built in Qatar by QCRI, served on Hugging Face. Everything runs on Hugging Face.
+Darbi ("my path") teaches Arabic-speaking professionals in Qatar to use AI at work, and the English vocabulary that comes with it, in simple Arabic or Gulf dialect, through short game mechanics. Its brain is Fanar 2, the Arabic model built in Qatar by QCRI, served on Hugging Face. Everything runs on Hugging Face.
 
 Built for the Qai x Hugging Face Hackathon 01, Doha, 5 and 6 November 2026.
 
@@ -37,18 +37,18 @@ Built for the Qai x Hugging Face Hackathon 01, Doha, 5 and 6 November 2026.
 
 Professionals in Qatar are expected to use AI at work, but the tools, the material and the vocabulary are in English. An employee gets an email that says "check it for hallucinations and give the model more context in your prompt" and has no one to ask. Arabic options are short workshops, paid video courses or scattered videos.
 
-## What Darby does
+## What Darbi does
 
 | Feature | What the learner does | Under the hood |
 |---|---|---|
 | **Smart Explain** (اشرح لي) | Pastes an English work text and taps فهّمني | Terms are found without AI in a 24,000-term bank and marked: teal if in the learner's dictionary, maroon if new. Fanar 2 then streams a plain explanation in Gulf Arabic, simple Arabic or English, writes cards only for terms the glossary lacks, and asks one practice question. Private-looking text (emails, phone numbers, QID-like numbers) gets a warning first. Nothing is stored |
-| **Glossary** (القاموس) | Searches in Arabic or English, opens cards, listens | 140 full cards plus about 24,000 terms from Darby, GIST and the Microsoft glossary. Word search, aliases (الأوامر finds Prompt) and meaning search with multilingual-e5-small |
+| **Glossary** (القاموس) | Searches in Arabic or English, opens cards, listens | 140 full cards plus about 24,000 terms from Darbi, GIST and the Microsoft glossary. Word search, aliases (الأوامر finds Prompt) and meaning search with multilingual-e5-small |
 | **Tutor** (المعلّم) | Asks questions about a lesson | Fanar 2 grounded in the lesson and glossary, streamed, labels general knowledge, declines unrelated requests, 20 messages per session |
 | **Prompt lab** (مختبر الأوامر) | Writes a prompt for a Doha work task | Fanar 2 scores goal, context, format and constraints from 1 to 5 with feedback in the chosen language and an improved prompt that uses placeholders instead of invented facts |
 | **Your path** (دربك) | Takes 7 short lessons | One step per screen, four exercise types, missed exercises come back before the recap, tappable terms, points and a streak |
 | **Daily code** (شيفرة اليوم) | Guesses today's term in 6 tries, English or Arabic | The server picks the word by Qatar date and marks guesses; the game state is a signed token, so the word never reaches the browser before the game ends |
 | **Voice** | Taps EN or ع on a card | Arabic: facebook/mms-tts-ara on ONNX Runtime in the Space. English: Kokoro-82M in the browser with kokoro-js. 280 recordings pre-generated in Jobs and served from a Storage Bucket |
-| **MCP tools** | Any AI assistant can use Darby's glossary | `lookup_term`, `explain_text`, `todays_code_clue` at `https://fayezalkh12-darby.hf.space/mcp-tools/gradio_api/mcp/` |
+| **MCP tools** | Any AI assistant can use Darbi's glossary | `lookup_term`, `explain_text`, `todays_code_clue` at `https://fayezalkh12-darby.hf.space/mcp-tools/gradio_api/mcp/` |
 
 Arabic first and right to left, with an English interface toggle. Works at 360 px wide. Points, streaks and saved terms live in the browser (no accounts).
 
@@ -101,7 +101,7 @@ Every model call goes through `server/llm.py`: reasoning switched off through Fa
 | Hub models | Fanar 2 (and our single-file Q5_K_M copy with a llama.cpp-compatible chat template), e5-small, mms-tts-ara, Kokoro |
 | Storage Buckets | `FayezAlkh12/darby-media`: pre-generated term audio, written by Jobs through a bucket mount |
 | Transformers.js | Kokoro English speech in the learner's browser, at no server cost |
-| Gradio MCP server | Darby's glossary as tools for any AI assistant |
+| Gradio MCP server | Darbi's glossary as tools for any AI assistant |
 
 ## Models and datasets
 
@@ -123,7 +123,7 @@ Our datasets are Apache 2.0.
 
 | Step | Count |
 |---|---|
-| Rows in (Darby 40, GIST 4,844, Microsoft 22,061) | 26,945 |
+| Rows in (Darbi 40, GIST 4,844, Microsoft 22,061) | 26,945 |
 | Dropped: UI sentences over 8 words (each logged) | 52 |
 | Merged duplicates (same matching key) | 2,893 |
 | Terms after cleaning | 24,000 |
@@ -133,7 +133,7 @@ Our datasets are Apache 2.0.
 | Held back (no Arabic meaning yet) | 1 |
 | Published and live | 23,999 |
 
-What the EDA changed: Microsoft's single words would have marked 31.5 words in every 100 of ordinary work text ("send", "client", "check"), so only those that GIST also uses in at least 5 AI terms are highlighted. The sources disagree on core terms (prompt: Darby أمر, GIST موجه, Microsoft مطالبة) and on 146 terms overall; Darby's choices win for its terms and other prompt terms are flagged. Fanar's expansions are checked against the bank in the same domain and against the human Arabic where it exists, which caught GCC (Fanar: Gulf Cooperation Council; the Microsoft Arabic: Government Community Cloud), ERP and A2C. Data quality gates run in pytest.
+What the EDA changed: Microsoft's single words would have marked 31.5 words in every 100 of ordinary work text ("send", "client", "check"), so only those that GIST also uses in at least 5 AI terms are highlighted. The sources disagree on core terms (prompt: Darbi أمر, GIST موجه, Microsoft مطالبة) and on 146 terms overall; Darbi's choices win for its terms and other prompt terms are flagged. Fanar's expansions are checked against the bank in the same domain and against the human Arabic where it exists, which caught GCC (Fanar: Gulf Cooperation Council; the Microsoft Arabic: Government Community Cloud), ERP and A2C. Data quality gates run in pytest.
 
 ## Measured
 
@@ -156,9 +156,9 @@ Live: everything, when the endpoint is awake. When it is asleep, failing or `DEM
 
 ## Honest limits
 
-- **No language review yet.** Darby's 40 terms and 7 lessons were drafted with AI for the earlier Arabize app; the 100 new cards and 101 translations were written by Fanar 2. Every dataset says so (`reviewed` is false except reviewer overrides). A Gulf Arabic speaker on the team is reviewing.
+- **No language review yet.** Darbi's 40 terms and 7 lessons were drafted with AI for the earlier Arabize app; the 100 new cards and 101 translations were written by Fanar 2. Every dataset says so (`reviewed` is false except reviewer overrides). A Gulf Arabic speaker on the team is reviewing.
 - Fanar sometimes drifts from Gulf to MSA; the prompts repeat the language rule next to the learner's text, which fixed it in our tests, but not every answer has been checked.
-- The search model leans on shared words, so meaning search runs among the full Darby cards.
+- The search model leans on shared words, so meaning search runs among the full Darbi cards.
 - No accounts: progress stays in the browser.
 - The quality and kernels evaluation (step 8 of the plan) has not been run yet.
 

@@ -10,7 +10,7 @@ from server.main import create_app
 @pytest.fixture
 def dist(tmp_path):
     (tmp_path / "assets").mkdir()
-    (tmp_path / "index.html").write_text("<!doctype html><title>Darby</title>")
+    (tmp_path / "index.html").write_text("<!doctype html><title>Darbi</title>")
     (tmp_path / "assets" / "app-abc123.js").write_text("console.log(1)")
     (tmp_path / "favicon.svg").write_text("<svg/>")
     return tmp_path
@@ -39,7 +39,7 @@ def test_unknown_api_path_is_404_not_spa(client):
 def test_spa_routes_serve_index(client, path):
     r = client.get(path)
     assert r.status_code == 200
-    assert "<title>Darby</title>" in r.text
+    assert "<title>Darbi</title>" in r.text
     assert r.headers["cache-control"] == "no-cache"
 
 

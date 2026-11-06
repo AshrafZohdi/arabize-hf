@@ -1,5 +1,5 @@
-"""Darby as an MCP server (P1, docs/HF_PLAN.md #11): a small Gradio app mounted in FastAPI with mcp_server=True, so
-any AI assistant can use Darby's Arabic AI glossary. Each function's docstring and type hints become the tool's
+"""Darbi as an MCP server (P1, docs/HF_PLAN.md #11): a small Gradio app mounted in FastAPI with mcp_server=True, so
+any AI assistant can use Darbi's Arabic AI glossary. Each function's docstring and type hints become the tool's
 description and schema. The answer to today's code is never exposed.
 """
 
@@ -19,7 +19,7 @@ def build_tools(app: FastAPI):
     from server.routes.glossary import quick_card
 
     def lookup_term(term: str, lang: str = "gulf") -> dict[str, Any]:
-        """Look up an English AI or software term (or its Arabic) in Darby's term bank of about 24,000 terms.
+        """Look up an English AI or software term (or its Arabic) in Darbi's term bank of about 24,000 terms.
 
         Args:
             term: The term to look up, in English or Arabic, for example "hallucination" or "الأوامر".
@@ -27,7 +27,7 @@ def build_tools(app: FastAPI):
 
         Returns:
             The best matches. Each has the English term, the Arabic term, its source, whether a person reviewed it,
-            and a full learning card (definition, analogy, example) when Darby has one.
+            and a full learning card (definition, analogy, example) when Darbi has one.
         """
         lang = lang if lang in ("en", "msa", "gulf") else "gulf"
         tb, g = app.state.termbank, app.state.glossary
@@ -39,16 +39,16 @@ def build_tools(app: FastAPI):
         return {"query": term, "results": out, "terms_in_bank": len(tb.rows)}
 
     def explain_text(text: str, lang: str = "gulf") -> dict[str, Any]:
-        """Find the AI and software terms in an English work text and give their Arabic, with Darby's cards.
+        """Find the AI and software terms in an English work text and give their Arabic, with Darbi's cards.
 
-        No AI model is called: matching is deterministic against Darby's term bank, so this is fast and free.
+        No AI model is called: matching is deterministic against Darbi's term bank, so this is fast and free.
 
         Args:
             text: An English work text such as an email or report paragraph (up to 2,000 characters).
             lang: Language of the explanations: "en", "msa" or "gulf".
 
         Returns:
-            Every matched term with its position in the text, its Arabic, and a full card when Darby has one.
+            Every matched term with its position in the text, its Arabic, and a full card when Darbi has one.
         """
         lang = lang if lang in ("en", "msa", "gulf") else "gulf"
         text = text[:2000]
@@ -59,7 +59,7 @@ def build_tools(app: FastAPI):
         return {"terms": matches, "count": len(matches)}
 
     def todays_code_clue(lang: str = "en") -> dict[str, Any]:
-        """Today's Darby daily code (شيفرة اليوم): the clue and the word length, never the answer.
+        """Today's Darbi daily code (شيفرة اليوم): the clue and the word length, never the answer.
 
         Args:
             lang: "en" to guess the English term (the clue is in Arabic) or "ar" to guess the Arabic term (the clue is in English).
@@ -71,8 +71,8 @@ def build_tools(app: FastAPI):
         s = app.state.game.start(lang, qatar_today())
         return {k: s[k] for k in ("date", "lang", "length", "max_tries", "clue")}
 
-    with gr.Blocks(title="Darby tools") as demo:
-        gr.Markdown("# Darby (دربي) tools\nAI and software terms in Arabic and English, as MCP tools. The app is at the Space root.")
+    with gr.Blocks(title="Darbi tools") as demo:
+        gr.Markdown("# Darbi (دربي) tools\nAI and software terms in Arabic and English, as MCP tools. The app is at the Space root.")
         with gr.Tab("lookup_term"):
             t1, l1 = gr.Textbox(label="term"), gr.Dropdown(["gulf", "msa", "en"], value="gulf", label="lang")
             o1 = gr.JSON()

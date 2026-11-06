@@ -32,6 +32,6 @@ def test_tools():
 
 
 def test_web_app_still_serves_its_routes(tmp_path):
-    (tmp_path / "index.html").write_text("<title>Darby</title>")
+    (tmp_path / "index.html").write_text("<title>Darbi</title>")
     c = TestClient(create_app(replace(load_settings(), termbank_source="off", web_dist=tmp_path)))
-    assert "Darby" in c.get("/glossary").text and c.get("/api/health").status_code == 200
+    assert "Darbi" in c.get("/glossary").text and c.get("/api/health").status_code == 200
