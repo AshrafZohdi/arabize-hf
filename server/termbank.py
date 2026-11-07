@@ -209,11 +209,23 @@ def _highlightable(en: str) -> bool:
     return re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9 .'-]*", en) is not None
 
 
+def english_words(content_dir: Path) -> set[str] | None:
+    """Ordinary English words (data/curated/english_words.txt), so acronyms can match in any case without "it" becoming IT."""
+    try:
+        with open(content_dir.parent / "data" / "curated" / "english_words.txt", encoding="utf-8") as f:
+            return {line.strip() for line in f if line.strip() and not line.startswith("#")}
+    except OSError:
+        return None
+
+
 def apply_curated(tb: TermBank, content_dir: Path, status: dict[str, Any]) -> None:
-    """Our additions (data/curated/additions.csv), then abbreviations (data/curated/abbreviations.csv)."""
+    """Our additions (data/curated/additions.csv), then abbreviations (data/curated/abbreviations.csv), then the
+    English word list that lets acronyms match in any case."""
     import csv
 
     curated = content_dir.parent / "data" / "curated"
+    tb.finder.english = english_words(content_dir)
+    status["steps"]["english_words"] = f"ok ({len(tb.finder.english)})" if tb.finder.english else "skipped: exact case for acronyms"
     try:
         with open(curated / "additions.csv", encoding="utf-8") as f:
             wanted = list(csv.DictReader(f))

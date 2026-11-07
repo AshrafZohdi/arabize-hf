@@ -105,3 +105,18 @@ def test_singular_forms_for_search():
     assert "skill" in singular_forms("skills") and "query" in singular_forms("queries")
     assert "analysis" in singular_forms("analyses") and "index" in singular_forms("indices") and "criterion" in singular_forms("criteria")
     assert singular_forms("access") == {"acc", "accis"} or "acces" not in singular_forms("access")
+
+
+def test_acronyms_match_in_another_case_unless_it_is_an_english_word():
+    from pathlib import Path
+
+    from server.termbank import english_words
+
+    english = english_words(Path(__file__).parents[1] / "content")
+    assert english and {"it", "set", "page", "note", "com"} <= english
+    finder = TermFinder([t("A2C"), t("RLHF"), t("LLM"), t("IT"), t("SET"), t("PAGE"), t("NOTES"), t("Skill"), t("QA"), t("NER")])
+    finder.english = english
+    text = "Try A2c or a2c, then rlhf and Rlhf; two llms and two LLMS. Set it on this page, read the notes and sets, use your sKills."
+    assert [m.text for m in finder.find(text)] == ["A2c", "a2c", "rlhf", "Rlhf", "llms", "LLMS", "sKills"]
+    assert [m.text for m in finder.find("IT, SET, PAGE and NOTES")] == ["IT", "SET", "PAGE", "NOTES"]
+    assert [m.text for m in finder.find("QAR 2.4 million, a nerd, qas")] == ["qas"]  # the plural form needs a final s

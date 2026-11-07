@@ -2,8 +2,9 @@
 
 A word-level trie over every term in the bank. The text is scanned left to right and the longest
 multi-word match wins at each position, so "large language model" beats "model". Matching ignores
-case, except for acronyms (all caps, like "AI" or "IT"), which must match their case so the word "it"
-never becomes "IT". The last word of a term also matches simple plural and suffix forms
+case. Acronyms (all caps, like "AI" or "IT") also match in another case (a2c, Rlhf) when the typed word has 3 or
+more characters and is not an ordinary English word (`english`), so "it", "set" and "notes" never become IT, SET and
+NOTES. The last word of a term also matches simple plural and suffix forms
 (prompts, hallucinations, queries, APIs); a possessive "'s" is included in the match.
 """
 
@@ -76,9 +77,11 @@ class _Node:
 
 
 class TermFinder:
-    def __init__(self, terms: list[Term]):
+    def __init__(self, terms: list[Term], english: set[str] | None = None):
         self._root = _Node()
         self.size = 0
+        # Lower-case ordinary English words. None: acronyms match their own case only.
+        self.english = english
         for t in terms:
             self.add(t)
 
@@ -114,8 +117,13 @@ class TermFinder:
             j = i
             while j < len(tokens) and node is not None:
                 word = tokens[j][0]
-                # Exact first (acronym keys are upper case), then lower case for ordinary words.
-                node = node.children.get(word) or node.children.get(word.lower())
+                # Exact first (acronym keys are upper case), then lower case for ordinary words, then acronyms in another case.
+                children = node.children
+                node = children.get(word) or children.get(word.lower())
+                if node is None and self._foldable(word):
+                    node = children.get(word.upper())  # a2c, rlhf
+                    if node is None and word[-1] in "sS":
+                        node = children.get(word[:-1].upper() + "s")  # llms, LLMS
                 if node is not None and node.term is not None:
                     best = (j, node.term)
                 j += 1
@@ -131,6 +139,12 @@ class TermFinder:
             else:
                 i += 1
         return out
+
+    def _foldable(self, word: str) -> bool:
+        if self.english is None or len(word) < 3:
+            return False
+        w = word.lower()
+        return w not in self.english and not (w.endswith("s") and w[:-1] in self.english)  # "sets", "notes"
 
 
 def singular_forms(word: str) -> set[str]:
