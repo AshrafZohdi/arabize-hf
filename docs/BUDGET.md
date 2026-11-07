@@ -24,6 +24,6 @@ USD 100 shared credits. Every paid run is logged here (time in Qatar time, hardw
 | 2026-11-06 22:00 | Arabic voice comparison Job (job 6aee2b81c78863f9c6351d21, rerun 6aee2c480e0338d1bb821068 after a script naming mistake): Chatterbox Multilingual and VoxCPM2 against mms-tts-ara on 12 card terms, scored by Whisper large-v3 | a10g-small, USD 1.00/h, 30 min timeout | up to 30 | under 0.50 | Approved by the team |
 | 2026-11-06 22:20 | Re-record the 140 Arabic card words with VoxCPM2 (job 6aee30820e0338d1bb8216fb, 637 s), then retry the six weakest with vowel marks (job 6aee354b0e0338d1bb821e33, 300 s), Whisper-checked, MMS files backed up | a10g-small, USD 1.00/h | 16 | about 0.27 | Approved by the team |
 | 2026-11-06 19:47 | Fanar endpoint woken for live tests of translation and the prompt lab, then idle until scale to zero | 1x A10G, USD 1.00/h | about 30 (estimate) | about 0.50 | |
-| 2026-11-07 09:30 | Fanar endpoint woken to check the tutor's answer about Darbi, then idle until scale to zero | 1x A10G, USD 1.00/h | about 15 (estimate) | about 0.25 | |
+| 2026-11-07 (morning, time not logged) | Fanar endpoint woken to check the tutor's answer about Darbi, then idle until scale to zero | 1x A10G, USD 1.00/h | about 15 (estimate) | about 0.25 | |
 
 Total spent: about USD 6 (estimate: endpoint wake times, A100 and A10G Jobs, CPU Jobs, Space hours; check the billing page for the exact figure)
