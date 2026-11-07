@@ -117,6 +117,16 @@ test('image features show when switched on and fail gently without their endpoin
   await noHorizontalScroll(page)
 })
 
+test('glossary: "explain with Fanar" opens Home with the term, not "page not found"', async ({ page }) => {
+  await page.goto('/glossary')
+  const link = page.getByRole('link', { name: 'خل فنار يشرحه' }).first()
+  await link.waitFor()
+  const term = new URL(await link.getAttribute('href')!, 'http://x').searchParams.get('text')!
+  await link.click()
+  await expect(page.locator('#explain-h')).toBeVisible()
+  await expect(page.locator('#explain-input')).toHaveValue(term)
+})
+
 test('English interface switches to LTR', async ({ page }) => {
   await page.goto('/')
   await page.getByRole('button', { name: /English/ }).click()

@@ -16,9 +16,10 @@ export function RouterProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const navigate = (to: string) => {
-    if (to === window.location.pathname) return
+    if (to === window.location.pathname + window.location.search) return
     window.history.pushState(null, '', to)
-    setPath(to)
+    // The route is the path only: a link such as /?text=AI must still open Home (it showed "page not found").
+    setPath(new URL(to, window.location.origin).pathname)
     window.scrollTo(0, 0)
   }
 
