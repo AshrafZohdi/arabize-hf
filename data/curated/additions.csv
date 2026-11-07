@@ -15,3 +15,36 @@ multi-core processor,معالج متعدد النوى,software,
 multi-core parallel processing,المعالجة المتوازية متعددة النوى,software,
 file extension,امتداد الملف,software,
 script,سكربت (برنامج نصي),software,already in the Microsoft terminology; switched on for highlighting
+skill,مهارة,software,already in the Microsoft terminology; switched on for highlighting
+connector,موصل,software,already in the Microsoft terminology; switched on for highlighting
+plug-in,مكون إضافي,software,already in the Microsoft terminology; switched on for highlighting
+automation,تلقائية,software,already in the Microsoft terminology; switched on for highlighting
+integration,التكامل,software,already in the Microsoft terminology; switched on for highlighting
+extension,ملحق,software,already in the Microsoft terminology; switched on for highlighting
+add-in,وظيفة إضافية,software,already in the Microsoft terminology; switched on for highlighting
+library,مكتبة,software,already in the Microsoft terminology; switched on for highlighting
+jailbreak,اختراق الحماية,ai,already in the Microsoft terminology; switched on for highlighting
+webhook,إخطار على الويب,software,already in the Microsoft terminology; switched on for highlighting
+Model Context Protocol,بروتوكول سياق النموذج,ai,open standard for connecting AI assistants to tools and data (MCP)
+AI agent,وكيل ذكاء اصطناعي,ai,
+agentic AI,الذكاء الاصطناعي الوكيلي,ai,
+tool calling,استدعاء الأدوات,ai,
+tool use,استخدام الأدوات,ai,
+embedding,تضمين,ai,a vector that represents the meaning of a text
+vector database,قاعدة بيانات المتجهات,ai,
+guardrails,ضوابط الحماية,ai,
+prompt injection,حقن الأوامر,ai,
+grounding,الإسناد إلى المصادر,ai,
+multimodal,متعدد الوسائط,ai,
+copilot,مساعد ذكي,ai,
+workflow automation,أتمتة سير العمل,software,
+temperature,درجة الحرارة,ai,the setting that controls how random a model's answer is
+zero-shot,بدون أمثلة,ai,
+chain of thought,سلسلة التفكير,ai,
+reasoning model,نموذج استدلال,ai,
+token limit,حد التوكنات,ai,
+knowledge cutoff,تاريخ توقف المعرفة,ai,
+open-source model,نموذج مفتوح المصدر,ai,
+open weights,أوزان مفتوحة,ai,
+AI literacy,الثقافة في الذكاء الاصطناعي,ai,
+orchestration,تنسيق المهام,ai,

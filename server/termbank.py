@@ -17,7 +17,7 @@ from typing import Any
 
 import numpy as np
 
-from server.terms import Term, TermFinder
+from server.terms import Term, TermFinder, singular_forms
 
 log = logging.getLogger("darby.termbank")
 TERM_BANK_REPO = "nuvais/darby-term-bank"
@@ -113,10 +113,15 @@ class TermBank:
         if not ql:
             return []
         hits: list[tuple[float, int]] = [(3.5, i) for i in self._aliases.get(qa, []) + self._aliases.get(ql, [])]
+        # A plural search ("skills", "queries") finds the singular entry ("skill", "query").
+        last = ql.rsplit(" ", 1)
+        singulars = {f"{last[0]} {s}" if len(last) == 2 else s for s in singular_forms(last[-1])}
         for i, (en, ar) in enumerate(zip(self._en, self._ar)):
             score = 0.0
             if en == ql or (qa and ar == qa):
                 score = 3.0
+            elif en in singulars:
+                score = 2.9
             elif en.startswith(ql) or (qa and ar.startswith(qa)):
                 score = 2.0
             elif (len(ql) >= 3 and ql in en) or (qa and len(qa) >= 3 and qa in ar):

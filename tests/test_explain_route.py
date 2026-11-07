@@ -122,7 +122,7 @@ def test_model_cards_only_for_highlighted_terms_without_a_darby_card(tmp_path):
     c.app.state.termbank.finder.add(vdb)
     c.app.state.termbank.finder.add(vdb, surface="VDB")
     events = sse(c.post("/api/explain", json={"text": "Store the VDB embeddings and cite the source paragraph."}).text)
-    assert [m["text"] for m in events[0][1]["matches"]] == ["VDB", "source"]
+    assert [m["text"] for m in events[0][1]["matches"]] == ["VDB", "embeddings", "source"]  # embedding is a curated term
     assert [card["term_en"] for card in events[-1][1]["cards"]] == ["Vector database"]
 
 
@@ -143,7 +143,7 @@ def test_abbreviation_table_is_clean():
     assert len(abbrs) == len(set(abbrs)) and all(r["en"] for r in rows)
     # Ambiguous in work texts (Arabic, a CV, a download), so they stay out.
     assert not {"AR", "CV", "DL"} & set(abbrs)
-    assert all(is_acronym(a) or a in {"IoT", "PoC", "cpp", "py", "js", "ts", "rs"} for a in abbrs)
+    assert all(is_acronym(a) or a in {"IoT", "PoC", "cpp", "py", "js", "ts", "rs", "plugin"} for a in abbrs)
 
 
 def test_lowercase_ai_and_added_terms_are_highlighted(tmp_path):

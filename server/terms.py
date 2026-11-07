@@ -45,6 +45,19 @@ def suffix_forms(word: str) -> set[str]:
     forms = {w, w + "s", w + "es"}
     if w.endswith("y") and len(w) > 2 and w[-2] not in "aeiou":
         forms.add(w[:-1] + "ies")
+    # Irregular plurals common in technical English: analyses, indices, matrices, criteria, curricula, shelves.
+    if len(w) > 3 and w.endswith("is"):
+        forms.add(w[:-2] + "es")
+    if w.endswith(("ix", "ex")):
+        forms.add(w[:-2] + "ices")
+    if len(w) > 5 and w.endswith("on"):
+        forms.add(w[:-2] + "a")
+    if len(w) > 4 and w.endswith("um"):
+        forms.add(w[:-2] + "a")
+    if w.endswith("fe"):
+        forms.add(w[:-2] + "ves")
+    elif w.endswith("f"):
+        forms.add(w[:-1] + "ves")
     if w.endswith("e"):
         forms |= {w + "d", w[:-1] + "ing"}
     else:
@@ -118,3 +131,23 @@ class TermFinder:
             else:
                 i += 1
         return out
+
+
+def singular_forms(word: str) -> set[str]:
+    """Possible singulars of an English plural, so a search for "skills" or "queries" finds "skill" and "query"."""
+    w = word.lower()
+    out: set[str] = set()
+    if w.endswith("ies") and len(w) > 4:
+        out.add(w[:-3] + "y")
+    if w.endswith("ices"):
+        out |= {w[:-4] + "ix", w[:-4] + "ex"}
+    if w.endswith("ves"):
+        out |= {w[:-3] + "f", w[:-3] + "fe"}
+    if w.endswith("es") and len(w) > 3:
+        out |= {w[:-2], w[:-2] + "is"}
+    if w.endswith("s") and not w.endswith("ss") and len(w) > 2:
+        out.add(w[:-1])
+    if w.endswith("a") and len(w) > 4:
+        out |= {w[:-1] + "um", w[:-1] + "on"}
+    out.discard(w)
+    return out

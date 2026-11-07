@@ -89,3 +89,19 @@ def test_longer_abbreviations_match_in_any_case(finder):
     finder.add(t("Machine learning"), surface="ML", any_case=False)
     assert [m.text for m in finder.find("RAG, Rag and rag")] == ["RAG", "Rag", "rag"]
     assert found(finder, "ML but not ml") == [("ML", "Machine learning")]
+
+
+def test_irregular_technical_plurals():
+    from server.terms import TermFinder
+
+    f = TermFinder([t("Analysis"), t("Index"), t("Matrix"), t("Criterion"), t("Curriculum"), t("Shelf"), t("Skill"), t("Library")])
+    text = "Two analyses, three indices, the matrices, these criteria, new curricula, the shelves, more skills and libraries."
+    assert [m.term.en for m in f.find(text)] == ["Analysis", "Index", "Matrix", "Criterion", "Curriculum", "Shelf", "Skill", "Library"]
+
+
+def test_singular_forms_for_search():
+    from server.terms import singular_forms
+
+    assert "skill" in singular_forms("skills") and "query" in singular_forms("queries")
+    assert "analysis" in singular_forms("analyses") and "index" in singular_forms("indices") and "criterion" in singular_forms("criteria")
+    assert singular_forms("access") == {"acc", "accis"} or "acces" not in singular_forms("access")

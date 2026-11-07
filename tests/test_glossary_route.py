@@ -109,3 +109,19 @@ def test_search_finds_abbreviations_in_any_case(tmp_path):
     c = client(tmp_path)
     for q in ("llm", "Llm", "LLM"):
         assert c.get("/api/glossary/search", params={"q": q}).json()["results"][0]["en"] == "Large language model"
+
+
+def test_search_finds_the_singular_of_a_plural(tmp_path):
+    c = client(tmp_path)
+    assert c.get("/api/glossary/search", params={"q": "prompts"}).json()["results"][0]["en"] == "Prompt"
+    assert c.get("/api/glossary/search", params={"q": "skills"}).json()["results"][0]["en"] == "skill"
+
+
+def test_new_terms_and_mcp_are_highlighted(tmp_path):
+    from fastapi.testclient import TestClient  # noqa: F401
+
+    c = client(tmp_path)
+    text = "Install the plugin, add two connectors and MCP servers, then give the AI agent new skills with tool calling."
+    got = [(m["text"], m["en"]) for m in c.post("/api/terms", json={"text": text}).json()["matches"]]
+    for pair in [("plugin", "plug-in"), ("connectors", "connector"), ("MCP", "Model Context Protocol"), ("AI agent", "AI agent"), ("skills", "skill"), ("tool calling", "tool calling")]:
+        assert pair in got, (pair, got)

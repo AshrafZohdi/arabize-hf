@@ -22,12 +22,14 @@ js,JavaScript,yes
 KPI,key performance indicator,
 LLM,Large language model,
 LSTM,long short-term memory,
+MCP,Model Context Protocol,yes
 MFA,multi-factor authentication,
 ML,Machine learning,
 NER,named entity recognition,
 NLP,natural language processing,
 OCR,optical character recognition,
 PII,personally identifiable information,
+plugin,plug-in,yes
 PoC,proof of concept,
 PPO,Proximal Policy Optimization,
 py,Python,yes
