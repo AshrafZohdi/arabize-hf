@@ -115,6 +115,7 @@ def test_search_finds_the_singular_of_a_plural(tmp_path):
     c = client(tmp_path)
     assert c.get("/api/glossary/search", params={"q": "prompts"}).json()["results"][0]["en"] == "Prompt"
     assert c.get("/api/glossary/search", params={"q": "skills"}).json()["results"][0]["en"] == "skill"
+    assert c.get("/api/glossary/search", params={"q": "plugins"}).json()["results"][0]["en"] == "plug-in"  # plural of another spelling
 
 
 def test_new_terms_and_mcp_are_highlighted(tmp_path):

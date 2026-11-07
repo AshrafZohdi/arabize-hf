@@ -116,6 +116,7 @@ class TermBank:
         # A plural search ("skills", "queries") finds the singular entry ("skill", "query").
         last = ql.rsplit(" ", 1)
         singulars = {f"{last[0]} {s}" if len(last) == 2 else s for s in singular_forms(last[-1])}
+        hits += [(3.4, i) for s in singulars for i in self._aliases.get(s, [])]  # plurals of other spellings: plugins
         for i, (en, ar) in enumerate(zip(self._en, self._ar)):
             score = 0.0
             if en == ql or (qa and ar == qa):
