@@ -13,6 +13,7 @@ export function Footer() {
         {after}
       </span>
       <span>{t('footer.privacy')}</span>
+      <p className="m-0 basis-full text-ink-2">{t('app.about')}</p>
     </footer>
   )
 }

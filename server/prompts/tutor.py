@@ -6,6 +6,7 @@ from __future__ import annotations
 import re
 from typing import Any
 
+from server.about import ABOUT
 from server.llm import wrap_learner_text
 
 LANGUAGE = {
@@ -40,7 +41,9 @@ def build_tutor_system(lesson: dict[str, Any] | None, lang: str, terms: list[tup
     glossary = "\n".join(f"- {en} = {ar}: {d}" for en, ar, d in terms[:20])
     return "\n\n".join(
         [
-            f'You are the tutor inside a lesson called "{title}" in Darbi, a course that teaches professionals in Qatar to use AI at work.',
+            f'You are the tutor inside a lesson called "{title}" in Darbi. {ABOUT["en"]}',
+            "If the learner asks what Darbi is, who it is for or what it does, answer with exactly this sentence and nothing else about its audience: "
+            f'in English "{ABOUT["en"]}", in Arabic "{ABOUT["ar"]}".',
             f"Answer in {LANGUAGE[lang]}. When you use an English technical term in Arabic, write the Arabic term first and the English term in brackets. "
             "The Arabic for prompt is أمر (plural أوامر).",
             "Ground your answer in the lesson material and glossary below. If they do not cover the question, you may use general knowledge about AI, "

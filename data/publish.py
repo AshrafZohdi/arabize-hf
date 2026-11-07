@@ -128,7 +128,7 @@ configs:
 
 ## بنك مصطلحات دربي
 
-مصطلحات الذكاء الاصطناعي والبرمجيات بالإنجليزي والعربي، لتطبيق «دربي» الذي يعلّم الموظفين في قطر لغة الذكاء الاصطناعي بعربي بسيط أو باللهجة الخليجية. كل مصطلح له ترجمة عربية تشرح معناه، والاختصارات لها اسمها الكامل، مثل: نموذج لغوي كبير (LLM: Large language model).
+مصطلحات الذكاء الاصطناعي والبرمجيات بالإنجليزي والعربي، لتطبيق «دربي» الذي يعلّم خريجي المدارس المستقلة في قطر لغة الذكاء الاصطناعي بعربي بسيط أو باللهجة الخليجية. كل مصطلح له ترجمة عربية تشرح معناه، والاختصارات لها اسمها الكامل، مثل: نموذج لغوي كبير (LLM: Large language model).
 
 - مصدر كل ترجمة مذكور: مراجعة فريق دربي، أو ترجمة بشرية من GIST، أو مسرد مايكروسوفت، أو ترجمة كتبها نموذج «فنار 2» القطري.
 - لم تُراجَع الترجمات لغويًا بعد إلا ما في `curated/overrides.csv`، وما يحتاج مراجعة بشرية معلَّم بـ `needs_review = true`.
@@ -140,7 +140,7 @@ configs:
 
 {published_own:,} English terms with Arabic, from Darby's own glossary and from GIST, plus our completions for Microsoft glossary terms. Every term has an Arabic meaning (not only a transliteration), acronyms have their full English form, and every row says where its Arabic came from.
 
-Built for Darby (دربي), an app that teaches Arabic-speaking professionals in Qatar the vocabulary of AI at work, at the Qai x Hugging Face Hackathon 01 in Doha (November 2026). The app runs on Hugging Face and uses Qatar's Fanar 2 model.
+Built for Darbi (دربي), an app that teaches graduates of Qatar's Mostaqila schools the vocabulary of AI at work, at the Qai x Hugging Face Hackathon 01 in Doha (November 2026). The app runs on Hugging Face and uses Qatar's Fanar 2 model.
 
 ## Files
 

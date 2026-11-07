@@ -1,10 +1,11 @@
 """Prompt lab (P0-3), ported from ../arabaize/src/lib/ai/prompt-lab.ts: score a learner's prompt for a real Doha
-work task on goal, context, format and constraints (1 to 5 each), with feedback and an improved prompt."""
+work task on goal, context, format and constraints (0 to 5 each), with feedback and an improved prompt."""
 
 from __future__ import annotations
 
 from pydantic import BaseModel, Field
 
+from server.about import AUDIENCE
 from server.llm import escape_learner_text
 
 CRITERIA = ("goal", "context", "format", "constraints")
@@ -56,7 +57,7 @@ def build_scoring_prompt(
     rubric_text = "\n".join(f"- {c}: {(rubric or {}).get(c, DEFAULT_RUBRIC[c])}" for c in CRITERIA)
     system = "\n\n".join(
         [
-            "You are a strict but encouraging grader in a course that teaches professionals in Qatar to write prompts for AI tools.",
+            f"You are a strict but encouraging grader in Darbi, a course for {AUDIENCE}; you score how well they write prompts for AI tools.",
             "Score the learner's prompt for the given work task on each criterion from 0 to 5: 0 when the criterion is missing, 1 when barely there, 5 when excellent. "
             "If the text is not a real prompt for this task (random letters, nonsense, unrelated chat), every criterion is 0.",
             f"Rubric:\n{rubric_text}",

@@ -8,7 +8,9 @@ Qai x Hugging Face Hackathon 01, Doha, 5 to 6 November 2026.
 
 ## The problem we solve
 
-Arabic-speaking professionals in Qatar are expected to use AI at work, but the material, the tools and the vocabulary are all in English. An employee gets an email that says "check it for hallucinations and give the model more context in your prompt" and has no one to ask. Existing Arabic options are short government workshops, paid video courses, or scattered YouTube.
+Audience (set by the team on 7 November 2026): Darbi helps graduates of Qatar's Mostaqila schools understand the English language of AI and use AI well at work, explained in the Gulf dialect they speak every day.
+
+Graduates of Qatar's Mostaqila schools are expected to use AI at work, but the material, the tools and the vocabulary are all in English. A new employee gets an email that says "check it for hallucinations and give the model more context in your prompt" and has no one to ask. Existing Arabic options are short government workshops, paid video courses, or scattered YouTube.
 
 ## The product
 

@@ -27,7 +27,7 @@ A two-file copy of the `Q8_0` quantization and the f16 vision projector of [QCRI
 
 They were copied here unchanged so an Inference Endpoint downloads two files instead of every quantization in the source repo. The projector carries a `.bin` name because a llama.cpp endpoint downloads only the chosen `.gguf` plus non-GGUF files; llama.cpp reads it by its contents.
 
-It powers photo explain in Darbi (دربي), an app that teaches Arabic-speaking professionals in Qatar the language of AI: a learner photographs an English screen, slide or email and Darbi reads it, then explains it in Gulf Arabic. Built for the Qai x Hugging Face Hackathon 01 in Doha.
+It powers photo explain in Darbi (دربي), an app that teaches graduates of Qatar's Mostaqila schools the language of AI: a learner photographs an English screen, slide or email and Darbi reads it, then explains it in Gulf Arabic. Built for the Qai x Hugging Face Hackathon 01 in Doha.
 
 ## Serving
 

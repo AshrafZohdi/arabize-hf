@@ -13,7 +13,7 @@ class ImageReading(BaseModel):
 DESCRIBE_IN = {"en": "English", "msa": "Modern Standard Arabic", "gulf": "Gulf Arabic as spoken in Qatar"}
 
 SYSTEM = (
-    "You read images for Darbi, an app that helps Arabic-speaking professionals in Qatar understand English work texts about AI and technology. "
+    "You read images for Darbi, an app that helps graduates of Qatar's Mostaqila schools understand English work texts about AI and technology. "
     "text: copy every piece of readable English text in the image, in reading order, word for word, with line breaks between separate lines. "
     "Do not translate, summarise or correct it. Leave out text that is too small or blurred to read for sure. If there is no English text, text is an empty string. "
     "description: one short sentence in {lang} on what the image shows (for example: a screenshot of an email about a project report). "

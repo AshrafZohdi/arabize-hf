@@ -5,7 +5,7 @@ colorFrom: red
 colorTo: yellow
 sdk: docker
 app_port: 7860
-short_description: Learn AI and its English terms in Arabic
+short_description: AI's English for Qatar's Mostaqila school graduates
 license: apache-2.0
 models:
   - QCRI/Fanar-2-27B-Instruct
@@ -32,7 +32,7 @@ datasets:
 
 **A Qatari model teaching Qataris the language of AI.**
 
-Darbi ("my path") teaches Arabic-speaking professionals in Qatar to use AI at work, and the English vocabulary that comes with it, in simple Arabic or Gulf dialect, through short game mechanics. Its brain is Fanar 2, the Arabic model built in Qatar by QCRI, served on Hugging Face. Everything runs on Hugging Face.
+Darbi ("my path") helps graduates of Qatar's Mostaqila schools understand the English language of AI and use AI well at work, explained in the Gulf dialect they speak every day, through short game mechanics. Its brain is Fanar 2, the Arabic model built in Qatar by QCRI, served on Hugging Face. Everything runs on Hugging Face.
 
 Built for the Qai x Hugging Face Hackathon 01, Doha, 5 and 6 November 2026.
 
@@ -41,7 +41,7 @@ Built for the Qai x Hugging Face Hackathon 01, Doha, 5 and 6 November 2026.
 
 ## The problem
 
-Professionals in Qatar are expected to use AI at work, but the tools, the material and the vocabulary are in English. An employee gets an email that says "check it for hallucinations and give the model more context in your prompt" and has no one to ask. Arabic options are short workshops, paid video courses or scattered videos.
+Graduates of Qatar's Mostaqila schools are expected to use AI at work, but the tools, the material and the vocabulary are in English. A new employee gets an email that says "check it for hallucinations and give the model more context in your prompt" and has no one to ask. Arabic options are short workshops, paid video courses or scattered videos.
 
 ## What Darbi does
 

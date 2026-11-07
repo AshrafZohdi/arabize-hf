@@ -19,7 +19,7 @@ tags:
 
 A single-file copy of the static `Q5_K_M` quantization of [QCRI/Fanar-2-27B-Instruct](https://huggingface.co/QCRI/Fanar-2-27B-Instruct), the Arabic model built in Qatar by QCRI. The quantization was made by [mradermacher](https://huggingface.co/mradermacher/Fanar-2-27B-Instruct-GGUF) (file `Fanar-2-27B-Instruct.Q5_K_M.gguf`, revision `0816cf7f1da762a329b072fb8f8bf9e4b5622061`, sha256 `96bd98f19d9ae0151ce7737d3c23ef4de7f6f8c74cec0cffb332540033d7cfcc`). It was copied here unchanged so an Inference Endpoint downloads one 19.3 GB file instead of every quantization in the source repo.
 
-It powers Darby (دربي), an app that teaches Arabic-speaking professionals in Qatar the language of AI, built for the Qai x Hugging Face Hackathon 01 in Doha.
+It powers Darbi (دربي), an app that teaches graduates of Qatar's Mostaqila schools the language of AI, built for the Qai x Hugging Face Hackathon 01 in Doha.
 
 ## Serving
 

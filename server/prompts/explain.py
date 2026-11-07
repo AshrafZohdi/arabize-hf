@@ -12,6 +12,7 @@ import re
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
+from server.about import AUDIENCE
 from server.llm import wrap_learner_text
 
 ExplainLang = Literal["en", "msa", "gulf"]
@@ -106,7 +107,7 @@ def build_explain_prompt(text: str, lang: str, style: str, known_terms: list[tup
     system = "\n\n".join(
         p
         for p in [
-            "You help Arabic-speaking professionals in Qatar understand English work texts about AI and technology. You are a careful, friendly tutor.",
+            f"You help {AUDIENCE} understand English work texts about AI and technology. You are a careful, friendly tutor.",
             "When you write Arabic, put the English technical term in brackets after the Arabic term the first time, for example: الهلوسة (hallucination). "
             "term_en is the English term as it appears in the text (singular). term_ar is its usual Modern Standard Arabic term. "
             "The Arabic for prompt is أمر, plural أوامر.",

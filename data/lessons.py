@@ -39,7 +39,7 @@ configs:
 
 <div dir="rtl" lang="ar">
 
-سبعة دروس قصيرة (حوالي 10 دقائق لكل درس) تعلّم الموظفين في قطر استخدام الذكاء الاصطناعي في الشغل ومصطلحاته الإنجليزية، بثلاث صيغ: إنجليزي، وعربي مبسط، ولهجة خليجية. كل درس: مدخل، فكرة، مثال، مصطلحات، تمارين، مختبر أوامر، وخلاصة.
+سبعة دروس قصيرة (حوالي 10 دقائق لكل درس) تعلّم خريجي المدارس المستقلة في قطر استخدام الذكاء الاصطناعي في الشغل ومصطلحاته الإنجليزية، بثلاث صيغ: إنجليزي، وعربي مبسط، ولهجة خليجية. كل درس: مدخل، فكرة، مثال، مصطلحات، تمارين، مختبر أوامر، وخلاصة.
 
 **تنبيه:** الدروس كُتبت بمساعدة الذكاء الاصطناعي في تطبيق «Arabize» السابق، ولم تمرّ بعد بالمراجعة التقنية واللغوية.
 
@@ -47,7 +47,7 @@ configs:
 
 ## What this is
 
-{n} lessons from Darby (دربي), the app that teaches Arabic-speaking professionals in Qatar the vocabulary of AI at work. Built at the Qai x Hugging Face Hackathon 01 in Doha (November 2026). Every text field comes in `en`, `ar` (simple Modern Standard Arabic) and `gulf` (Gulf Arabic; falls back to `ar` when missing).
+{n} lessons from Darbi (دربي), the app that teaches graduates of Qatar's Mostaqila schools the vocabulary of AI at work. Built at the Qai x Hugging Face Hackathon 01 in Doha (November 2026). Every text field comes in `en`, `ar` (simple Modern Standard Arabic) and `gulf` (Gulf Arabic; falls back to `ar` when missing).
 
 **Status: AI-drafted, not yet reviewed.** The lessons were drafted with AI for the earlier Arabize app and have not had the technical and Arabic language review that app required before publishing a lesson.
 

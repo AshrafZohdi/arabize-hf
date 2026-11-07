@@ -60,7 +60,7 @@ configs:
 
 ## What this is
 
-{n} learning cards for the English vocabulary of AI at work, for Arabic-speaking professionals in Qatar. Each card has the English term, the standard Arabic term, how Gulf colleagues say it, definitions in English, simple Modern Standard Arabic and Gulf Arabic, an analogy, a common mistake, examples set in a Doha workplace, and related terms. Built for Darby (دربي) at the Qai x Hugging Face Hackathon 01 in Doha (November 2026).
+{n} learning cards for the English vocabulary of AI at work, for graduates of Qatar's Mostaqila schools. Each card has the English term, the standard Arabic term, how Gulf colleagues say it, definitions in English, simple Modern Standard Arabic and Gulf Arabic, an analogy, a common mistake, examples set in a Doha workplace, and related terms. Built for Darbi (دربي) at the Qai x Hugging Face Hackathon 01 in Doha (November 2026).
 
 | Origin | Cards | How it was made |
 |---|---|---|
