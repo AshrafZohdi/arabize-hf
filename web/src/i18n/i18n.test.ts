@@ -36,8 +36,6 @@ describe('translate', () => {
   })
 
   it('interpolates variables', () => {
-    expect(translate('en', 'footer.poweredBy', { model: 'Fanar 2', platform: 'Hugging Face' })).toBe(
-      "Runs on Qatar's Fanar 2 model on Hugging Face",
-    )
+    expect(translate('en', 'footer.poweredBy', { model: 'Jais 3' })).toBe('Runs on the Jais 3 model')
   })
 })

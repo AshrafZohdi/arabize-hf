@@ -72,7 +72,7 @@ def build_tools(app: FastAPI):
         return {k: s[k] for k in ("date", "lang", "length", "max_tries", "clue")}
 
     with gr.Blocks(title="Darbi tools") as demo:
-        gr.Markdown("# Darbi (دربي) tools\nAI and software terms in Arabic and English, as MCP tools. The app is at the Space root.")
+        gr.Markdown("# Darbi (دربي) tools\nAI and software terms in Arabic and English, as MCP tools. The app is at the site root.")
         with gr.Tab("lookup_term"):
             t1, l1 = gr.Textbox(label="term"), gr.Dropdown(["gulf", "msa", "en"], value="gulf", label="lang")
             o1 = gr.JSON()

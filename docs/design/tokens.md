@@ -1,6 +1,8 @@
-# Darby design tokens
+# Darbi design tokens
 
-Light mode only for the hackathon. Put these in one place (`web/src/styles/tokens.css` as CSS variables, mapped into Tailwind's theme) and never write a hex in a component.
+> The product redesign (November 2026) changed the values and the component recipes: flat white cards on limestone white, Qatar maroon, Noto Kufi Arabic headings, the flag's serrated edge in the header, a Sadu band in the footer and a faint eight-point star lattice behind the page top. **`web/src/styles/tokens.css` and `web/src/index.css` are the source of truth**; the tables below describe the earlier hackathon look and are kept for the token names and their uses.
+
+Light mode only. Put these in one place (`web/src/styles/tokens.css` as CSS variables, mapped into Tailwind's theme) and never write a hex in a component.
 
 ## Colour
 

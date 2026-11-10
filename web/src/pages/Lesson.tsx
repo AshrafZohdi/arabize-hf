@@ -85,7 +85,7 @@ export function LessonPage({ slug }: { slug: string }) {
     return (
       <div className="card">
         <p className="mt-0">{t('lesson.notFound')}</p>
-        <Link href="/">{t('lesson.backHome')}</Link>
+        <Link href="/learn">{t('lesson.backHome')}</Link>
       </div>
     )
   }
@@ -181,7 +181,7 @@ export function LessonPage({ slug }: { slug: string }) {
     <div className="mx-auto flex max-w-[1100px] flex-col gap-5">
       <div className="glass flex flex-wrap items-center gap-x-5 gap-y-3 px-4 py-3">
         <Link
-          href="/"
+          href="/learn"
           aria-label={t('lesson.exit')}
           className="flex size-11 shrink-0 items-center justify-center rounded-full border border-white/80 bg-white/80 text-ink-2 no-underline hover:text-ink"
         >
@@ -271,7 +271,7 @@ export function LessonPage({ slug }: { slug: string }) {
                 <button
                   type="button"
                   className="min-h-12 cursor-pointer rounded-2xl border border-white/80 bg-white/80 px-5 font-bold text-ink shadow-[0_4px_0_var(--shadow)]"
-                  onClick={() => navigate('/')}
+                  onClick={() => navigate('/learn')}
                 >
                   {t('lesson.backHome')}
                 </button>

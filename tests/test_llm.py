@@ -9,10 +9,10 @@ from pydantic import BaseModel
 from server.config import load_settings
 from server.llm import (
     LLM,
-    Fixtures,
     LLMBadOutput,
     LLMUnavailable,
     RateLimited,
+    PartialStringField,
     RateLimiter,
     ThinkStripper,
     escape_learner_text,
@@ -67,21 +67,7 @@ GOOD = json.dumps({"term_en": "Hallucination", "term_ar": "الهلوسة"}, ens
 
 @pytest.fixture
 def settings():
-    return replace(load_settings(), fanar_endpoint_url="https://example.endpoints.huggingface.cloud", demo_mode=False, hf_token="x")
-
-
-@pytest.fixture
-def fixtures(tmp_path):
-    d = tmp_path / "explain"
-    d.mkdir()
-    (d / "demo1.json").write_text(
-        json.dumps({"input": {"text": "Check it for  HALLUCINATIONS", "lang": "gulf"}, "output": {"term_en": "Hallucination", "term_ar": "الهلوسة"}}),
-        encoding="utf-8",
-    )
-    t = tmp_path / "tutor"
-    t.mkdir()
-    (t / "t1.json").write_text(json.dumps({"input": {"text": "what is a token"}, "output": "التوكن هو قطعة من النص."}), encoding="utf-8")
-    return Fixtures(tmp_path)
+    return replace(load_settings(), jais_base_url="https://jais.example/v1", jais_api_key="x", jais_reasoning_effort="high")
 
 
 def run(coro):
@@ -153,216 +139,175 @@ def test_rate_limiter_window():
     rl.hit("ip")
 
 
-def test_fixture_lookup_normalises_and_falls_back_to_text(fixtures):
-    assert fixtures.lookup("explain", {"text": "check it for hallucinations", "lang": "gulf"})["term_en"] == "Hallucination"
-    # Different language toggle still finds the recording by text.
-    assert fixtures.lookup("explain", {"text": "Check it for hallucinations", "lang": "msa"}) is not None
-    assert fixtures.lookup("explain", {"text": "something else"}) is None
-    assert fixtures.lookup("tutor", None) is None
+# --- LLM.json -----------------------------------------------------------------------------
 
 
-# --- JSON calls --------------------------------------------------------------------------
-
-
-def test_json_success_sends_schema_and_no_thinking(settings, fixtures):
-    client = FakeClient("<think>hmm</think>" + GOOD)
-    llm = LLM(settings, client=client, fixtures=fixtures)
-    res = run(llm.json(feature="explain", system="sys", user="u", schema=Card, max_tokens=100))
-    assert res.data.term_ar == "الهلوسة" and res.source == "fanar" and res.attempts == 1
+def test_json_success_sends_the_model_card_settings_and_schema(settings):
+    client = FakeClient(GOOD)
+    llm = LLM(settings, client=client)
+    res = run(llm.json(feature="explain", system="s", user="u", schema=Card))
+    assert res.data.term_ar == "الهلوسة" and res.source == "jais" and res.attempts == 1
     call = client.calls[0]
-    assert call["extra_body"] == {"chat_template_kwargs": {"no_thinking": True}}
-    assert call["response_format"]["type"] == "json_object" and "term_ar" in call["response_format"]["schema"]["properties"]
-    assert call["temperature"] == 0.3
+    assert call["model"] == "inception42/Jais-3-375B-A23B"
+    assert call["chat_template_kwargs"] == {"reasoning_effort": "high"}
+    assert call["top_p"] == 0.95 and call["top_k"] == 20 and call["temperature"] == settings.jais_temperature
+    # Reasoning counts towards max_tokens, so the budget is the model card's, not the length of an answer.
+    assert call["max_tokens"] == settings.jais_max_tokens >= 32768
+    assert call["response_format"]["type"] == "json_schema"
+    assert set(call["response_format"]["json_schema"]["schema"]["properties"]) == {"term_en", "term_ar"}
     assert "JSON Schema" in call["messages"][0]["content"]
     assert llm.state == "ready"
 
 
-def test_json_retries_once_with_the_error(settings, fixtures):
-    client = FakeClient('{"term_en": "x"}', GOOD)
-    llm = LLM(settings, client=client, fixtures=fixtures)
-    res = run(llm.json(feature="explain", system="s", user="u", schema=Card, max_tokens=100))
+def test_reasoning_effort_can_be_left_to_the_server(settings):
+    client = FakeClient(GOOD)
+    run(LLM(replace(settings, jais_reasoning_effort=""), client=client).json(feature="x", system="s", user="u", schema=Card))
+    assert "chat_template_kwargs" not in client.calls[0]
+
+
+def test_json_retries_once_with_the_error(settings):
+    client = FakeClient('{"term_en": "Hallucination"}', GOOD)
+    llm = LLM(settings, client=client)
+    res = run(llm.json(feature="explain", system="s", user="u", schema=Card))
     assert res.attempts == 2
-    retry_msgs = client.calls[1]["messages"]
-    assert retry_msgs[-1]["role"] == "user" and "term_ar" in retry_msgs[-1]["content"]
+    assert "term_ar" in client.calls[1]["messages"][-1]["content"]
 
 
-def test_json_gives_up_after_two_bad_replies(settings, fixtures):
-    llm = LLM(settings, client=FakeClient("nope", "still nope"), fixtures=fixtures)
+def test_json_gives_up_after_two_bad_replies(settings):
+    llm = LLM(settings, client=FakeClient("nope", "still nope"))
     with pytest.raises(LLMBadOutput):
-        run(llm.json(feature="explain", system="s", user="u", schema=Card, max_tokens=100))
+        run(llm.json(feature="explain", system="s", user="u", schema=Card))
 
 
-def test_json_drops_response_format_when_rejected(settings, fixtures):
-    client = FakeClient(HTTPError(400, "response_format json_schema not supported"), GOOD, GOOD)
-    llm = LLM(settings, client=client, fixtures=fixtures)
-    run(llm.json(feature="explain", system="s", user="u", schema=Card, max_tokens=100))
+def test_json_drops_response_format_when_rejected(settings):
+    client = FakeClient(HTTPError(400, "response_format is not supported"), GOOD, GOOD)
+    llm = LLM(settings, client=client)
+    run(llm.json(feature="explain", system="s", user="u", schema=Card))
     assert "response_format" in client.calls[0] and "response_format" not in client.calls[1]
-    run(llm.json(feature="explain", system="s", user="u", schema=Card, max_tokens=100))
-    assert "response_format" not in client.calls[2]
+    run(llm.json(feature="explain", system="s", user="u", schema=Card))
+    assert "response_format" not in client.calls[2]  # remembered for later calls
 
 
-@pytest.mark.parametrize("exc", [HTTPError(503), TimeoutError(), ConnectionError("refused")])
-def test_cold_endpoint_serves_fixture_and_reports_waking(settings, fixtures, exc):
-    llm = LLM(settings, client=FakeClient(exc), fixtures=fixtures)
-    res = run(
-        llm.json(
-            feature="explain", system="s", user="u", schema=Card, max_tokens=100, fixture_input={"text": "check it for hallucinations", "lang": "gulf"}
-        )
-    )
-    assert res.source == "fixture"
-    assert llm.state == "waking" and llm.status()["waking_for_s"] is not None
-
-
-def test_cold_endpoint_without_fixture_raises_waking(settings, fixtures):
-    llm = LLM(settings, client=FakeClient(HTTPError(503)), fixtures=fixtures)
+@pytest.mark.parametrize("exc", [HTTPError(503), HTTPError(502), asyncio.TimeoutError(), ConnectionError("refused")])
+def test_a_server_that_is_down_is_reported_as_unavailable(settings, exc):
+    llm = LLM(settings, client=FakeClient(exc))
     with pytest.raises(LLMUnavailable) as e:
-        run(llm.json(feature="explain", system="s", user="u", schema=Card, max_tokens=100, fixture_input={"text": "new text"}))
-    assert e.value.state == "waking"
+        run(llm.json(feature="explain", system="s", user="u", schema=Card))
+    assert e.value.state == "unavailable" and llm.state == "unavailable"
+    assert llm.status()["down_for_s"] is not None
 
 
-def test_client_errors_are_not_hidden(settings, fixtures):
-    llm = LLM(settings, client=FakeClient(HTTPError(401, "bad token")), fixtures=fixtures)
-    with pytest.raises(HTTPError):
-        run(llm.json(feature="explain", system="s", user="u", schema=Card, max_tokens=100))
-    assert llm.state != "waking"
+def test_a_setup_problem_is_reported_as_an_error(settings):
+    llm = LLM(settings, client=FakeClient(HTTPError(401, "bad key")))
+    with pytest.raises(LLMUnavailable) as e:
+        run(llm.json(feature="explain", system="s", user="u", schema=Card))
+    assert e.value.state == "error" and llm.state == "error"
 
 
-def test_any_endpoint_failure_serves_a_recording_when_there_is_one(settings, fixtures):
-    llm = LLM(settings, client=FakeClient(HTTPError(401, "bad token")), fixtures=fixtures)
-    res = run(llm.json(feature="explain", system="s", user="u", schema=Card, max_tokens=100, fixture_input={"text": "check it for hallucinations", "lang": "gulf"}))
-    assert res.source == "fixture"
-
-
-def test_missing_token_counts_as_unconfigured(settings, fixtures):
-    assert LLM(replace(settings, hf_token=None), client=FakeClient(), fixtures=fixtures).state == "unconfigured"
-
-
-def test_demo_mode_never_calls_the_endpoint(settings, fixtures):
+def test_without_a_server_url_nothing_is_called(settings):
     client = FakeClient()
-    llm = LLM(replace(settings, demo_mode=True), client=client, fixtures=fixtures)
-    res = run(llm.json(feature="explain", system="s", user="u", schema=Card, max_tokens=100, fixture_input={"text": "Check it for hallucinations"}))
-    assert res.source == "fixture" and client.calls == []
-    with pytest.raises(LLMUnavailable) as e:
-        run(llm.json(feature="explain", system="s", user="u", schema=Card, max_tokens=100, fixture_input={"text": "other"}))
-    assert e.value.state == "demo"
-
-
-def test_unconfigured_endpoint_is_offline(settings, fixtures):
-    llm = LLM(replace(settings, fanar_endpoint_url=None), client=FakeClient(), fixtures=fixtures)
+    llm = LLM(replace(settings, jais_base_url=None), client=client)
     assert llm.state == "unconfigured"
+    with pytest.raises(LLMUnavailable) as e:
+        run(llm.json(feature="explain", system="s", user="u", schema=Card))
+    assert e.value.state == "unconfigured" and client.calls == []
     with pytest.raises(LLMUnavailable):
-        run(llm.json(feature="explain", system="s", user="u", schema=Card, max_tokens=100))
+        run(collect(llm.stream(feature="tutor", system="s", messages=[])))
 
 
-# --- streaming ---------------------------------------------------------------------------
+def test_an_api_key_is_optional(settings):
+    assert LLM(replace(settings, jais_api_key=None), client=FakeClient()).state == "unknown"
 
 
-def test_stream_strips_think_and_uses_chat_temperature(settings, fixtures):
-    client = FakeClient(["<think>", "plan", "</think>", "\n\nالتوكن ", "قطعة نص."])
-    llm = LLM(settings, client=client, fixtures=fixtures)
-    text = run(collect(llm.stream(feature="tutor", system="s", messages=[{"role": "user", "content": "q"}], max_tokens=50)))
-    assert text == "التوكن قطعة نص."
-    assert client.calls[0]["stream"] is True and client.calls[0]["temperature"] == 0.6
+# --- LLM.stream ---------------------------------------------------------------------------
 
 
-def test_stream_falls_back_to_fixture_when_cold(settings, fixtures):
-    llm = LLM(settings, client=FakeClient(HTTPError(503)), fixtures=fixtures)
-    text = run(
-        collect(
-            llm.stream(feature="tutor", system="s", messages=[], max_tokens=50, fixture_input={"text": "What is a token"})
-        )
-    )
-    assert text == "التوكن هو قطعة من النص."
+def test_stream_strips_think_blocks(settings):
+    client = FakeClient(["<thi", "nk>plan</think>", "السياق ", "مهم"])
+    llm = LLM(settings, client=client)
+    assert run(collect(llm.stream(feature="tutor", system="s", messages=[{"role": "user", "content": "q"}]))) == "السياق مهم"
+    assert client.calls[0]["stream"] is True and "response_format" not in client.calls[0]
 
 
-def test_stream_cold_without_fixture_raises(settings, fixtures):
-    llm = LLM(settings, client=FakeClient(HTTPError(503)), fixtures=fixtures)
-    with pytest.raises(LLMUnavailable):
-        run(collect(llm.stream(feature="tutor", system="s", messages=[], max_tokens=50)))
+def test_stream_leaves_out_reasoning_content(settings):
+    async def chunks():
+        yield SimpleNamespace(choices=[SimpleNamespace(delta=SimpleNamespace(reasoning_content="the learner asks...", content=None))])
+        yield SimpleNamespace(choices=[])
+        yield SimpleNamespace(choices=[SimpleNamespace(delta=SimpleNamespace(content="الجواب"))])
+
+    class Reasoning:
+        async def chat_completion(self, **kwargs):
+            return chunks()
+
+    assert run(collect(LLM(settings, client=Reasoning()).stream(feature="tutor", system="s", messages=[]))) == "الجواب"
 
 
-# --- streaming JSON ----------------------------------------------------------------------
-
-from server.llm import PartialStringField  # noqa: E402
-
-
-def feed_all(field, text, step):
-    return "".join(field.feed(text[:i]) for i in range(1, len(text) + 1, step)) + field.feed(text)
+def test_stream_from_a_server_that_is_down_raises(settings):
+    llm = LLM(settings, client=FakeClient(HTTPError(503)))
+    with pytest.raises(LLMUnavailable) as e:
+        run(collect(llm.stream(feature="tutor", system="s", messages=[])))
+    assert e.value.state == "unavailable"
 
 
-@pytest.mark.parametrize("step", [1, 2, 3, 7])
+# --- streamed JSON ------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("step", [1, 3, 7, 50])
 def test_partial_string_field_decodes_escapes_across_chunks(step):
-    obj = {"off_topic": False, "explanation": 'سطر "أول"\nback\\slash é end', "cards": []}
-    text = json.dumps(obj)  # ascii escapes, \u sequences for Arabic
-    assert feed_all(PartialStringField("explanation"), text, step) == obj["explanation"]
+    text = json.dumps({"explanation": 'سطر "أول"\nسطر ثاني \\ نهاية', "other": "x"}, ensure_ascii=True)
+    field, out = PartialStringField("explanation"), ""
+    for i in range(step, len(text) + step, step):
+        out += field.feed(text[:i])
+    assert out == 'سطر "أول"\nسطر ثاني \\ نهاية'
 
 
 def test_partial_string_field_ignores_other_fields():
-    f = PartialStringField("explanation")
-    assert f.feed('{"term": "x", ') == ""
-    assert f.feed('{"term": "x", "explanation": "ab') == "ab"
-    assert f.feed('{"term": "x", "explanation": "abc", "z": "q"}') == "c"
-    assert f.feed('{"term": "x", "explanation": "abc", "z": "qqq"}') == ""
+    field = PartialStringField("explanation")
+    assert field.feed('{"other": "explanation", "n": 1') == ""
+    assert field.feed('{"other": "explanation", "n": 1, "explanation": "ab') == "ab"
 
 
 class Explain(BaseModel):
     explanation: str
-    term_en: str
+    n: int
 
 
-EXPLAIN_JSON = json.dumps({"explanation": "يعني الـ AI يألّف", "term_en": "Hallucination"}, ensure_ascii=False)
-
-
-def test_json_stream_yields_partials_then_result(settings, fixtures):
-    pieces = [EXPLAIN_JSON[i : i + 5] for i in range(0, len(EXPLAIN_JSON), 5)]
-    client = FakeClient(pieces)
-    llm = LLM(settings, client=client, fixtures=fixtures)
+def test_json_stream_yields_partials_then_result(settings):
+    raw = json.dumps({"explanation": "يعني لازم تتأكد.", "n": 2}, ensure_ascii=False)
+    client = FakeClient([raw[i : i + 5] for i in range(0, len(raw), 5)])
+    llm = LLM(settings, client=client)
 
     async def go():
-        return [ev async for ev in llm.json_stream(feature="explain", system="s", user="u", schema=Explain, stream_field="explanation", max_tokens=50)]
+        return [ev async for ev in llm.json_stream(feature="explain", system="s", user="u", schema=Explain, stream_field="explanation")]
 
     events = run(go())
-    assert "".join(e.text for e in events if e.kind == "partial") == "يعني الـ AI يألّف"
-    assert events[-1].kind == "result" and events[-1].result.data.term_en == "Hallucination"
-    assert client.calls[0]["stream"] is True and client.calls[0]["response_format"]["type"] == "json_object"
+    assert "".join(e.text for e in events if e.kind == "partial") == "يعني لازم تتأكد."
+    assert events[-1].kind == "result" and events[-1].result.data.n == 2 and events[-1].result.source == "jais"
+    assert client.calls[0]["stream"] is True and client.calls[0]["response_format"]["type"] == "json_schema"
 
 
-def test_json_stream_repairs_invalid_json_once(settings, fixtures):
-    client = FakeClient(['{"explanation": "x"'], EXPLAIN_JSON)
-    llm = LLM(settings, client=client, fixtures=fixtures)
+def test_json_stream_repairs_invalid_json_once(settings):
+    client = FakeClient(['{"explanation": "نص"'], json.dumps({"explanation": "نص", "n": 1}, ensure_ascii=False))
+    llm = LLM(settings, client=client)
 
     async def go():
-        return [ev async for ev in llm.json_stream(feature="explain", system="s", user="u", schema=Explain, stream_field="explanation", max_tokens=50)]
+        return [ev async for ev in llm.json_stream(feature="explain", system="s", user="u", schema=Explain, stream_field="explanation")]
 
     events = run(go())
-    assert events[-1].result.attempts == 2 and client.calls[1].get("stream") is None
+    assert events[-1].result.attempts == 2 and "stream" not in client.calls[1]
 
 
-def test_json_stream_cold_uses_fixture(settings, tmp_path):
-    d = tmp_path / "explain"
-    d.mkdir()
-    (d / "a.json").write_text(json.dumps({"input": {"text": "t"}, "output": {"explanation": "شرح مسجل", "term_en": "Token"}}), encoding="utf-8")
-    llm = LLM(settings, client=FakeClient(HTTPError(503)), fixtures=Fixtures(tmp_path))
+def test_json_stream_from_a_server_that_is_down_raises(settings):
+    llm = LLM(settings, client=FakeClient(HTTPError(503)))
 
     async def go():
-        return [ev async for ev in llm.json_stream(feature="explain", system="s", user="u", schema=Explain, stream_field="explanation", max_tokens=50, fixture_input={"text": "t"})]
+        return [ev async for ev in llm.json_stream(feature="explain", system="s", user="u", schema=Explain, stream_field="explanation")]
 
-    events = run(go())
-    assert "".join(e.text for e in events if e.kind == "partial") == "شرح مسجل"
-    assert events[-1].result.source == "fixture"
-
-
-def test_record_mode_saves_real_answers_as_fixtures(settings, tmp_path):
-    llm = LLM(replace(settings, record_dir=tmp_path / "rec"), client=FakeClient(GOOD), fixtures=Fixtures(tmp_path / "none"))
-    run(llm.json(feature="explain", system="s", user="u", schema=Card, max_tokens=50, fixture_input={"text": "Hi", "lang": "gulf"}))
-    (path,) = (tmp_path / "rec" / "explain").glob("*.json")
-    saved = json.loads(path.read_text(encoding="utf-8"))
-    assert saved["input"] == {"text": "Hi", "lang": "gulf"} and saved["output"]["term_ar"] == "الهلوسة"
-    # A recorded file is a valid fixture.
-    assert Fixtures(tmp_path / "rec").lookup("explain", {"text": "hi", "lang": "gulf"})["term_en"] == "Hallucination"
+    with pytest.raises(LLMUnavailable):
+        run(go())
 
 
-def test_record_mode_saves_streamed_answers(settings, tmp_path):
-    llm = LLM(replace(settings, record_dir=tmp_path / "rec"), client=FakeClient(["الجواب ", "هنا"]), fixtures=Fixtures(tmp_path / "none"))
-    run(collect(llm.stream(feature="tutor", system="s", messages=[], max_tokens=20, fixture_input={"text": "Q", "lang": "gulf"})))
-    assert Fixtures(tmp_path / "rec").lookup("tutor", {"text": "q", "lang": "gulf"}) == "الجواب هنا"
+def test_rate_limit_of_zero_is_off():
+    limiter = RateLimiter(0, 600)
+    for _ in range(100):
+        limiter.hit("ip")

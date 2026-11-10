@@ -1,7 +1,4 @@
-"""Darby's own glossary (full cards) and the term finder built from it.
-
-Step 4 replaces the source with the published term bank from the Hub; the card shape stays the same.
-"""
+"""Darbi's own glossary (full cards) and the term finder built from it."""
 
 from __future__ import annotations
 
@@ -41,7 +38,8 @@ class Glossary:
             "mistake": e.get("mistake_ar" if ar else "mistake_en") or "",
             "example": (e.get("example_gulf") if lang == "gulf" else None) or e.get("example_ar" if ar else "example_en") or "",
             "related": list(e.get("related") or [])[:3],
-            "source": "fanar" if e.get("origin") == "fanar_generated" else "glossary",
+            # Cards a model wrote and nobody has reviewed yet are labelled as such in the interface.
+            "source": "ai" if str(e.get("origin", "")).endswith("_generated") else "glossary",
         }
 
 
@@ -49,7 +47,7 @@ GLOSSARY_REPO = "nuvais/darby-ai-glossary-ar-en"
 
 
 def load_glossary_from_hub(token: str | None = None) -> Glossary:
-    """All published cards (ours plus the ones Fanar wrote), from `nuvais/darby-ai-glossary-ar-en`."""
+    """All published cards (ours plus the AI-written ones), from `nuvais/darby-ai-glossary-ar-en`."""
     from huggingface_hub import hf_hub_download
 
     records = json.loads(Path(hf_hub_download(GLOSSARY_REPO, "data/glossary.json", repo_type="dataset", token=token)).read_text(encoding="utf-8"))

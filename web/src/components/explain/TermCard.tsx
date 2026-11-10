@@ -69,7 +69,7 @@ export function TermCard({ card, showMsa, textDir = 'rtl', lang = 'gulf' }: { ca
       </div>
       <p className="mt-2 mb-0 flex items-center gap-1.5 text-[13px] text-muted">
         <Icon aria-hidden="true" size={14} />
-        {card.source === 'glossary' ? t('explain.fromGlossary') : card.source === 'bank' ? t('explain.fromBank') : t('explain.fromFanar')}
+        {card.source === 'glossary' ? t('explain.fromGlossary') : card.source === 'bank' ? t('explain.fromBank') : t('explain.fromAi')}
       </p>
     </article>
   )

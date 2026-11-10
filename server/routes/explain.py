@@ -1,10 +1,10 @@
-"""Smart Explain (P0-1) and the term finder API.
+"""Smart Explain and the term finder API.
 
 POST /api/terms    deterministic term matches for highlighting, no AI.
 POST /api/explain  Server-Sent Events:
     terms        {matches, cards}    straight away, from the glossary
-    explanation  {text}              pieces of the explanation as Fanar writes it
-    result       {explanation, question, cards, source, fallback}
+    explanation  {text}              pieces of the explanation as Jais writes it
+    result       {explanation, question, cards, source, fallback, dialect}
 Nothing the learner pastes is stored or logged.
 """
 
@@ -21,6 +21,7 @@ from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, Field
 
+from server.dialect import gulf_marker_count
 from server.glossary import Glossary
 from server.termbank import TermBank
 from server.net import client_ip
@@ -29,9 +30,6 @@ from server.prompts.explain import ExplainLang, ExplainResult, ExplainStyle, bui
 
 log = logging.getLogger("darby.explain")
 router = APIRouter()
-
-EXPLAIN_MAX_TOKENS = 700
-
 
 class TermsIn(BaseModel):
     text: str = Field(min_length=1, max_length=MAX_INPUT_CHARS)
@@ -68,7 +66,7 @@ WHY_TEMPLATE = {
 
 
 def glossary_question(glossary: Glossary, card: dict[str, Any], lang: str, seed: str) -> dict[str, Any]:
-    """A practice question built from the glossary alone, for when Fanar is not available."""
+    """A practice question built from the glossary alone, for when the model is not available."""
     rng = random.Random(hashlib.sha256(seed.encode()).hexdigest())
     others = sorted(e["term_en"] for k, e in glossary.entries.items() if k != card["id"] and e.get("domain") == "ai")
     options = rng.sample(others, 3) + [card["term_en"]]
@@ -122,27 +120,29 @@ async def explain(body: ExplainIn, request: Request) -> Any:
                 user=user,
                 schema=ExplainResult,
                 stream_field="explanation",
-                max_tokens=EXPLAIN_MAX_TOKENS,
-                fixture_input={"text": body.text, "lang": body.lang, "style": body.style},
             ):
                 if ev.kind == "partial":
                     yield _sse("explanation", {"text": ev.text})
                 elif ev.result is not None:
                     r: ExplainResult = ev.result.data
-                    # Fanar cards only for highlighted terms without a Darby card, so every card has a highlight in the text.
+                    # Model cards only for highlighted terms without a Darbi card, so every card has a highlight in the text.
                     open_terms = {k for m in matches if not m["has_card"] for k in (m["en"].lower(), m["text"].lower())}
                     model_cards = [
-                        {**c.model_dump(), "id": None, "source": "fanar"} for c in r.cards if c.term_en.lower() in open_terms
+                        {**c.model_dump(), "id": None, "source": "jais"} for c in r.cards if c.term_en.lower() in open_terms
                     ]
+                    # Gulf answers are checked for Gulf words: a count of 0 means the model wrote Standard Arabic.
+                    markers = gulf_marker_count(r.explanation) if body.lang == "gulf" else None
+                    if markers == 0:
+                        log.info("explain: a Gulf answer came back without Gulf words")
                     yield _sse(
                         "result",
                         {
-                            "off_topic": r.off_topic,
                             "explanation": r.explanation,
                             "question": r.question.model_dump() if r.question else None,
                             "cards": model_cards,
                             "source": ev.result.source,
                             "fallback": None,
+                            "dialect": {"asked": body.lang, "gulf_markers": markers},
                         },
                     )
         except LLMUnavailable as e:

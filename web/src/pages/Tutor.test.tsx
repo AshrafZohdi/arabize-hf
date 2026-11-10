@@ -47,6 +47,5 @@ describe('TutorPage', () => {
       fireEvent.keyDown(box, { key: 'Enter' })
     })
     await waitFor(() => expect(screen.getByRole('log').textContent).toContain('السياق يعني'))
-    expect(screen.getByText(/19/)).toBeTruthy()
   })
 })

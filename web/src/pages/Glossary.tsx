@@ -148,8 +148,8 @@ export function GlossaryPage() {
                   className="glass lift flex min-h-[88px] w-full cursor-pointer items-center gap-3 rounded-[20px]! p-4 text-start text-ink"
                 >
                   <span className="flex size-11 shrink-0 items-center justify-center rounded-[14px] bg-maroon-soft text-maroon">
-                    {c.source === 'fanar' ? <Sparkles aria-hidden="true" size={22} /> : <BookOpen aria-hidden="true" size={22} />}
-                    <span className="sr-only">{c.source === 'fanar' ? t('explain.fromFanar') : t('explain.fromGlossary')}</span>
+                    {c.source === 'ai' ? <Sparkles aria-hidden="true" size={22} /> : <BookOpen aria-hidden="true" size={22} />}
+                    <span className="sr-only">{c.source === 'ai' ? t('explain.fromAi') : t('explain.fromGlossary')}</span>
                   </span>
                   <span className="min-w-0">
                     <span className="block font-display text-lg font-semibold text-maroon">{c.term_ar}</span>
@@ -307,7 +307,7 @@ function QuickCardItem({ r, full, onOpen }: { r: QuickCard; full?: GlossaryCard;
             </button>
           )}
           <Link href={`/?text=${encodeURIComponent(r.en)}`} className="flex min-h-11 items-center rounded-xl px-2 text-sm font-bold no-underline">
-            {t('glossary.askFanar')}
+            {t('glossary.askAi')}
           </Link>
         </span>
       </div>
@@ -364,8 +364,8 @@ function FullCardDialog({ card, onClose }: { card: GlossaryCard | null; onClose:
             </button>
           </div>
           <p className="m-0 flex items-center gap-1.5 text-[13px] text-muted">
-            {card.source === 'fanar' ? <Sparkles aria-hidden="true" size={14} /> : <BookOpen aria-hidden="true" size={14} />}
-            {card.source === 'fanar' ? t('explain.fromFanar') : t('explain.fromGlossary')}
+            {card.source === 'ai' ? <Sparkles aria-hidden="true" size={14} /> : <BookOpen aria-hidden="true" size={14} />}
+            {card.source === 'ai' ? t('explain.fromAi') : t('explain.fromGlossary')}
           </p>
           <ListenButtons en={card.term_en} ar={card.term_ar} termId={card.id} />
           {card.term_gulf && <p className="m-0 text-ink-2">{t('glossary.gulfUsage', { t: card.term_gulf })}</p>}
@@ -404,7 +404,7 @@ function FullCardDialog({ card, onClose }: { card: GlossaryCard | null; onClose:
               {saved ? t('explain.saved') : t('explain.save')}
             </button>
             <Link href={`/?text=${encodeURIComponent(card.term_en)}`} className="flex min-h-11 items-center rounded-full px-4 font-bold no-underline">
-              {t('glossary.askFanar')}
+              {t('glossary.askAi')}
             </Link>
           </div>
         </div>

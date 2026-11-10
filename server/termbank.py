@@ -1,4 +1,4 @@
-"""The term bank in the Space: about 24,000 English terms with Arabic, loaded at startup.
+"""The term bank: about 24,000 English terms with Arabic, loaded at startup.
 
 Built in memory with the same pipeline code as the data work (data/pipeline.py), from the Hub at pinned revisions:
 our glossary (content/), GIST and the Microsoft glossary (referenced, never re-uploaded), then our stage 3 results
@@ -294,7 +294,7 @@ def load_term_bank(content_dir: Path, token: str | None = None, full_card_ids: s
     dropped = non_technical(content_dir)
     rows = [r for r in rows if r["en"] not in dropped]
     status["steps"]["non_technical"] = f"{len(dropped)} emoji, sticker and everyday entries left out"
-    for r in rows:  # cards published in the glossary dataset (ours and Fanar's) count as full cards
+    for r in rows:  # cards published in the glossary dataset (ours and the AI-written ones) count as full cards
         if full_card_ids and r["id"] in full_card_ids:
             r["has_full_card"] = True
     tb = TermBank.from_rows(rows, status)

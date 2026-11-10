@@ -10,16 +10,15 @@ export type Card = {
   analogy: string
   mistake?: string
   related: string[]
-  source: 'glossary' | 'fanar' | 'bank'
+  source: 'glossary' | 'ai' | 'jais' | 'bank'
 }
 export type Question = { question: string; options: string[]; correct_index: number; why: string }
-export type Fallback = 'waking' | 'demo' | 'unconfigured' | 'bad_output' | 'error' | null
+export type Fallback = 'unavailable' | 'unconfigured' | 'bad_output' | 'error' | null
 export type ExplainResult = {
-  off_topic?: boolean
   explanation: string | null
   question: Question | null
   cards: Card[]
-  source: 'fanar' | 'fixture' | 'glossary'
+  source: 'jais' | 'glossary'
   fallback: Fallback
 }
 export type ExplainStyle = 'school' | 'life' | 'technical' | 'one_line' | 'code' | 'sentences' | 'work'
@@ -101,7 +100,7 @@ export type QuickCard = {
   ar: string
   en_expanded: string | null
   domain: 'ai' | 'software'
-  source: 'darby' | 'gist' | 'microsoft' | 'fanar'
+  source: 'darby' | 'gist' | 'microsoft' | 'ai'
   reviewed: boolean
   needs_review: boolean
   has_full_card: boolean
@@ -137,16 +136,16 @@ export async function listLessons(): Promise<LessonSummary[]> {
 export type ChatTurn = { role: 'user' | 'assistant'; content: string }
 
 export async function streamTutor(
-  body: { messages: ChatTurn[]; lang: ExplainLang; lesson: string | null; session: string },
+  body: { messages: ChatTurn[]; lang: ExplainLang; lesson: string | null },
   onToken: (t: string) => void,
   signal?: AbortSignal,
-): Promise<{ done: boolean; state?: string; messagesLeft?: number }> {
+): Promise<{ done: boolean; state?: string }> {
   const r = await fetch('/api/tutor', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), signal })
   if (!r.ok || !r.body) throw new ApiError(r.status, Number(r.headers.get('retry-after')) || undefined)
   const reader = r.body.getReader()
   const decoder = new TextDecoder()
   let buffer = ''
-  let end: { done: boolean; state?: string; messagesLeft?: number } = { done: false }
+  let end: { done: boolean; state?: string } = { done: false }
   for (;;) {
     const { done, value } = await reader.read()
     if (done) break
@@ -158,8 +157,8 @@ export async function streamTutor(
       if (!parsed) continue
       const d = parsed.data as Record<string, unknown>
       if (parsed.event === 'token') onToken(d.text as string)
-      else if (parsed.event === 'done') end = { done: true, messagesLeft: d.messages_left as number }
-      else if (parsed.event === 'unavailable') end = { done: false, state: d.state as string, messagesLeft: d.messages_left as number }
+      else if (parsed.event === 'done') end = { done: true }
+      else if (parsed.event === 'unavailable') end = { done: false, state: d.state as string }
     }
   }
   return end

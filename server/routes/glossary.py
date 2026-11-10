@@ -17,7 +17,7 @@ router = APIRouter()
 # e5 similarities sit high (0.75 to 0.9 for unrelated short terms), so only strong meaning matches are shown.
 MEANING_MIN = 0.88
 Lang = Literal["en", "msa", "gulf"]
-SOURCE_LABEL = {"darby_editor": "darby", "human_gist": "gist", "human_ms": "microsoft", "fanar_generated": "fanar"}
+SOURCE_LABEL = {"darby_editor": "darby", "human_gist": "gist", "human_ms": "microsoft", "fanar_generated": "ai"}
 
 
 def quick_card(r: dict[str, Any]) -> dict[str, Any]:

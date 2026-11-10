@@ -94,7 +94,7 @@ def test_hub_glossary_shape_works_with_cards(tmp_path, monkeypatch):
     monkeypatch.setattr("huggingface_hub.hf_hub_download", lambda *a, **k: str(path))
     gl = g.load_glossary_from_hub()
     card = gl.card("chatbot", "gulf")
-    assert card["explanation"] == "برنامج يسولف وياك." and card["source"] == "fanar"
+    assert card["explanation"] == "برنامج يسولف وياك." and card["source"] == "ai"
     assert gl.finder.find("Ask the chatbots")[0].term.id == "chatbot"
 
 

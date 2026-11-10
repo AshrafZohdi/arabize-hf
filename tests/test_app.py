@@ -27,8 +27,9 @@ def test_health(client):
     assert r.status_code == 200
     body = r.json()
     assert body["status"] == "ok"
-    assert set(body) >= {"version", "demo_mode", "llm", "voice_enabled"}
-    assert body["llm"]["state"] in {"ready", "waking", "demo", "unconfigured", "unknown"}
+    assert set(body) >= {"version", "llm", "voice_enabled"} and "demo_mode" not in body
+    assert body["llm"]["state"] in {"ready", "unavailable", "error", "unconfigured", "unknown"}
+    assert body["llm"]["model"] == "inception42/Jais-3-375B-A23B"
 
 
 def test_unknown_api_path_is_404_not_spa(client):

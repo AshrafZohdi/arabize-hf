@@ -1,53 +1,54 @@
-import { BookOpen, Flame, Home, MessageCircle, Star } from 'lucide-react'
+import { BookOpen, GraduationCap, Home, MessageCircle } from 'lucide-react'
 import { useI18n, type UiLang } from '../i18n'
-import { useProgress } from '../lib/progress'
 import { Link, useRouter } from '../lib/router'
 import { LogoMark } from './Logo'
+import { FlagEdge } from './Motifs'
 
 const NAV = [
   { href: '/', key: 'nav.home', Icon: Home },
+  { href: '/learn', key: 'nav.learn', Icon: GraduationCap },
   { href: '/glossary', key: 'nav.glossary', Icon: BookOpen },
   { href: '/tutor', key: 'nav.tutor', Icon: MessageCircle },
 ] as const
 
 function useCurrent() {
   const { path } = useRouter()
-  return (href: string) => (href === '/' ? path === '/' : path.startsWith(href))
+  return (href: string) => {
+    if (href === '/') return path === '/'
+    // A lesson is part of the Learn section.
+    if (href === '/learn') return path.startsWith('/learn') || path.startsWith('/lesson')
+    return path.startsWith(href)
+  }
 }
 
 /**
- * Floating glass header. The section nav is one landmark: inside the pill from 640px, a fixed tab bar at the
- * bottom on phones. The glass sits on a background layer because backdrop-filter on an ancestor would pin the
- * fixed tab bar to the header instead of the screen.
+ * The header: the flag's serrated edge, the wordmark, the four sections and the language switch. The section nav
+ * is one landmark: links in the header from 640px, a bar fixed to the bottom of the screen on phones. The header
+ * has no filter or transform, which would pin that fixed bar to the header instead of the screen.
  */
 export function Header() {
   const { t, lang, setLang } = useI18n()
-  const { xp, streak } = useProgress()
   const current = useCurrent()
 
   return (
-    <header className="px-4 pt-4 sm:px-10 sm:pt-6">
-      <div className="relative z-30 mx-auto flex max-w-[1240px] items-center gap-3 px-3 py-2.5 sm:gap-6 sm:px-4">
-        <div aria-hidden="true" className="glass absolute inset-0 -z-10 rounded-full!" />
+    <header className="border-b border-line bg-surface">
+      <FlagEdge />
+      <div className="mx-auto flex h-16 max-w-[1120px] items-center gap-4 px-4 sm:gap-8 sm:px-8">
         <Link href="/" className="flex items-center gap-2.5 no-underline" aria-label={`${t('app.name')} ${t('app.nameLatin')}`}>
           <LogoMark />
           {/* Side by side on one baseline: stacked, the dots under ي and ب ran into the Latin name. */}
-          <span className="hidden items-baseline gap-2 min-[400px]:flex">
-            <span lang="ar" className="font-display text-[22px] leading-normal font-semibold text-maroon">
+          <span className="flex items-baseline gap-2">
+            <span lang="ar" className="font-display text-[22px] leading-normal font-bold text-maroon">
               دربي
             </span>
-            <span lang="en" className="font-en text-sm font-semibold text-muted">
+            <span lang="en" className="font-en text-sm font-semibold tracking-wide text-muted">
               Darbi
             </span>
           </span>
         </Link>
 
-        <nav
-          aria-label={t('nav.label')}
-          className="fixed inset-x-3 bottom-3 sm:static sm:flex-1"
-          style={{ marginBottom: 'env(safe-area-inset-bottom)' }}
-        >
-          <div className="tabbar flex gap-1 rounded-full! p-1.5 sm:inline-flex sm:p-1">
+        <nav aria-label={t('nav.label')} className="fixed inset-x-0 bottom-0 z-30 sm:static sm:z-auto sm:flex-1">
+          <div className="tabbar flex sm:gap-1" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
             {NAV.map(({ href, key, Icon }) => {
               const on = current(href)
               return (
@@ -55,29 +56,21 @@ export function Header() {
                   key={href}
                   href={href}
                   aria-current={on ? 'page' : undefined}
-                  className={`flex min-h-12 flex-1 flex-col items-center justify-center gap-0.5 rounded-full text-xs font-bold no-underline lift sm:min-h-11 sm:flex-none sm:flex-row sm:gap-2 sm:px-4 sm:text-base sm:font-semibold ${
-                    on ? 'bg-white text-maroon shadow-[0_2px_0_var(--shadow)]' : 'text-ink-2 hover:text-ink'
+                  className={`relative flex min-h-14 flex-1 flex-col items-center justify-center gap-0.5 text-xs font-semibold no-underline sm:min-h-16 sm:flex-none sm:flex-row sm:gap-2 sm:px-3.5 sm:text-[15px] ${
+                    on ? 'text-maroon hover:text-maroon' : 'text-ink-2 hover:text-ink'
                   }`}
                 >
-                  <Icon aria-hidden="true" size={19} />
+                  <Icon aria-hidden="true" size={19} strokeWidth={on ? 2.4 : 2} />
                   {t(key)}
+                  {/* The current section: a maroon rule on the edge that touches the page. */}
+                  {on && <span aria-hidden="true" className="absolute inset-x-3 top-0 h-[3px] rounded-b bg-maroon sm:top-auto sm:bottom-0 sm:rounded-t sm:rounded-b-none" />}
                 </Link>
               )
             })}
           </div>
         </nav>
 
-        <div className="ms-auto flex items-center gap-1.5 text-sm font-bold sm:gap-2 sm:text-[15px]">
-          <span className="flex min-h-11 items-center gap-1 whitespace-nowrap rounded-full bg-white/80 px-2.5 sm:gap-1.5 sm:px-3" title={t('header.streakLabel')}>
-            <Flame aria-hidden="true" size={18} className="fill-flame text-flame" />
-            <span className="sr-only">{t('header.streakLabel')}: </span>
-            {t('header.streak', { n: streak })}
-          </span>
-          <span className="flex min-h-11 items-center gap-1 whitespace-nowrap rounded-full bg-white/80 px-2.5 sm:gap-1.5 sm:px-3" title={t('header.pointsLabel')}>
-            <Star aria-hidden="true" size={18} className="fill-gold text-gold" />
-            <span className="sr-only">{t('header.pointsLabel')}: </span>
-            {t('header.points', { n: xp })}
-          </span>
+        <div className="ms-auto">
           <LangToggle lang={lang} setLang={setLang} label={t('header.uiLanguage')} />
         </div>
       </div>
@@ -92,11 +85,11 @@ function LangToggle({ lang, setLang, label }: { lang: UiLang; setLang: (l: UiLan
       type="button"
       onClick={() => setLang(other)}
       // The name starts with the visible text (WCAG 2.5.3, so voice control users can say what they see).
-      aria-label={`${other === 'en' ? 'EN' : 'ع'}, ${label}: ${other === 'en' ? 'English' : 'العربية'}`}
+      aria-label={`${other === 'en' ? 'English' : 'العربية'}, ${label}`}
       lang={other}
-      className="flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-full border-0 bg-white/80 px-3 font-bold text-ink-2 hover:bg-white"
+      className="flex min-h-11 cursor-pointer items-center justify-center rounded-lg border border-line bg-surface px-3.5 text-sm font-semibold text-ink-2 hover:border-maroon hover:text-maroon"
     >
-      {other === 'en' ? 'EN' : 'ع'}
+      {other === 'en' ? 'English' : 'العربية'}
     </button>
   )
 }

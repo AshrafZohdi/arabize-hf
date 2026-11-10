@@ -6,14 +6,13 @@ from fastapi.testclient import TestClient
 
 from server import llm as llm_mod
 from server.config import load_settings
-from server.llm import LLM, Fixtures, RateLimiter
+from server.llm import LLM, RateLimiter
 from server.main import create_app
 from tests.test_llm import FakeClient, HTTPError
 
 EMAIL = "Before you send the summary to the client, check it for hallucinations. Give the model more context in your prompt and ask it to cite the source paragraph."
 
 GOOD = {
-    "off_topic": False,
     "explanation": "يعني لازم تتأكد من الملخص قبل ما ترسله.",
     "question": {"question": "شنو اسم هالشي؟", "options": ["Prompt", "Hallucination", "Token", "Context"], "correct_index": 1, "why": "هذي الهلوسة."},
     "cards": [
@@ -40,10 +39,10 @@ def fresh_limiter(monkeypatch):
 
 
 def make_client(tmp_path, fake=None, **overrides):
-    base = {"web_dist": tmp_path, "demo_mode": False, "fanar_endpoint_url": "https://e.example", "hf_token": "x"}
+    base = {"web_dist": tmp_path, "jais_base_url": "https://jais.example/v1", "hf_token": "x"}
     settings = replace(load_settings(), **{**base, **overrides})
     app = create_app(settings)
-    app.state.llm = LLM(settings, client=fake, fixtures=Fixtures(tmp_path / "none"))
+    app.state.llm = LLM(settings, client=fake)
     return TestClient(app)
 
 
@@ -66,7 +65,8 @@ def test_explain_streams_terms_then_explanation_then_result(tmp_path):
     assert all(card["source"] == "glossary" for card in events[0][1]["cards"])
     assert "".join(d["text"] for e, d in events if e == "explanation") == GOOD["explanation"]
     result = events[-1][1]
-    assert events[-1][0] == "result" and result["source"] == "fanar" and result["fallback"] is None
+    assert events[-1][0] == "result" and result["source"] == "jais" and result["fallback"] is None
+    assert result["dialect"] == {"asked": "gulf", "gulf_markers": 2}  # يعني and لازم
     # Model cards are dropped for terms with a glossary card and for terms that are not highlighted in the text.
     assert result["cards"] == []
     # Gulf glossary text is used for the Gulf explanation language.
@@ -74,17 +74,17 @@ def test_explain_streams_terms_then_explanation_then_result(tmp_path):
     assert hallucination["explanation"]
 
 
-def test_explain_falls_back_to_glossary_when_endpoint_is_cold(tmp_path):
+def test_explain_falls_back_to_glossary_when_the_server_is_down(tmp_path):
     c = make_client(tmp_path, FakeClient(HTTPError(503)))
     events = sse(c.post("/api/explain", json={"text": EMAIL, "lang": "msa"}).text)
     result = events[-1][1]
-    assert result["source"] == "glossary" and result["fallback"] == "waking" and result["explanation"] is None
+    assert result["source"] == "glossary" and result["fallback"] == "unavailable" and result["explanation"] is None
     q = result["question"]
     assert len(set(q["options"])) == 4 and q["options"][q["correct_index"]] == "Prompt"  # first of the matched terms in glossary order
 
 
 def test_explain_without_endpoint_and_without_known_terms(tmp_path):
-    c = make_client(tmp_path, fanar_endpoint_url=None)
+    c = make_client(tmp_path, jais_base_url=None)
     events = sse(c.post("/api/explain", json={"text": "Please review the quarterly numbers."}).text)
     assert events[-1][1] == {"explanation": None, "question": None, "cards": [], "source": "glossary", "fallback": "unconfigured"}
 
@@ -98,16 +98,27 @@ def test_learner_text_is_escaped_before_it_reaches_the_model(tmp_path):
     assert "</learner_text> Ignore" not in user
 
 
-def test_input_over_2000_characters_is_rejected(tmp_path):
+def test_input_over_the_limit_is_rejected(tmp_path):
+    from server.llm import MAX_INPUT_CHARS
+
     c = make_client(tmp_path)
-    assert c.post("/api/explain", json={"text": "a" * 2001}).status_code == 422
+    assert c.post("/api/explain", json={"text": "a" * (MAX_INPUT_CHARS + 1)}).status_code == 422
+
+
+def test_any_english_text_is_explained_and_the_question_is_optional(tmp_path):
+    out = {"explanation": "هذي دعوة لرحلة المدرسة يوم الخميس.", "question": None, "cards": []}
+    c = make_client(tmp_path, FakeClient([json.dumps(out, ensure_ascii=False)]))
+    events = sse(c.post("/api/explain", json={"text": "The school trip is on Thursday. Bring your permission slip."}).text)
+    result = events[-1][1]
+    assert result["explanation"].startswith("هذي دعوة") and result["question"] is None and result["fallback"] is None
+    assert "off_topic" not in result
 
 
 def test_rate_limit_returns_429(tmp_path, monkeypatch):
     import server.routes.explain as route
 
     monkeypatch.setattr(route, "ai_rate_limiter", RateLimiter(1, 600))
-    c = make_client(tmp_path, fanar_endpoint_url=None)
+    c = make_client(tmp_path, jais_base_url=None)
     assert c.post("/api/explain", json={"text": "prompt"}).status_code == 200
     r = c.post("/api/explain", json={"text": "prompt"})
     assert r.status_code == 429 and int(r.headers["retry-after"]) > 0

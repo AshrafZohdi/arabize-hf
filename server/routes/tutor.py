@@ -1,6 +1,6 @@
-"""Tutor (streamed) and prompt lab (P0-3).
+"""Tutor (streamed), prompt lab and translate.
 
-POST /api/tutor            Server-Sent Events: token {text} ... then done {source}, or unavailable {state}
+POST /api/tutor            Server-Sent Events: token {text} ... then done {}, or unavailable {state}
 GET  /api/prompt-lab/{slug} the lesson's work task
 POST /api/prompt-lab       scores for goal, context, format, constraints, feedback and an improved prompt
 Nothing the learner writes is stored or logged.
@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import json
 import logging
-import time
 from collections.abc import AsyncIterator
 from typing import Any, Literal
 
@@ -27,30 +26,6 @@ from server.prompts.tutor import build_messages, build_tutor_system
 log = logging.getLogger("darby.tutor")
 router = APIRouter()
 Lang = Literal["en", "msa", "gulf"]
-SESSION_CAP = 20  # learner messages per session per IP (docs/BRIEF.md)
-SESSION_TTL_S = 6 * 3600
-TUTOR_MAX_TOKENS = 400
-
-
-class SessionCounter:
-    """Learner messages per (IP, session), forgotten after a few hours. In memory: one Space replica."""
-
-    def __init__(self, cap: int = SESSION_CAP, ttl: float = SESSION_TTL_S, clock=time.monotonic):
-        self.cap, self.ttl, self._clock = cap, ttl, clock
-        self._seen: dict[tuple[str, str], tuple[int, float]] = {}
-
-    def hit(self, ip: str, session: str) -> int:
-        now = self._clock()
-        self._seen = {k: v for k, v in self._seen.items() if now - v[1] < self.ttl}
-        count, first = self._seen.get((ip, session), (0, now))
-        if count >= self.cap:
-            raise RateLimited(retry_after=int(self.ttl - (now - first)) + 1)
-        self._seen[(ip, session)] = (count + 1, first)
-        return self.cap - count - 1
-
-
-sessions = SessionCounter()
-
 
 class Turn(BaseModel):
     role: Literal["user", "assistant"]
@@ -58,10 +33,9 @@ class Turn(BaseModel):
 
 
 class TutorIn(BaseModel):
-    messages: list[Turn] = Field(min_length=1, max_length=40)
+    messages: list[Turn] = Field(min_length=1, max_length=200)
     lang: Lang = "gulf"
     lesson: str | None = Field(None, max_length=40)
-    session: str = Field(min_length=8, max_length=64, pattern=r"^[A-Za-z0-9-]+$")
 
 
 def _lesson(request: Request, slug: str | None) -> dict[str, Any] | None:
@@ -95,7 +69,6 @@ async def tutor(body: TutorIn, request: Request) -> Any:
     ip = client_ip(request)
     try:
         ai_rate_limiter.hit(ip)
-        left = sessions.hit(ip, body.session)
     except RateLimited as e:
         return JSONResponse({"error": "rate_limited", "retry_after": e.retry_after}, status_code=429, headers={"Retry-After": str(e.retry_after)})
 
@@ -107,20 +80,14 @@ async def tutor(body: TutorIn, request: Request) -> Any:
 
     async def events() -> AsyncIterator[str]:
         try:
-            async for piece in llm.stream(
-                feature="tutor",
-                system=system,
-                messages=messages,
-                max_tokens=TUTOR_MAX_TOKENS,
-                fixture_input={"text": question, "lang": body.lang},
-            ):
+            async for piece in llm.stream(feature="tutor", system=system, messages=messages):
                 yield _sse("token", {"text": piece})
-            yield _sse("done", {"messages_left": left})
+            yield _sse("done", {})
         except LLMUnavailable as e:
-            yield _sse("unavailable", {"state": e.state, "messages_left": left})
+            yield _sse("unavailable", {"state": e.state})
         except Exception as e:
             log.error("tutor failed: %s", type(e).__name__)
-            yield _sse("unavailable", {"state": "error", "messages_left": left})
+            yield _sse("unavailable", {"state": "error"})
 
     return StreamingResponse(events(), media_type="text/event-stream", headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
 
@@ -161,14 +128,7 @@ async def prompt_lab(body: PromptLabIn, request: Request) -> Any:
     system, user = build_scoring_prompt(t["task_en"], body.prompt, body.lang, t["rubric"], t["example_good"])
     llm: LLM = request.app.state.llm
     try:
-        res = await llm.json(
-            feature="prompt_lab",
-            system=system,
-            user=user,
-            schema=PromptScore,
-            max_tokens=700,
-            fixture_input={"text": body.prompt, "lang": body.lang, "lesson": body.lesson},
-        )
+        res = await llm.json(feature="prompt_lab", system=system, user=user, schema=PromptScore)
     except LLMUnavailable as e:
         return JSONResponse({"error": "unavailable", "state": e.state}, status_code=503)
     except LLMBadOutput:
@@ -184,7 +144,7 @@ class TranslateIn(BaseModel):
 
 @router.post("/api/translate")
 async def translate(body: TranslateIn, request: Request) -> Any:
-    """A tutor reply, term card or improved prompt in the other language (Fanar)."""
+    """A tutor reply, term card or improved prompt in the other language."""
     try:
         ai_rate_limiter.hit(client_ip(request))
     except RateLimited as e:
@@ -192,14 +152,7 @@ async def translate(body: TranslateIn, request: Request) -> Any:
     system, user = build_translate_prompt(body.text, body.target)
     llm: LLM = request.app.state.llm
     try:
-        res = await llm.json(
-            feature="translate",
-            system=system,
-            user=user,
-            schema=Translation,
-            max_tokens=800,
-            fixture_input={"text": body.text, "target": body.target},
-        )
+        res = await llm.json(feature="translate", system=system, user=user, schema=Translation)
     except LLMUnavailable as e:
         return JSONResponse({"error": "unavailable", "state": e.state}, status_code=503)
     except LLMBadOutput:

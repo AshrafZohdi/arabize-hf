@@ -8,3 +8,13 @@
 | `words-en.json` | [an-array-of-english-words](https://github.com/words/an-array-of-english-words) | MIT |
 
 The founders' lawyer should confirm the notices needed before launch.
+
+# Gulf dialect markers
+
+`gulf-markers.json` lists everyday Gulf Arabic words (with Standard Arabic and English glosses) that Darbi shows the model as the tone to write in and counts in Gulf answers to notice drift to Standard Arabic (`server/dialect.py`).
+
+| File | Source | Licence |
+|---|---|---|
+| `gulf-markers.json` | Word forms and counts picked by hand from the Gulf frequency list of [drelhaj/Arabic-Dialects](https://huggingface.co/datasets/drelhaj/Arabic-Dialects) (El-Haj, Rayson and Aboelezz, LREC 2018), pinned revision in the file | CC BY 4.0 in the dataset metadata, but the card text says research purposes only. No sentences are used. Confirm with the authors before a commercial launch |
+
+The glosses were drafted with AI and have not yet been reviewed by a Gulf Arabic speaker.

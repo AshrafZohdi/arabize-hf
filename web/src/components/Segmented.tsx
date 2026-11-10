@@ -12,7 +12,7 @@ export function Segmented<T extends string>({
   onChange: (v: T) => void
 }) {
   return (
-    <div role="group" aria-label={label} className="flex gap-1 rounded-full border border-line bg-surface p-1 font-semibold">
+    <div role="group" aria-label={label} className="flex gap-1 rounded-xl border border-line bg-surface-2 p-1 text-[15px] font-semibold">
       {options.map((o) => {
         const on = o.value === value
         return (
@@ -22,7 +22,7 @@ export function Segmented<T extends string>({
             lang={o.lang}
             aria-pressed={on}
             onClick={() => onChange(o.value)}
-            className={`min-h-11 cursor-pointer rounded-full border-0 px-4 ${on ? 'bg-maroon text-white' : 'bg-transparent text-ink-2 hover:bg-surface-3'}`}
+            className={`min-h-10 cursor-pointer rounded-lg border-0 px-4 ${on ? 'bg-maroon text-white' : 'bg-transparent text-ink-2 hover:bg-surface-3'}`}
           >
             {o.label}
           </button>

@@ -1,5 +1,5 @@
-"""Prompt lab (P0-3), ported from ../arabaize/src/lib/ai/prompt-lab.ts: score a learner's prompt for a real Doha
-work task on goal, context, format and constraints (0 to 5 each), with feedback and an improved prompt."""
+"""Prompt lab: score a learner's prompt for a real task on goal, context, format and constraints (0 to 5 each),
+with feedback and an improved prompt."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ DEFAULT_RUBRIC = {
     "constraints": "Sets limits: what to avoid, facts to keep, deadlines, privacy rules.",
 }
 LANGUAGE = {"en": "English", "msa": "simple Modern Standard Arabic", "gulf": "Gulf Arabic dialect as spoken in Qatar (not Modern Standard Arabic)"}
-# Repeated next to the learner's prompt: with the language only in the system prompt, Gulf feedback came back in MSA.
+# Repeated next to the learner's prompt, where models follow it best.
 REMINDER = {
     "en": "Write the feedback and summary in plain English.",
     "msa": "اكتب الملاحظات والخلاصة بالعربية الفصحى المبسطة.",
@@ -27,7 +27,7 @@ REMINDER = {
 
 class CriterionScore(BaseModel):
     score: int = Field(ge=0, le=5)
-    feedback: str = Field(max_length=300)
+    feedback: str = Field(max_length=500)
 
 
 class PromptScore(BaseModel):
@@ -35,8 +35,8 @@ class PromptScore(BaseModel):
     context: CriterionScore
     format: CriterionScore
     constraints: CriterionScore
-    summary: str = Field(max_length=300)
-    improved_prompt: str = Field(max_length=1500)
+    summary: str = Field(max_length=500)
+    improved_prompt: str = Field(max_length=3000)
 
     @property
     def total(self) -> int:
@@ -51,14 +51,13 @@ def prompt_language(text: str) -> str:
 
 
 def build_scoring_prompt(
-    task: str, learner_prompt: str, lang: str, rubric: dict[str, str] | None = None, example_good: str | None = None, improved_in: str | None = None
+    task: str, learner_prompt: str, lang: str, rubric: dict[str, str] | None = None, example_good: str | None = None
 ) -> tuple[str, str]:
-    """improved_in="en" forces an English improved prompt (the image model reads English); otherwise it follows the learner."""
     rubric_text = "\n".join(f"- {c}: {(rubric or {}).get(c, DEFAULT_RUBRIC[c])}" for c in CRITERIA)
     system = "\n\n".join(
         [
             f"You are a strict but encouraging grader in Darbi, a course for {AUDIENCE}; you score how well they write prompts for AI tools.",
-            "Score the learner's prompt for the given work task on each criterion from 0 to 5: 0 when the criterion is missing, 1 when barely there, 5 when excellent. "
+            "Score the learner's prompt for the given task on each criterion from 0 to 5: 0 when the criterion is missing, 1 when barely there, 5 when excellent. "
             "If the text is not a real prompt for this task (random letters, nonsense, unrelated chat), every criterion is 0.",
             f"Rubric:\n{rubric_text}",
             f"Write all feedback and the summary in {LANGUAGE[lang]}. Keep English technical terms in brackets after the Arabic term when writing Arabic. "
@@ -77,10 +76,8 @@ def build_scoring_prompt(
             f"<good_example>{escape_learner_text(example_good)}</good_example>" if example_good else "",
             f"<learner_prompt>{escape_learner_text(learner_prompt)}</learner_prompt>",
             REMINDER[lang],
-            # Next to the learner text, where Fanar follows it: in tests it rewrote English prompts in Arabic.
-            "Write improved_prompt in English, because the image model only reads English (feedback and summary stay as above)."
-            if improved_in == "en"
-            else "The learner wrote the prompt in English, so write improved_prompt in English (feedback and summary stay as above)."
+            # Next to the learner text, where models follow it best.
+            "The learner wrote the prompt in English, so write improved_prompt in English (feedback and summary stay as above)."
             if prompt_language(learner_prompt) == "en"
             else "The learner wrote the prompt in Arabic, so write improved_prompt in Arabic.",
         ]

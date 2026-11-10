@@ -1,0 +1,48 @@
+{
+  "about": "Everyday Gulf Arabic words that mark an answer as Gulf dialect rather than Modern Standard Arabic. Darbi shows them to the model as examples of the tone it should write in, and counts them in Gulf answers to notice when the model drifts back to Standard Arabic.",
+  "source": {
+    "name": "Arabic Dialects Dataset (Bivalency and Code-Switching), Gulf frequency list",
+    "repo": "drelhaj/Arabic-Dialects",
+    "revision": "068483ac3c7fdf59dd1601cb98edb04bafe428ae",
+    "file": "dialects-frequency-lists/Dialects Tokens WITH Frequency Count/all-GLF_FreqList.txt",
+    "citation": "El-Haj M., Rayson P., Aboelezz M. (2018). Arabic Dialect Identification in the Context of Bivalency and Code-Switching. LREC 2018, pp. 3622-3627.",
+    "license": "CC BY 4.0 in the dataset metadata; the card text also says research purposes only. Only word forms and their counts are used here, no sentences. Confirm with the authors before a commercial launch."
+  },
+  "selection": "Words were picked by hand from the Gulf list (17,937 word forms, 63,312 tokens) where they are absent from the dataset's Modern Standard Arabic list (one exception is noted on its row). count is the word's frequency in the Gulf list. Spellings are normalised to how Darbi writes them.",
+  "glosses": "msa and en were drafted with AI and have not yet been reviewed by a Gulf Arabic speaker.",
+  "markers": [
+    {"word": "لازم", "msa": "يجب", "en": "must", "count": 73},
+    {"word": "ليش", "msa": "لماذا", "en": "why", "count": 52},
+    {"word": "عشان", "msa": "لأنّ، من أجل", "en": "because, so that", "count": 43},
+    {"word": "بعدين", "msa": "لاحقًا", "en": "later", "count": 24},
+    {"word": "وين", "msa": "أين", "en": "where", "count": 22},
+    {"word": "الحين", "msa": "الآن", "en": "now", "count": 20},
+    {"word": "شنو", "msa": "ماذا", "en": "what", "count": 19},
+    {"word": "يصير", "msa": "يحدث، يصبح", "en": "happens, becomes", "count": 16},
+    {"word": "شوية", "msa": "قليلًا", "en": "a little", "count": 15, "also": ["شوي"]},
+    {"word": "كذا", "msa": "هكذا", "en": "like this", "count": 15, "also": ["جذي"]},
+    {"word": "شلون", "msa": "كيف", "en": "how", "count": 13},
+    {"word": "قاعد", "msa": "(يفعل الآن)", "en": "(is doing, right now)", "count": 12},
+    {"word": "نقدر", "msa": "نستطيع", "en": "we can", "count": 12, "also": ["أقدر", "تقدر", "يقدر"]},
+    {"word": "مو", "msa": "ليس", "en": "not", "count": 11},
+    {"word": "خلاص", "msa": "انتهى، كفى", "en": "done, enough", "count": 11},
+    {"word": "خلينا", "msa": "دعنا", "en": "let us", "count": 10, "also": ["خلي", "خل", "خلونا", "خليني"]},
+    {"word": "وايد", "msa": "كثيرًا", "en": "a lot", "count": 8},
+    {"word": "زين", "msa": "جيد، حسنًا", "en": "good, okay", "count": 8},
+    {"word": "شفت", "msa": "رأيت", "en": "I saw", "count": 7, "also": ["شفنا", "شوف", "يشوفون", "نشوف"]},
+    {"word": "يروح", "msa": "يذهب", "en": "goes", "count": 7, "also": ["تروح", "رحت"]},
+    {"word": "تدري", "msa": "تعلم", "en": "you know", "count": 7},
+    {"word": "حط", "msa": "ضع", "en": "put", "count": 7, "also": ["نحط"]},
+    {"word": "اللي", "msa": "الذي، التي", "en": "that, which", "count": 453, "also": ["إللي"], "note": "Also 20 times in the dataset's Standard Arabic list, against 453 in the Gulf list."},
+    {"word": "مشكور", "msa": "شكرًا لك", "en": "thank you", "count": 6},
+    {"word": "نسوي", "msa": "نفعل، نعمل", "en": "we do, we make", "count": 5, "also": ["سويت", "يسوي", "تسوي"]}
+  ],
+  "darbi_additions": {
+    "note": "Words Darbi's prompts already used that are not in the Gulf list above (the corpus is small). No counts.",
+    "markers": [
+      {"word": "يبي", "msa": "يريد", "en": "wants", "also": ["تبي", "أبي", "نبي"]},
+      {"word": "هالشي", "msa": "هذا الشيء", "en": "this thing"},
+      {"word": "يعني", "msa": "أي، بمعنى", "en": "meaning, that is"}
+    ]
+  }
+}

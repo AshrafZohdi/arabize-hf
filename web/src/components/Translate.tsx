@@ -14,7 +14,7 @@ export function translateTarget(text: string, lang: ExplainLang): ExplainLang {
 }
 
 /**
- * Shows `text` (or `children`) with a button that swaps in a Fanar translation and back. The translation is fetched
+ * Shows `text` (or `children`) with a button that swaps in a translation by the model and back. The translation is fetched
  * once per text and target.
  */
 export function Translatable({ text, lang, children, className }: { text: string; lang: ExplainLang; children?: ReactNode; className?: string }) {
@@ -36,7 +36,7 @@ export function Translatable({ text, lang, children, className }: { text: string
         const out = await translateText(text, target)
         setCache((c) => ({ ...c, [key]: out }))
       } catch (e) {
-        setError(e instanceof ApiError && e.status === 429 ? t('tutor.limit') : e instanceof ApiError && e.status === 503 ? t('translate.waking') : t('translate.failed'))
+        setError(e instanceof ApiError && e.status === 429 ? t('tutor.limit') : e instanceof ApiError && e.status === 503 ? t('translate.unavailable') : t('translate.failed'))
         return
       } finally {
         setBusy(false)

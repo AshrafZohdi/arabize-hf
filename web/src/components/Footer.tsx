@@ -1,19 +1,25 @@
 import { useI18n } from '../i18n'
+import { SaduBand } from './Motifs'
 
 export function Footer() {
   const { t } = useI18n()
-  const [before, middle, after] = t('footer.poweredBy').split(/\{model\}|\{platform\}/)
+  const [before, after] = t('footer.poweredBy').split('{model}')
   return (
-    <footer className="mx-auto mt-10 flex max-w-[1240px] flex-wrap items-center gap-3 px-4 pb-28 text-sm text-ink-2 sm:px-10 sm:pb-14">
-      <span className="glass rounded-full! px-3.5 py-1.5">
-        {before}
-        <bdi lang="en">Fanar 2</bdi>
-        {middle}
-        <bdi lang="en">Hugging Face</bdi>
-        {after}
-      </span>
-      <span>{t('footer.privacy')}</span>
-      <p className="m-0 basis-full text-ink-2">{t('app.about')}</p>
+    // The bottom padding keeps the last line clear of the phone tab bar.
+    <footer className="mt-14 border-t border-line bg-surface pb-20 sm:pb-0">
+      <SaduBand />
+      <div className="mx-auto flex max-w-[1120px] flex-col gap-3 px-4 py-7 text-sm text-ink-2 sm:px-8">
+        <p className="m-0 max-w-[70ch] text-[15px] text-ink">{t('app.about')}</p>
+        <p className="m-0 flex flex-wrap gap-x-5 gap-y-1 text-muted">
+          <span>{t('footer.made')}</span>
+          <span>
+            {before}
+            <bdi lang="en">Jais 3</bdi>
+            {after}
+          </span>
+          <span>{t('footer.privacy')}</span>
+        </p>
+      </div>
     </footer>
   )
 }

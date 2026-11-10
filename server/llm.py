@@ -1,16 +1,17 @@
-"""Every model call in Darby goes through this module.
+"""Every model call in Darbi goes through this module.
 
-Fanar 2 runs on a scale-to-zero HF Inference Endpoint (llama.cpp, OpenAI-compatible chat
-completions) reached with `huggingface_hub.AsyncInferenceClient(base_url=...)`. Nothing else
-in the app imports the client.
+Jais 3 (inception42/Jais-3-375B-A23B) is reached over the OpenAI-compatible chat completions API that vLLM and
+SGLang expose (`JAIS_BASE_URL`, see docs/JAIS.md). Nothing else in the app talks to the model server.
 
-Rules from docs/BRIEF.md:
-- reasoning off where supported, and `<think>` blocks always stripped before parsing or streaming;
-- structured answers validated with pydantic, schema-guided decoding when the endpoint allows it,
-  one retry with the validation error, then the caller falls back;
+What this module guarantees:
+- the model card's sampling settings on every request (top_p 0.95, top_k 20, reasoning effort in
+  `chat_template_kwargs`), with reasoning kept out of what the learner sees: the server's reasoning parser puts it
+  in `reasoning_content`, and any `<think>` block that still reaches the text is stripped;
+- structured answers validated with pydantic, schema-guided decoding when the server allows it, one retry with
+  the validation error, then the caller falls back;
 - learner text is data: wrapped in tags with `<` and `>` escaped;
-- 30 s timeout for JSON calls, an in-memory rate limit per IP, input capped at 2,000 characters;
-- DEMO_MODE or a cold or failing endpoint serves recorded fixtures from `server/fixtures/`.
+- a timeout for every call and an in-memory rate limit per client;
+- when the model server is down or not configured, callers get LLMUnavailable and show the glossary instead.
 """
 
 from __future__ import annotations
@@ -23,7 +24,7 @@ import time
 from collections import defaultdict, deque
 from collections.abc import AsyncIterator, Callable
 from dataclasses import dataclass
-from pathlib import Path
+from types import SimpleNamespace
 from typing import Any, Generic, Literal, TypeVar
 
 from pydantic import BaseModel, ValidationError
@@ -32,18 +33,14 @@ from server.config import Settings
 
 log = logging.getLogger("darby.llm")
 
-MAX_INPUT_CHARS = 2000
-JSON_TIMEOUT_S = 30.0
-STREAM_TIMEOUT_S = 60.0
-JSON_TEMPERATURE = 0.3
-CHAT_TEMPERATURE = 0.6
-# Fanar 2's chat template adds an empty think block when this kwarg is set (see its chat_template.jinja).
-NO_THINKING = {"chat_template_kwargs": {"no_thinking": True}}
-FIXTURES_DIR = Path(__file__).resolve().parent / "fixtures"
+MAX_INPUT_CHARS = 6000
+# Sampling from the Jais 3 model card. Temperature, reasoning effort and the token budget come from Settings.
+TOP_P = 0.95
+TOP_K = 20
 
 T = TypeVar("T", bound=BaseModel)
-Source = Literal["fanar", "fixture"]
-State = Literal["ready", "waking", "demo", "unconfigured", "unknown"]
+Source = Literal["jais"]
+State = Literal["ready", "unavailable", "error", "unconfigured", "unknown"]
 
 
 # --- errors -------------------------------------------------------------------------------
@@ -54,7 +51,7 @@ class LLMError(Exception):
 
 
 class LLMUnavailable(LLMError):
-    """The endpoint is asleep, waking, failing, switched off, or DEMO_MODE is on, and no fixture matches."""
+    """The model server is not configured, not reachable, or answered with an error."""
 
     def __init__(self, state: State):
         super().__init__(state)
@@ -209,13 +206,15 @@ def json_instruction(schema: type[BaseModel]) -> str:
 
 
 class RateLimiter:
-    """Sliding window per key (client IP). In memory: fine for one Space replica."""
+    """Sliding window per key (client IP). In memory: one counter per server process."""
 
     def __init__(self, limit: int, window_s: float, clock: Callable[[], float] = time.monotonic):
         self.limit, self.window_s, self._clock = limit, window_s, clock
         self._hits: dict[str, deque[float]] = defaultdict(deque)
 
     def hit(self, key: str) -> None:
+        if self.limit <= 0:
+            return
         now = self._clock()
         q = self._hits[key]
         while q and q[0] <= now - self.window_s:
@@ -223,44 +222,6 @@ class RateLimiter:
         if len(q) >= self.limit:
             raise RateLimited(retry_after=max(1, int(q[0] + self.window_s - now) + 1))
         q.append(now)
-
-
-# --- fixtures -------------------------------------------------------------------------------
-
-
-def _norm_text(s: str) -> str:
-    return " ".join(s.split()).lower()
-
-
-def _canonical(inp: dict[str, Any]) -> str:
-    return json.dumps({k: _norm_text(v) if isinstance(v, str) else v for k, v in sorted(inp.items())}, ensure_ascii=False)
-
-
-class Fixtures:
-    """Recorded answers in `server/fixtures/<feature>/*.json`: {"input": {...}, "output": ...}.
-
-    Lookup is an exact match on the normalised input first, then a match on its "text" field only,
-    so a demo input still gets its recording if a chip or language toggle differs.
-    """
-
-    def __init__(self, root: Path = FIXTURES_DIR):
-        self._exact: dict[tuple[str, str], Any] = {}
-        self._by_text: dict[tuple[str, str], Any] = {}
-        for path in sorted(root.glob("*/*.json")) if root.is_dir() else []:
-            feature = path.parent.name
-            data = json.loads(path.read_text(encoding="utf-8"))
-            inp, out = data["input"], data["output"]
-            self._exact[(feature, _canonical(inp))] = out
-            if isinstance(inp.get("text"), str):
-                self._by_text.setdefault((feature, _norm_text(inp["text"])), out)
-
-    def lookup(self, feature: str, inp: dict[str, Any] | None) -> Any | None:
-        if inp is None:
-            return None
-        hit = self._exact.get((feature, _canonical(inp)))
-        if hit is None and isinstance(inp.get("text"), str):
-            hit = self._by_text.get((feature, _norm_text(inp["text"])))
-        return hit
 
 
 # --- the client -----------------------------------------------------------------------------
@@ -334,7 +295,7 @@ def _status_of(exc: BaseException) -> int | None:
 
 
 def _is_unavailable(exc: BaseException) -> bool:
-    """Cold start, timeout, connection failure or 5xx: the endpoint is waking or down."""
+    """Timeout, connection failure, overload or 5xx: the model server is down or busy."""
     if isinstance(exc, (asyncio.TimeoutError, TimeoutError, ConnectionError, OSError)):
         return True
     name = type(exc).__name__
@@ -346,142 +307,179 @@ def _is_unavailable(exc: BaseException) -> bool:
 
 def _is_response_format_rejected(exc: BaseException) -> bool:
     status = _status_of(exc)
-    text = str(exc).lower()
-    return status in {400, 422} and any(k in text for k in ("response_format", "schema", "grammar"))
+    text = (str(exc) + " " + str(getattr(getattr(exc, "response", None), "text", ""))).lower()
+    return status in {400, 422} and any(k in text for k in ("response_format", "schema", "grammar", "guided", "structured"))
+
+
+def _ns(value: Any) -> Any:
+    """JSON from the server as objects, so replies read as `out.choices[0].message.content`."""
+    if isinstance(value, dict):
+        return SimpleNamespace(**{k: _ns(v) for k, v in value.items()})
+    if isinstance(value, list):
+        return [_ns(v) for v in value]
+    return value
+
+
+class JaisClient:
+    """The few lines of the OpenAI chat completions protocol that Darbi needs, over httpx.
+
+    `base_url` is the server's API root (it normally ends in /v1). A new HTTP client is opened per call, which
+    costs nothing next to a model answer and keeps the class safe to use from any event loop.
+    """
+
+    def __init__(self, base_url: str, api_key: str | None, timeout_s: float):
+        base = base_url.rstrip("/")
+        self.url = base if base.endswith("/chat/completions") else f"{base}/chat/completions"
+        self._headers = {"Authorization": f"Bearer {api_key}"} if api_key else {}
+        self._timeout_s = timeout_s
+
+    def _http(self) -> Any:
+        import httpx
+
+        # read: the longest silence allowed between two pieces of an answer (reasoning arrives as pieces too).
+        return httpx.AsyncClient(timeout=httpx.Timeout(self._timeout_s, connect=10.0), headers=self._headers)
+
+    async def chat_completion(self, **body: Any) -> Any:
+        if body.get("stream"):
+            return await self._stream(body)
+        async with self._http() as http:
+            r = await http.post(self.url, json=body)
+            r.raise_for_status()
+            return _ns(r.json())
+
+    async def _stream(self, body: dict[str, Any]) -> AsyncIterator[Any]:
+        http = self._http()
+        try:
+            resp = await http.send(http.build_request("POST", self.url, json=body), stream=True)
+            if resp.status_code >= 400:
+                await resp.aread()
+                resp.raise_for_status()
+        except BaseException:
+            await http.aclose()
+            raise
+
+        async def chunks() -> AsyncIterator[Any]:
+            try:
+                async for line in resp.aiter_lines():
+                    if not line.startswith("data:"):
+                        continue
+                    data = line[5:].strip()
+                    if data == "[DONE]":
+                        break
+                    if data:
+                        yield _ns(json.loads(data))
+            finally:
+                await resp.aclose()
+                await http.aclose()
+
+        return chunks()
+
+
+def _delta_text(chunk: Any) -> str:
+    """The answer text in a streamed chunk. Reasoning travels in `reasoning_content` and is left out."""
+    choices = getattr(chunk, "choices", None)
+    if not choices:
+        return ""
+    return getattr(getattr(choices[0], "delta", None), "content", None) or ""
 
 
 class LLM:
-    def __init__(
-        self,
-        settings: Settings,
-        client: Any | None = None,
-        fixtures: Fixtures | None = None,
-        clock: Callable[[], float] = time.monotonic,
-    ):
+    def __init__(self, settings: Settings, client: Any | None = None, clock: Callable[[], float] = time.monotonic):
         self.settings = settings
-        self.fixtures = fixtures if fixtures is not None else Fixtures()
         self._clock = clock
         self._client = client
         self._schema_supported = True
         self._state: State = "unknown"
-        self._waking_since: float | None = None
+        self._down_since: float | None = None
 
-    # The client is created lazily so the app starts (and tests run) without a token or URL.
+    # The client is created lazily so the app starts (and tests run) without a model server.
     def _get_client(self) -> Any:
         if self._client is None:
-            from huggingface_hub import AsyncInferenceClient
-
-            self._client = AsyncInferenceClient(
-                base_url=self.settings.fanar_endpoint_url, api_key=self.settings.hf_token, timeout=STREAM_TIMEOUT_S
-            )
+            s = self.settings
+            self._client = JaisClient(s.jais_base_url or "", s.jais_api_key, s.jais_timeout_s)
         return self._client
 
     @property
     def state(self) -> State:
-        if self.settings.demo_mode:
-            return "demo"
-        if not self.settings.fanar_endpoint_url or not self.settings.hf_token:
+        if not self.settings.jais_base_url:
             return "unconfigured"
         return self._state
 
     def status(self) -> dict[str, Any]:
-        waking_for = int(self._clock() - self._waking_since) if self._waking_since is not None else None
-        return {"state": self.state, "waking_for_s": waking_for, "model": self.settings.fanar_model}
+        down_for = int(self._clock() - self._down_since) if self._down_since is not None else None
+        return {"state": self.state, "down_for_s": down_for, "model": self.settings.jais_model}
 
-    def _offline(self) -> State | None:
-        s = self.state
-        return s if s in ("demo", "unconfigured") else None
-
-    def _record(self, feature: str, fixture_input: dict[str, Any] | None, output: Any, latency_ms: int) -> None:
-        """With DARBY_RECORD_FIXTURES set, save a real answer as a fixture (used to record the demo inputs)."""
-        if self.settings.record_dir is None or fixture_input is None:
-            return
-        import hashlib
-
-        name = hashlib.sha256(_canonical(fixture_input).encode()).hexdigest()[:12]
-        path = self.settings.record_dir / feature / f"{name}.json"
-        path.parent.mkdir(parents=True, exist_ok=True)
-        data = {"input": fixture_input, "output": output, "recorded": {"model": self.settings.fanar_model, "latency_ms": latency_ms}}
-        path.write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
-        log.info("recorded fixture %s", path)
-
-    def _on_failure(self, exc: BaseException, fixture: Any) -> bool:
-        """Decide how a failed call is handled. True: serve the fixture, or report waking when there is none.
-        False: re-raise. Any failure falls back to a recording when one exists (docs/BRIEF.md), but only
-        a cold or unreachable endpoint is reported as waking."""
-        if _is_unavailable(exc):
-            self._mark_waking(exc)
-            return True
-        log.error("endpoint error %s (status %s)", type(exc).__name__, _status_of(exc))
-        return fixture is not None
+    def _request(self, messages: list[dict[str, Any]], *, temperature: float | None, schema: type[BaseModel] | None, stream: bool) -> dict[str, Any]:
+        s = self.settings
+        body: dict[str, Any] = dict(
+            model=s.jais_model,
+            messages=messages,
+            max_tokens=s.jais_max_tokens,
+            temperature=s.jais_temperature if temperature is None else temperature,
+            top_p=TOP_P,
+            top_k=TOP_K,
+        )
+        if s.jais_reasoning_effort:
+            # The model card asks for this on every request.
+            body["chat_template_kwargs"] = {"reasoning_effort": s.jais_reasoning_effort}
+        if stream:
+            body["stream"] = True
+        if schema is not None and self._schema_supported:
+            body["response_format"] = {
+                "type": "json_schema",
+                "json_schema": {"name": schema.__name__, "schema": schema.model_json_schema()},
+            }
+        return body
 
     def _mark_ready(self) -> None:
-        self._state, self._waking_since = "ready", None
+        self._state, self._down_since = "ready", None
 
-    def _mark_waking(self, exc: BaseException) -> None:
-        if self._waking_since is None:
-            self._waking_since = self._clock()
-        self._state = "waking"
-        log.warning("endpoint unavailable (%s: %s)", type(exc).__name__, str(exc)[:200])
+    def _failed(self, exc: BaseException) -> LLMUnavailable:
+        """Record a failed call and return the error the routes turn into the glossary-only answer."""
+        if _is_unavailable(exc):
+            if self._down_since is None:
+                self._down_since = self._clock()
+            self._state = "unavailable"
+            log.warning("model server unavailable (%s: %s)", type(exc).__name__, str(exc)[:200])
+            return LLMUnavailable("unavailable")
+        # Wrong URL, key or model name, or a request the server refuses: a setup problem, so it is logged loudly.
+        self._state = "error"
+        log.error("model server error %s (status %s): %s", type(exc).__name__, _status_of(exc), str(exc)[:300])
+        return LLMUnavailable("error")
 
-    async def _chat(self, messages: list[dict[str, str]], *, max_tokens: int, temperature: float, schema: type[BaseModel] | None) -> str:
-        kwargs: dict[str, Any] = dict(
-            messages=messages, model=self.settings.fanar_model, max_tokens=max_tokens, temperature=temperature, extra_body=NO_THINKING
-        )
-        if schema is not None and self._schema_supported:
-            # llama.cpp's server reads {"type": "json_object", "schema": ...} and builds a grammar from it.
-            # The "json_schema" type is not used on purpose: huggingface_hub rewrites it into the TGI shape
-            # ({"value": ...}), which llama.cpp ignores (checked in tests/test_llm_wire.py).
-            kwargs["response_format"] = {"type": "json_object", "schema": schema.model_json_schema()}
+    async def _send(self, messages: list[dict[str, Any]], *, temperature: float | None, schema: type[BaseModel] | None, stream: bool) -> Any:
+        body = self._request(messages, temperature=temperature, schema=schema, stream=stream)
         try:
-            out = await asyncio.wait_for(self._get_client().chat_completion(**kwargs), timeout=JSON_TIMEOUT_S)
+            return await asyncio.wait_for(self._get_client().chat_completion(**body), timeout=self.settings.jais_timeout_s)
         except Exception as e:
-            if "response_format" in kwargs and _is_response_format_rejected(e):
-                log.info("endpoint rejected response_format; asking for JSON in the prompt only")
+            if "response_format" in body and _is_response_format_rejected(e):
+                log.info("server rejected response_format; asking for JSON in the prompt only")
                 self._schema_supported = False
-                return await self._chat(messages, max_tokens=max_tokens, temperature=temperature, schema=schema)
+                return await self._send(messages, temperature=temperature, schema=schema, stream=stream)
             raise
+
+    async def _chat(self, messages: list[dict[str, Any]], *, temperature: float | None, schema: type[BaseModel] | None) -> str:
+        out = await self._send(messages, temperature=temperature, schema=schema, stream=False)
         return out.choices[0].message.content or ""
 
-    async def json(
-        self,
-        *,
-        feature: str,
-        system: str,
-        user: str,
-        schema: type[T],
-        max_tokens: int,
-        fixture_input: dict[str, Any] | None = None,
-        temperature: float = JSON_TEMPERATURE,
-        images: list[str] | None = None,
-    ) -> JsonResult[T]:
-        """Structured answer validated against `schema`. `images` are data URLs sent with the user turn (vision models).
+    async def json(self, *, feature: str, system: str, user: str, schema: type[T], temperature: float | None = None) -> JsonResult[T]:
+        """Structured answer validated against `schema`.
 
-        Raises LLMUnavailable (no endpoint and no fixture) or LLMBadOutput (two invalid replies);
-        the route then shows the waking-up state or the glossary-only answer.
+        Raises LLMUnavailable (no server, or it failed) or LLMBadOutput (two invalid replies).
         """
         started = self._clock()
-        fixture = self.fixtures.lookup(feature, fixture_input)
-        offline = self._offline()
-        if offline:
-            if fixture is None:
-                raise LLMUnavailable(offline)
-            return JsonResult(schema.model_validate(fixture), "fixture", 0, 0)
-
-        content: Any = user
-        if images:
-            content = [*({"type": "image_url", "image_url": {"url": u}} for u in images), {"type": "text", "text": user}]
-        messages = [{"role": "system", "content": f"{system}\n\n{json_instruction(schema)}"}, {"role": "user", "content": content}]
+        if self.state == "unconfigured":
+            raise LLMUnavailable("unconfigured")
+        messages: list[dict[str, Any]] = [
+            {"role": "system", "content": f"{system}\n\n{json_instruction(schema)}"},
+            {"role": "user", "content": user},
+        ]
         error = ""
         for attempt in (1, 2):
             try:
-                text = await self._chat(messages, max_tokens=max_tokens, temperature=temperature, schema=schema)
+                text = await self._chat(messages, temperature=temperature, schema=schema)
             except Exception as e:
-                if not self._on_failure(e, fixture):
-                    raise
-                if fixture is None:
-                    raise LLMUnavailable("waking") from e
-                return JsonResult(schema.model_validate(fixture), "fixture", int((self._clock() - started) * 1000), attempt)
+                raise self._failed(e) from e
             self._mark_ready()
             try:
                 data = parse_json(text, schema)
@@ -493,22 +491,11 @@ class LLM:
                     {"role": "user", "content": f"That was not valid. Problem: {error}. Reply again with the corrected JSON object only."},
                 ]
                 continue
-            latency = int((self._clock() - started) * 1000)
-            self._record(feature, fixture_input, data.model_dump(), latency)
-            return JsonResult(data, "fanar", latency, attempt)
+            return JsonResult(data, "jais", int((self._clock() - started) * 1000), attempt)
         raise LLMBadOutput(error)
 
     async def json_stream(
-        self,
-        *,
-        feature: str,
-        system: str,
-        user: str,
-        schema: type[T],
-        stream_field: str,
-        max_tokens: int,
-        fixture_input: dict[str, Any] | None = None,
-        temperature: float = JSON_TEMPERATURE,
+        self, *, feature: str, system: str, user: str, schema: type[T], stream_field: str, temperature: float | None = None
     ) -> AsyncIterator[JsonEvent[T]]:
         """Structured answer, with one string field streamed as it is written.
 
@@ -516,55 +503,35 @@ class LLM:
         object. On an invalid object it makes one non-streaming correction call, then raises LLMBadOutput.
         """
         started = self._clock()
-        fixture = self.fixtures.lookup(feature, fixture_input)
-
-        async def from_fixture(attempt: int) -> AsyncIterator[JsonEvent[T]]:
-            data = schema.model_validate(fixture)
-            async for piece in _replay(str(getattr(data, stream_field, "") or "")):
-                yield JsonEvent("partial", text=piece)
-            yield JsonEvent("result", result=JsonResult(data, "fixture", int((self._clock() - started) * 1000), attempt))
-
-        offline = self._offline()
-        if offline:
-            if fixture is None:
-                raise LLMUnavailable(offline)
-            async for ev in from_fixture(0):
-                yield ev
-            return
-
-        messages = [{"role": "system", "content": f"{system}\n\n{json_instruction(schema)}"}, {"role": "user", "content": user}]
-        kwargs: dict[str, Any] = dict(
-            messages=messages, model=self.settings.fanar_model, max_tokens=max_tokens, temperature=temperature, stream=True, extra_body=NO_THINKING
-        )
-        if self._schema_supported:
-            kwargs["response_format"] = {"type": "json_object", "schema": schema.model_json_schema()}
+        if self.state == "unconfigured":
+            raise LLMUnavailable("unconfigured")
+        messages: list[dict[str, Any]] = [
+            {"role": "system", "content": f"{system}\n\n{json_instruction(schema)}"},
+            {"role": "user", "content": user},
+        ]
         try:
-            chunks = await asyncio.wait_for(self._get_client().chat_completion(**kwargs), timeout=JSON_TIMEOUT_S)
+            chunks = await self._send(messages, temperature=temperature, schema=schema, stream=True)
         except Exception as e:
-            if not self._on_failure(e, fixture):
-                raise
-            if fixture is None:
-                raise LLMUnavailable("waking") from e
-            async for ev in from_fixture(1):
-                yield ev
-            return
+            raise self._failed(e) from e
 
         self._mark_ready()
         raw = ""
         field = PartialStringField(stream_field)
-        async for chunk in chunks:
-            if not chunk.choices:
-                continue
-            raw += chunk.choices[0].delta.content or ""
-            new = field.feed(strip_think(raw))
-            if new:
-                yield JsonEvent("partial", text=new)
+        try:
+            async for chunk in chunks:
+                piece = _delta_text(chunk)
+                if not piece:
+                    continue
+                raw += piece
+                new = field.feed(strip_think(raw))
+                if new:
+                    yield JsonEvent("partial", text=new)
+        except Exception as e:
+            raise self._failed(e) from e
 
         try:
             data = parse_json(raw, schema)
-            latency = int((self._clock() - started) * 1000)
-            self._record(feature, fixture_input, data.model_dump(), latency)
-            yield JsonEvent("result", result=JsonResult(data, "fanar", latency, 1))
+            yield JsonEvent("result", result=JsonResult(data, "jais", int((self._clock() - started) * 1000), 1))
             return
         except ValueError as e:
             error = str(e)
@@ -573,79 +540,38 @@ class LLM:
             {"role": "assistant", "content": strip_think(raw)},
             {"role": "user", "content": f"That was not valid. Problem: {error}. Reply again with the corrected JSON object only."},
         ]
-        text = await self._chat(retry, max_tokens=max_tokens, temperature=temperature, schema=schema)
+        try:
+            text = await self._chat(retry, temperature=temperature, schema=schema)
+        except Exception as e:
+            raise self._failed(e) from e
         try:
             data = parse_json(text, schema)
         except ValueError as e:
             raise LLMBadOutput(str(e)) from e
-        yield JsonEvent("result", result=JsonResult(data, "fanar", int((self._clock() - started) * 1000), 2))
+        yield JsonEvent("result", result=JsonResult(data, "jais", int((self._clock() - started) * 1000), 2))
 
-    async def stream(
-        self,
-        *,
-        feature: str,
-        system: str,
-        messages: list[dict[str, str]],
-        max_tokens: int,
-        fixture_input: dict[str, Any] | None = None,
-        temperature: float = CHAT_TEMPERATURE,
-    ) -> AsyncIterator[str]:
-        """Yield visible text pieces (think blocks removed). Falls back to a fixture before the first token."""
-        fixture = self.fixtures.lookup(feature, fixture_input)
-        offline = self._offline()
-        if offline:
-            if fixture is None:
-                raise LLMUnavailable(offline)
-            async for piece in _replay(str(fixture)):
-                yield piece
-            return
-
+    async def stream(self, *, feature: str, system: str, messages: list[dict[str, str]], temperature: float | None = None) -> AsyncIterator[str]:
+        """Yield visible text pieces (reasoning removed). Raises LLMUnavailable when the server cannot answer."""
+        if self.state == "unconfigured":
+            raise LLMUnavailable("unconfigured")
         try:
-            chunks = await asyncio.wait_for(
-                self._get_client().chat_completion(
-                    messages=[{"role": "system", "content": system}, *messages],
-                    model=self.settings.fanar_model,
-                    max_tokens=max_tokens,
-                    temperature=temperature,
-                    stream=True,
-                    extra_body=NO_THINKING,
-                ),
-                timeout=JSON_TIMEOUT_S,
-            )
+            chunks = await self._send([{"role": "system", "content": system}, *messages], temperature=temperature, schema=None, stream=True)
         except Exception as e:
-            if not self._on_failure(e, fixture):
-                raise
-            if fixture is None:
-                raise LLMUnavailable("waking") from e
-            async for piece in _replay(str(fixture)):
-                yield piece
-            return
+            raise self._failed(e) from e
 
         self._mark_ready()
-        started = self._clock()
         stripper = ThinkStripper()
-        full: list[str] = []
-        async for chunk in chunks:
-            if not chunk.choices:
-                continue
-            delta = chunk.choices[0].delta.content or ""
-            visible = stripper.feed(delta)
-            if visible:
-                full.append(visible)
-                yield visible
+        try:
+            async for chunk in chunks:
+                visible = stripper.feed(_delta_text(chunk))
+                if visible:
+                    yield visible
+        except Exception as e:
+            raise self._failed(e) from e
         tail = stripper.flush()
         if tail:
-            full.append(tail)
             yield tail
-        self._record(feature, fixture_input, "".join(full), int((self._clock() - started) * 1000))
 
 
-async def _replay(text: str, size: int = 12) -> AsyncIterator[str]:
-    """Stream a recorded answer in small pieces so the UI behaves as with the live model."""
-    for i in range(0, len(text), size):
-        yield text[i : i + size]
-        await asyncio.sleep(0.01)
-
-
-# Shared limiter for AI calls: 30 per 10 minutes per IP (docs/BRIEF.md, LLM rules).
-ai_rate_limiter = RateLimiter(limit=30, window_s=600)
+# Shared limiter for AI calls per client IP. create_app() sets the limit and window from Settings.
+ai_rate_limiter = RateLimiter(limit=60, window_s=600)

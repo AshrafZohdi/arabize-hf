@@ -3,11 +3,11 @@ web/src/i18n); tests/test_about.py fails if they drift apart."""
 
 ABOUT = {
     "en": (
-        "Darbi helps graduates of Qatar's Mostaqila schools understand the English language of AI and use AI well at work, "
-        "explained in the Gulf dialect they speak every day."
+        "Darbi helps students and graduates of Qatar's Mostaqila schools understand the English of AI and technology "
+        "and use AI well in their studies and at work, explained in the Gulf dialect they speak every day."
     ),
-    "ar": "دربي يساعد خريجي المدارس المستقلة في قطر يفهمون لغة الذكاء الاصطناعي الإنجليزية ويستخدمونه صح في الشغل، بشرح باللهجة الخليجية اللي يتكلمونها كل يوم.",
+    "ar": "دربي يساعد طلاب وخريجي المدارس المستقلة في قطر يفهمون إنجليزي الذكاء الاصطناعي والتقنية ويستخدمون الذكاء الاصطناعي صح في الدراسة والشغل، بشرح باللهجة الخليجية اللي يتكلمونها كل يوم.",
 }
 
 # Who the learner is, for model prompts.
-AUDIENCE = "graduates of Qatar's Mostaqila schools who use AI at work"
+AUDIENCE = "students and graduates of Qatar's Mostaqila schools who meet English and AI tools in their studies and at work"

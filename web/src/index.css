@@ -1,8 +1,9 @@
 @import "tailwindcss";
 @import "./styles/tokens.css";
 
-@import "@fontsource/readex-pro/arabic-500.css";
-@import "@fontsource/readex-pro/arabic-600.css";
+@import "@fontsource/noto-kufi-arabic/arabic-500.css";
+@import "@fontsource/noto-kufi-arabic/arabic-600.css";
+@import "@fontsource/noto-kufi-arabic/arabic-700.css";
 @import "@fontsource/readex-pro/latin-500.css";
 @import "@fontsource/readex-pro/latin-600.css";
 @import "@fontsource/ibm-plex-sans-arabic/arabic-400.css";
@@ -46,15 +47,16 @@
   --color-transparent: transparent;
   --color-current: currentColor;
 
-  --font-display: "Readex Pro", "IBM Plex Sans Arabic", sans-serif;
+  /* Kufi for Arabic headings (the script of Gulf signage and print), Readex Pro for Latin ones. */
+  --font-display: "Noto Kufi Arabic", "Readex Pro", "IBM Plex Sans Arabic", sans-serif;
   --font-ar: "IBM Plex Sans Arabic", "IBM Plex Sans", sans-serif;
   --font-en: "IBM Plex Sans", "IBM Plex Sans Arabic", sans-serif;
 
-  --shadow-card: 0 6px 0 var(--shadow);
-  --shadow-btn: 0 5px 0 var(--maroon-deep);
-  --shadow-btn-pressed: 0 2px 0 var(--maroon-deep);
-  --shadow-answer: 0 4px 0 var(--shadow);
-  --shadow-logo: 0 4px 0 var(--maroon-deep);
+  --shadow-card: 0 1px 2px color-mix(in srgb, var(--ink) 6%, transparent), 0 12px 28px -20px color-mix(in srgb, var(--ink) 28%, transparent);
+  --shadow-btn: 0 1px 2px color-mix(in srgb, var(--maroon-deep) 40%, transparent);
+  --shadow-btn-pressed: 0 0 0 transparent;
+  --shadow-answer: 0 1px 2px color-mix(in srgb, var(--ink) 8%, transparent);
+  --shadow-logo: 0 1px 2px color-mix(in srgb, var(--maroon-deep) 40%, transparent);
 }
 
 @layer base {
@@ -72,65 +74,58 @@ body { margin: 0; min-width: 320px; overflow-x: hidden; }
 /* Western digits everywhere, also inside Arabic text. */
 body { font-variant-numeric: lining-nums; }
 
-:focus-visible { outline: 3px solid var(--maroon); outline-offset: 2px; }
+:focus-visible { outline: 3px solid var(--maroon); outline-offset: 2px; border-radius: 4px; }
+
+h1, h2, h3 { letter-spacing: 0; text-wrap: balance; }
+html[lang="ar"] h1, html[lang="ar"] h2 { line-height: 1.6; }
 
 a { color: var(--maroon); }
 a:hover { color: var(--maroon-deep); }
 }
 
-/* Frosted Dunes page light (darby-frosted-dunes-mockups/00-design-spec.png): radial maroon 32% at the top start,
-   gold 44% on the left, teal 20% at the bottom, over --bg. Dune lines and grain are an SVG in PageBackdrop. */
+/* The page: warm limestone white. PageBackdrop draws a faint eight-point star lattice that fades out below the hero. */
 .page-light {
   position: fixed;
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background:
-    radial-gradient(60vw 50vh at 100% 0%, color-mix(in srgb, var(--maroon) 32%, transparent), transparent 70%),
-    radial-gradient(45vw 60vh at 0% 35%, color-mix(in srgb, var(--gold) 44%, transparent), transparent 70%),
-    radial-gradient(70vw 40vh at 50% 105%, color-mix(in srgb, var(--teal) 20%, transparent), transparent 70%),
-    var(--bg);
+  background: var(--bg);
 }
-[dir="ltr"] .page-light {
-  background:
-    radial-gradient(60vw 50vh at 0% 0%, color-mix(in srgb, var(--maroon) 32%, transparent), transparent 70%),
-    radial-gradient(45vw 60vh at 100% 35%, color-mix(in srgb, var(--gold) 44%, transparent), transparent 70%),
-    radial-gradient(70vw 40vh at 50% 105%, color-mix(in srgb, var(--teal) 20%, transparent), transparent 70%),
-    var(--bg);
+.page-lattice {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 420px;
+  color: var(--line);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, transparent 100%);
 }
 
 @layer components {
-/* The glass recipe from the spec; the chunky ledge stays. */
-.card, .glass, .tabbar {
-  background: color-mix(in srgb, var(--surface) 58%, transparent);
-  -webkit-backdrop-filter: blur(24px) saturate(150%);
-  backdrop-filter: blur(24px) saturate(150%);
-  border: 1px solid color-mix(in srgb, var(--white) 75%, transparent);
-  border-radius: 24px;
-  box-shadow:
-    inset 0 1px 0 color-mix(in srgb, var(--white) 90%, transparent),
-    0 5px 0 color-mix(in srgb, var(--shadow) 70%, transparent),
-    0 24px 48px -36px color-mix(in srgb, var(--maroon-deep) 22%, transparent);
+/* Surfaces: solid white on the page colour, a hairline and a soft shadow. */
+.card, .glass {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
 }
 .card { padding: 20px; }
 @media (min-width: 640px) { .card { padding: 28px; } }
 
-/* The section nav: a glass tab bar on phones, a plain segmented control inside the header pill from 640px. */
+/* The section nav: a bar fixed to the bottom on phones, plain links inside the header from 640px. */
+.tabbar {
+  background: var(--surface);
+  border-top: 1px solid var(--line);
+  box-shadow: 0 -8px 24px -20px color-mix(in srgb, var(--ink) 40%, transparent);
+}
 @media (min-width: 640px) {
-  .tabbar {
-    background: color-mix(in srgb, var(--surface-3) 70%, transparent);
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-    border: 0;
-    box-shadow: none;
-  }
+  .tabbar { background: transparent; border: 0; box-shadow: none; }
 }
 
-/* Inner wells on glass: a little more opaque so text keeps 4.5:1. */
+/* Inner wells: a tinted panel inside a card. */
 .well {
-  background: color-mix(in srgb, var(--surface) 72%, transparent);
-  border: 1px solid color-mix(in srgb, var(--white) 70%, transparent);
-  border-radius: 18px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
 }
 
 .btn-primary {
@@ -139,16 +134,16 @@ a:hover { color: var(--maroon-deep); }
   color: var(--white);
   font: inherit;
   font-weight: 700;
-  min-height: 56px;
-  padding: 12px 32px;
-  border-radius: 18px;
-  box-shadow: 0 5px 0 var(--maroon-deep), 0 14px 28px -14px color-mix(in srgb, var(--maroon) 60%, transparent);
+  min-height: 52px;
+  padding: 10px 28px;
+  border-radius: 12px;
+  box-shadow: var(--shadow-btn);
   cursor: pointer;
-  transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), box-shadow 160ms cubic-bezier(0.23, 1, 0.32, 1);
+  transition: background-color 160ms ease, transform 120ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 .btn-primary:hover { background: var(--maroon-deep); }
-.btn-primary:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--maroon-deep); transition-duration: 100ms; }
-.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-primary:active { transform: scale(0.98); }
+.btn-primary:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
 }
 
 /* Chips and cards lift on hover, pointer devices only. */
@@ -201,7 +196,7 @@ dialog::backdrop { background: color-mix(in srgb, var(--ink) 35%, transparent); 
 
 /* The current path node glows gently. Reduce Motion stops it (rule above). */
 @keyframes path-glow {
-  0%, 100% { box-shadow: 0 3px 0 var(--maroon-deep), 0 0 0 0 var(--maroon-soft); }
-  50% { box-shadow: 0 3px 0 var(--maroon-deep), 0 0 0 6px var(--maroon-soft); }
+  0%, 100% { box-shadow: 0 0 0 0 var(--maroon-soft); }
+  50% { box-shadow: 0 0 0 6px var(--maroon-soft); }
 }
 .path-glow { animation: path-glow 2.4s ease-in-out infinite; }

@@ -21,5 +21,5 @@ def test_translate_learner_text_is_data(tmp_path):
 
 
 def test_translate_without_endpoint_is_503(tmp_path):
-    c = make_client(tmp_path, fanar_endpoint_url=None)
+    c = make_client(tmp_path, jais_base_url=None)
     assert c.post("/api/translate", json={"text": "hello", "target": "msa"}).status_code == 503
